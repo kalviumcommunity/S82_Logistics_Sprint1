@@ -1,690 +1,184 @@
-# Cascading Logistics Delay Intelligence Platform
+Cascading Logistics Delay Intelligence Platform
+A high-throughput, event-driven MERN-stack decision support engine designed to ingest fragmented logistics records, reconstruct multi-leg shipment journeys, expose hidden operational bottlenecks, model downstream delay propagation, and simulate preventive network interventions in real time.
 
-A full-stack MERN-based logistics intelligence and decision-support platform designed to integrate fragmented shipment records, reconstruct shipment journeys, identify recurring operational bottlenecks, detect cascading delivery delays, incorporate real-time weather and traffic conditions, calculate dynamic route risk, and recommend preventive operational interventions.
+System Overview & Architecture Evolution
+Traditional logistics tracking software operates reactively, storing shipment scans, warehouse records, and transit exceptions in isolated data silos. This architectural fragmentation makes it impossible to detect or predict cascading delays—disruptions where a minor upstream variance (e.g., a 2-hour yard delay at an inbound hub) propagates downstream, causing missed connection windows and widespread contractual SLA violations.
 
----
+This platform bridges that gap by unifying transactional data streams into an active, in-memory directed graph network (Warehouses represented as Nodes, Transit Routes as Edges).
 
-## Overview
+Key Architectural Evolutions over Standard MERN:
+High-Throughput Ingestion Buffering: Rather than writing high-frequency tracking scans directly to MongoDB—which induces severe database locks at scale—ingested event packets are stream-buffered via Redis Streams with sub-2ms absorption latencies.
 
-Modern logistics networks generate large volumes of operational data through shipment scans, warehouse transfers, delay reports, route records, weather conditions, and traffic information.
+Asynchronous Journey Reconstruction: Decoupled BullMQ background workers consume event batches from Redis Streams asynchronously, rebuilding immutable tracking sequences without degrading the user-facing API gateway.
 
-These datasets are often stored and analyzed independently.
+Hybrid Graph-Cache Strategy: Network topology, route dependencies, and downstream reachability evaluations are computed directly within an in-memory adjacency matrix inside Redis, bypassing slow recursive relational queries or heavy document aggregations.
 
-As a result, logistics operators struggle to understand:
+Dynamic Role-Based Presentation (RBAC): Built as a unified single-page client deployment that morphs its UI component matrix dynamically based on securely signed cryptographical claims embedded in the user's JWT.
 
-* where delays originate,
-* which routes consistently produce delays,
-* which warehouses act as operational bottlenecks,
-* how delays propagate through downstream transfers,
-* whether a shipment will miss its next connection,
-* how weather and traffic conditions affect delivery performance,
-* which shipments and warehouses will be affected by an existing disruption,
-* whether rerouting or holding a shipment is the better decision.
+Core Objectives
+Data Synthesis: Integrate fragmented tracking points into structured, chronological, multi-modal paths.
 
-The Cascading Logistics Delay Intelligence Platform solves this problem by transforming fragmented logistics data into unified shipment journeys, operational analytics, dynamic risk assessments, cascade intelligence, simulations, alerts, and actionable recommendations.
+Anomaly & Sequence Validation: Detect structural data anomalies (e.g., out-of-order timestamps, impossible geographical leaps).
 
----
+Network Graph Resolution: Expose active transit bottlenecks and critical dependencies using graph traversal mechanics.
 
-## Problem Statement
+Cascade Modeling: Calculate downstream delay risk indices (0-100) using real-time traffic anomalies and granular weather matrices.
 
-A logistics company tracks shipment scans, delay reports, and warehouse transfer records separately, making it impossible to predict which operational routes consistently produce cascading delivery delays.
+Cost-Aware Interventions: Compute financial trade-offs of preventative actions (e.g., comparing rerouting costs directly against SLA breach penalties).
 
-Traditional shipment-tracking applications primarily display shipment status and historical events.
+Isolated Network Simulations: Provision sandboxed environment execution to evaluate "what-if" operational infrastructure changes without modifying live data.
 
-They do not adequately answer:
+Technology Stack
+Frontend Core
+React 19 & Vite: Component compilation and ultra-fast HMR building framework.
 
-1. Where did a delay originate?
-2. Why did the delay occur?
-3. Which routes and warehouses repeatedly generate delays?
-4. Will the delay propagate downstream?
-5. Which shipments, transfers, warehouses, and customers will be affected?
-6. How will weather and traffic conditions influence the shipment?
-7. What intervention should operations teams perform?
-8. Is rerouting worth the additional operational cost?
+Tailwind CSS: Fully responsive, utility-first design language.
 
-This project addresses these problems through a unified logistics intelligence platform.
+React Router v6: Secure client-side application routing with declarative, nested role guards.
 
----
+TanStack Query (React Query) & Axios: Declarative server-state caching, automatic synchronization, and HTTP transport layer.
 
-## Core Objectives
+Data Visualization Layer: Cytoscape.js (interactive graph rendering) and Leaflet.js (geospatial tile tracking mapping).
 
-The platform is designed to:
+Recharts: High-performance, declarative charting components.
 
-* integrate fragmented logistics datasets,
-* validate and normalize operational records,
-* reconstruct complete shipment journeys,
-* calculate route and warehouse performance metrics,
-* identify recurring bottlenecks,
-* detect historical cascading delays,
-* estimate the probability of future delay propagation,
-* incorporate weather conditions,
-* incorporate real-time traffic conditions,
-* calculate dynamic shipment and route risk,
-* estimate dynamic arrival times,
-* detect likely missed transfer connections,
-* analyze logistics network dependencies,
-* discover alternative routes,
-* evaluate intervention costs,
-* recommend preventive operational actions,
-* simulate what-if scenarios,
-* generate real-time operational alerts,
-* explain the factors contributing to risk scores and recommendations.
+Socket.IO Client: State synchronization and push notifications via persistent WebSockets.
 
----
+Backend & Ingestion Core
+Node.js & Express.js: Fast, minimalist backend runtime environment.
 
-## Major Platform Capabilities
+Redis & Redis Streams: High-velocity write target buffer, session storage, and live application graph cache.
 
-### Unified Shipment Journey Reconstruction
+BullMQ: Robust, Redis-backed distributed message queue handling resource-intensive background processing tasks.
 
-Combines shipment scans, transfers, warehouse events, delays, and external conditions into chronological shipment journeys.
+Zod: Runtime type validation for API input protection and structural schema safety.
 
-### Data Quality Intelligence
+Socket.IO: Real-time event broadcasting to authenticated user clusters.
 
-Detects:
+Pino: High-performance, structured JSON logger optimized for enterprise observability.
 
-* duplicate events,
-* missing timestamps,
-* invalid references,
-* impossible event sequences,
-* incomplete shipment journeys.
+Data Layer
+MongoDB Atlas: Highly scalable document repository.
 
-### Route Performance Analytics
+MongoDB Time Series Collections: High-density, optimized storage partition optimized for rapid chronological ingestion of shipmentEvents.
 
-Analyzes:
+Mongoose ODM: Explicit schemas, strong validation, and query modeling.
 
-* shipment volume,
-* transit duration,
-* average delays,
-* delay frequency,
-* missed transfers,
-* SLA violations,
-* route reliability.
-
-### Warehouse Bottleneck Detection
-
-Identifies warehouses experiencing:
-
-* excessive dwell time,
-* high utilization,
-* processing delays,
-* queue congestion,
-* missed outbound transfers,
-* downstream delay propagation.
-
-### Cascading Delay Intelligence
-
-Detects how an upstream disruption propagates across:
-
-Shipment → Route → Warehouse → Transfer → Downstream Route → Final Delivery.
-
-### Dynamic ETA Estimation
-
-Calculates arrival estimates using:
-
-* historical performance,
-* upstream delays,
-* warehouse congestion,
-* weather conditions,
-* traffic conditions,
-* transfer waiting times.
-
-### Transfer Risk Analysis
-
-Classifies upcoming shipment transfers as:
-
-* SAFE,
-* AT RISK,
-* LIKELY MISSED,
-* MISSED.
-
-### Dynamic Route Risk Scoring
-
-Combines:
-
-* historical delay risk,
-* warehouse congestion,
-* transfer risk,
-* weather risk,
-* traffic risk,
-* cascade propagation risk.
-
-Routes receive a configurable risk score from 0 to 100.
-
-### Weather Intelligence
-
-Collects weather conditions for warehouses and important route locations.
-
-Analyzes:
-
-* rainfall,
-* storms,
-* flooding,
-* visibility,
-* wind speed,
-* extreme temperatures.
-
-### Traffic Intelligence
-
-Collects:
-
-* normal route duration,
-* current travel duration,
-* congestion levels,
-* incidents,
-* road closures.
-
-### Logistics Network Analysis
-
-Represents warehouses as nodes and transfer routes as edges.
-
-Analyzes:
-
-* critical warehouses,
-* route dependencies,
-* downstream reachability,
-* network bottlenecks,
-* alternative paths.
-
-### Alternative Route Discovery
-
-Uses graph algorithms to identify alternative shipment paths.
-
-Routes are evaluated using:
-
-* distance,
-* predicted duration,
-* congestion,
-* weather,
-* warehouse risk,
-* cascade probability,
-* operational cost.
-
-### Intervention Recommendation Engine
-
-Evaluates actions including:
-
-* continue current route,
-* reroute shipment,
-* hold shipment,
-* dispatch earlier,
-* delay dispatch,
-* prioritize shipment,
-* redistribute shipment volume,
-* temporarily disable a route.
-
-### Cost-Aware Decision Support
-
-Compares:
-
-* transportation costs,
-* rerouting costs,
-* delay costs,
-* handling costs,
-* SLA penalties,
-* estimated cascade impact.
-
-### What-If Simulation
-
-Allows operators to simulate:
-
-* route closures,
-* warehouse closures,
-* severe weather,
-* traffic congestion,
-* capacity reductions,
-* shipment-volume increases,
-* dispatch-time changes,
-* rerouting strategies.
-
-### Real-Time Alerts
-
-Generates operational alerts for:
-
-* critical routes,
-* severe weather,
-* major traffic incidents,
-* likely missed transfers,
-* high cascade probability,
-* warehouse overload,
-* newly generated recommendations.
-
----
-
-## Technology Stack
-
-### Frontend
-
-* React
-* Vite
-* JavaScript
-* Tailwind CSS
-* React Router
-* TanStack Query
-* Axios
-* Recharts
-* Cytoscape.js
-* Leaflet
-* Socket.IO Client
-* React Hook Form
-* Zod
-
-### Backend
-
-* Node.js
-* Express.js
-* JavaScript
-* Mongoose
-* JWT
-* bcrypt
-* Zod
-* Socket.IO
-* BullMQ
-* Redis
-* Pino
-* Swagger/OpenAPI
-
-### Database
-
-* MongoDB Atlas
-* MongoDB Time Series Collections
-* Mongoose ODM
-
-### External Integrations
-
-* Weather Provider API
-* Traffic and Routing Provider API
-* Optional Geocoding Provider
-
-### Testing
-
-* Vitest
-* React Testing Library
-* Jest
-* Supertest
-* Playwright
-
-### Infrastructure
-
-* Docker
-* Docker Compose
-* NGINX
-* GitHub Actions
-* MongoDB Atlas
-* Redis
-* Cloud Deployment Platform
-
----
-
-## Repository Structure
-
-```text
+Repository Architecture
+Plaintext
 cascading-logistics-delay-platform/
-│
-├── client/
-├── server/
-├── shared/
-├── infrastructure/
-├── docs/
-│   ├── ARCHITECTURE.md
-│   └── PIPELINE_ARCHITECTURE.md
-├── tests/
-├── .github/
-├── docker-compose.yml
-├── .env.example
-├── .gitignore
-├── CONTRIBUTING.md
-├── LICENSE
+├── client/                     # Single-Page Architecture Front-End
+│   ├── src/
+│   │   ├── components/         # Shared Design Components (Buttons, Maps, Tables)
+│   │   ├── context/            # Auth, WebSocket, and Global State Providers
+│   │   ├── features/           # Contextual Domain Layouts
+│   │   │   ├── command-center/ # Live maps, Cytoscape graph, Simulation Engine
+│   │   │   ├── warehouse/      # Localized schedules, queue indicators
+│   │   │   ├── admin/          # User management, telemetry dashboards
+│   │   │   └── tracking/       # Simple lookup & chronological timeline steps
+│   │   ├── hooks/              # Custom hook wrappers (useAuth, useSocket)
+│   │   └── routes/             # Client-side protected route components
+├── server/                     # Monolithic Express Gateway & Processors
+│   ├── src/
+│   │   ├── api/                # Route Registries & Controller Strategies
+│   │   ├── middleware/         # Auth verification & RBAC interceptors
+│   │   ├── models/             # Mongoose Data Modeling Schemas
+│   │   ├── services/           # Reconstruction Engine & Graph Layer logic
+│   │   └── workers/            # BullMQ background stream consumers
+├── shared/                     # Shared Types and Validations
+├── infrastructure/             # Docker, Orchestration, & Nginx Configurations
+├── docker-compose.yml          # Containerized Orchestration Profile
 └── README.md
-```
+Dynamic Role-Based Access Interface (RBAC)
+The application enforces a single frontend code bundle which dynamically adjusts visible features, actions, and layouts through 4 distinct logical clearances:
 
----
+1. ADMIN (System Controller)
+Scope: Full CRUD authorizations across all database collections.
 
-## Main Platform Modules
+Dashboard View: System performance panels, active user management grids, audit trails, and third-party API integration consumption meters (Weather/Traffic budgets).
 
-### Authentication and Authorization
+2. OPERATIONS_MANAGER (Network Decision Maker)
+Scope: Global situational awareness across the entire supply chain network.
 
-JWT-based authentication with Role-Based Access Control.
+Dashboard View: Interactive macro maps, alternative-route recommenders, financial penalty estimation models, and the complete What-If simulation execution engine.
 
-Supported roles:
+3. WAREHOUSE_MANAGER (Local Hub Supervisor)
+Scope: Specialized operations restricted to a single warehouse facility node.
 
-* ADMIN
-* OPERATIONS_MANAGER
-* ROUTE_ANALYST
-* WAREHOUSE_MANAGER
-* VIEWER
+Dashboard View: Inbound checklists, upcoming transfer connections, yard utilization gauges, and local dwell-time metric analytics.
 
-### Logistics Domain Management
+4. VIEWER (Field Worker / Customer Success)
+Scope: Read-only access to specific high-level shipment paths.
 
-Manages:
+Dashboard View: Basic tracking lookup inputs and consumer-facing vertical timeline progress blocks.
 
-* warehouses,
-* routes,
-* shipments,
-* shipment events,
-* transfers,
-* delay reports.
+Core Database Models
+Plaintext
+users                   # Administrative credentials, profile info, and RBAC claim tags.
+warehouses              # Logistics network nodes (geographical points, handling metrics).
+routes                  # Network transit edges linking warehouse nodes.
+shipments               # High-level cargo records with target SLAs and billing reference points.
+shipmentEvents          # Time Series Collection. Immutable event tracking log data.
+shipmentJourneys        # Structured, reconstructed step-by-step route timelines.
+transfers               # Inter-warehouse handoff records and vehicle assignment details.
+delayReports            # Exception declarations tied to route paths or facilities.
+weatherSnapshots        # Cached climate states linked to critical route hot-spots.
+trafficSnapshots        # Real-time velocity metrics along route coordinates.
+riskAssessments         # Generated risks indices, calculated weights, and anomaly tracking points.
+recommendations         # Validated network optimization paths generated by the system.
+simulations             # Sandbox scenarios tracking modifications versus standard models.
+alerts                  # Real-time notifications pushed down active communication layers.
+auditLogs               # Cryptographically verifiable logs recording major administrative updates.
+Core API Specification
+Authentication & Telemetry
+POST /api/v1/auth/login - Authenticate users and dispatch signed JWT access and refresh configurations.
 
-### Journey Reconstruction Engine
+GET /api/v1/health - Expose container service state, Redis memory pools, and database connection metrics.
 
-Creates complete shipment journeys from fragmented operational events.
+Logistics Core & Ingestion
+POST /api/v1/shipment-events - Ingestion gateway. Buffers incoming telemetry streams directly into Redis Streams.
 
-### Analytics Engine
+GET /api/v1/shipments/:id/journey - Returns the fully compiled, chronologically constructed journey data for a single target container tracking ID.
 
-Calculates route, warehouse, transfer, and shipment metrics.
+Analytics & Intelligence
+GET /api/v1/network/graph - Generates adjacency schema tracking route constraints, active bottlenecks, and connection links.
 
-### External Intelligence Layer
+POST /api/v1/simulations/run - Instantiates isolated what-if execution modules against current cache states. (Restricted: ADMIN, OPERATIONS_MANAGER)
 
-Collects, normalizes, caches, and stores weather and traffic information.
+POST /api/v1/recommendations/:id/approve - Validates alternative routes, rewrites operational paths, and alerts downstream teams. (Restricted: ADMIN, OPERATIONS_MANAGER)
 
-### Risk Intelligence Layer
+Operational Installation Sequence
+Prerequisite Checklist
+Node.js Engine (v20+ recommended)
 
-Calculates:
+Docker Desktop & Docker Compose Engine
 
-* shipment risk,
-* transfer risk,
-* warehouse risk,
-* route risk,
-* cascade risk.
+Access keys for Weather and Map/Traffic service platforms
 
-### Network Intelligence Engine
+Local Deployment Matrix
+Clone the project infrastructure:
 
-Performs logistics graph analysis and alternative route discovery.
-
-### Intervention Engine
-
-Generates operational actions based on detected risks.
-
-### Recommendation Engine
-
-Evaluates and ranks interventions.
-
-### Simulation Engine
-
-Executes isolated what-if scenarios.
-
-### Alert Engine
-
-Generates and manages real-time operational alerts.
-
----
-
-## Main MongoDB Collections
-
-```text
-users
-
-refreshTokens
-
-warehouses
-
-routes
-
-shipments
-
-shipmentEvents
-
-shipmentJourneys
-
-transfers
-
-delayReports
-
-weatherSnapshots
-
-trafficSnapshots
-
-routeMetrics
-
-warehouseMetrics
-
-riskAssessments
-
-cascadeIncidents
-
-recommendations
-
-simulations
-
-alerts
-
-auditLogs
-
-providerHealth
-
-systemConfigurations
-```
-
----
-
-## API Domains
-
-```text
-/api/v1/auth
-
-/api/v1/users
-
-/api/v1/shipments
-
-/api/v1/shipment-events
-
-/api/v1/journeys
-
-/api/v1/warehouses
-
-/api/v1/routes
-
-/api/v1/transfers
-
-/api/v1/delays
-
-/api/v1/weather
-
-/api/v1/traffic
-
-/api/v1/analytics
-
-/api/v1/risks
-
-/api/v1/cascades
-
-/api/v1/network
-
-/api/v1/recommendations
-
-/api/v1/simulations
-
-/api/v1/alerts
-
-/api/v1/admin
-
-/api/v1/audit-logs
-
-/api/v1/health
-```
-
----
-
-## Getting Started
-
-### Prerequisites
-
-Install:
-
-* Node.js
-* npm
-* Docker
-* Docker Compose
-* Git
-
-Create accounts or services for:
-
-* MongoDB Atlas
-* Weather API provider
-* Traffic API provider
-
----
-
-## Installation
-
-Clone the repository.
-
-```bash
+Bash
 git clone <repository-url>
 cd cascading-logistics-delay-platform
-```
+Initialize service environment values:
 
-Install frontend dependencies.
-
-```bash
-cd client
-npm install
-```
-
-Install backend dependencies.
-
-```bash
-cd ../server
-npm install
-```
-
-Create the environment file.
-
-```bash
+Bash
 cp .env.example .env
-```
+# Populate newly generated .env variables with respective local parameters
+Orchestrate back-end caching and persistent storage layers:
 
-Start infrastructure services.
-
-```bash
+Bash
 docker compose up -d
-```
+Install root dependencies and spin up core services:
 
-Start the backend.
-
-```bash
+Bash
+# Build and execute the background ingestion and API engines
 cd server
+npm install
 npm run dev
-```
 
-Start the frontend.
-
-```bash
-cd client
+# Open a separate shell terminal instance to launch the single-page interface
+cd ../client
+npm install
 npm run dev
-```
-
----
-
-## Environment Variables
-
-```env
-NODE_ENV=development
-
-PORT=
-
-CLIENT_URL=
-
-MONGODB_URI=
-
-JWT_ACCESS_SECRET=
-
-JWT_REFRESH_SECRET=
-
-REDIS_URL=
-
-WEATHER_API_KEY=
-
-TRAFFIC_API_KEY=
-
-MAP_PROVIDER_API_KEY=
-
-LOG_LEVEL=
-```
-
-Never commit actual environment secrets.
-
----
-
-## Development Roadmap
-
-### Phase 1 — Platform Foundation
-
-Repository initialization, frontend, backend, MongoDB, authentication, authorization, development infrastructure.
-
-### Phase 2 — Logistics Domain
-
-Warehouses, routes, shipments, shipment events, transfers, and delay reports.
-
-### Phase 3 — Data Integration
-
-Data ingestion, validation, normalization, data-quality analysis, and journey reconstruction.
-
-### Phase 4 — Operational Analytics
-
-Route analytics, warehouse analytics, bottleneck detection, and command-center dashboard.
-
-### Phase 5 — Network Intelligence
-
-Logistics graph visualization, dependency analysis, critical-node analysis, and route discovery.
-
-### Phase 6 — External Intelligence
-
-Weather integration, traffic integration, caching, historical snapshots, and provider reliability.
-
-### Phase 7 — Dynamic Risk Intelligence
-
-Dynamic ETA, transfer risk, route risk, cascade detection, cascade risk estimation, and explainability.
-
-### Phase 8 — Intervention Intelligence
-
-Alternative-route evaluation, operational-cost calculation, and recommendation generation.
-
-### Phase 9 — Simulation Platform
-
-What-if simulation engine, baseline comparison, and impact analysis.
-
-### Phase 10 — Real-Time Processing
-
-Redis, BullMQ, background workers, Socket.IO, and alert lifecycle.
-
-### Phase 11 — Enterprise Hardening
-
-Security, audit logging, observability, testing, API documentation, and performance optimization.
-
-### Phase 12 — Production Deployment
-
-Docker production images, NGINX, CI/CD, cloud deployment, monitoring, backups, and disaster recovery.
-
----
-
-## Documentation
-
-Detailed technical documentation is maintained separately.
-
-* `docs/ARCHITECTURE.md` — system structure, components, module boundaries, data stores, security, scalability, and deployment architecture.
-
-* `docs/PIPELINE_ARCHITECTURE.md` — end-to-end data flow, request lifecycle, background processing, external intelligence, risk processing, recommendation generation, simulations, alerts, and frontend update pipelines.
-
----
-
-## Project Vision
-
-The Cascading Logistics Delay Intelligence Platform is not simply a shipment-tracking application.
-
-It is an operational decision-support platform designed to answer:
-
-Where did the delay originate?
-
-Why did it happen?
-
-Will it propagate?
-
-What will be affected?
-
-What action should be taken?
-
-What will that action cost?
-
-What outcome is expected?
-
-The platform transforms fragmented logistics events into actionable operational intelligence.
