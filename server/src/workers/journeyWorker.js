@@ -3,6 +3,7 @@ import { redisQueueConnection, redisClient } from '../config/redis.js';
 import ShipmentEvent from '../models/ShipmentEvent.js';
 import ShipmentJourney from '../models/ShipmentJourney.js';
 import Warehouse from '../models/Warehouse.js';
+import { broadcast } from '../config/socket.js';
 import logger from '../config/logger.js';
 
 /**
@@ -155,6 +156,10 @@ export const journeyWorker = new Worker(
       const cacheKey = `journey:${shipmentId}`;
       await redisClient.del(cacheKey);
       logger.debug({ cacheKey }, 'Invalidated cache-aside retrieval cache.');
+
+      // 7. Broadcast the recalculated journey dynamically via WebSockets
+      broadcast('risk:update', journey);
+      logger.debug({ shipmentId }, 'Broadcasted dynamic risk update to WebSocket clients.');
 
       return {
         shipmentId,
