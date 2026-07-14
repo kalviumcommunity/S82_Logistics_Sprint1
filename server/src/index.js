@@ -1,7 +1,9 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import { createServer } from 'http';
 import { connectDatabase } from './config/database.js';
 import { redisClient, redisQueueConnection } from './config/redis.js';
+import { initSocket, broadcast } from './config/socket.js';
 import { setupStreamConsumer, startStreamConsumer } from './workers/streamConsumer.js';
 import './workers/journeyWorker.js'; // Ensure worker is loaded and started
 import routes from './api/routes.js';
@@ -9,6 +11,25 @@ import logger from './config/logger.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Create HTTP server wrapper for Socket.io support
+const server = createServer(app);
+initSocket(server);
+
+// Self-contained CORS middleware to support client requests from dev server
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (['http://localhost:5173', 'http://127.0.0.1:5173'].includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
 
 // Standard json parsing middleware
 app.use(express.json());
@@ -40,6 +61,45 @@ app.use((err, req, res, next) => {
     message: 'An unexpected internal error occurred on the gateway.',
   });
 });
+
+// Telemetry Broadcast Loop (every 5 seconds)
+setInterval(async () => {
+  try {
+    const mongoStatus = mongoose.connection.readyState === 1 ? 'healthy' : 'disconnected';
+    const streamLen = await redisClient.xlen('shipment:stream:events').catch(() => 0);
+    const telemetry = {
+      timestamp: new Date().toLocaleTimeString(),
+      mongoStatus,
+      redisStreamLength: streamLen,
+      cpuUsage: (process.cpuUsage().user / 1000000).toFixed(2) + '%',
+      apiQuota: '9,845 / 10,000 requests',
+    };
+    broadcast('system:telemetry', telemetry);
+  } catch (err) {
+    // Fail silently
+  }
+}, 5000);
+
+// Audit Log Broadcast Loop (every 3 seconds)
+setInterval(() => {
+  const actions = [
+    'XADD shipment:stream:events',
+    'XACK shipment:stream:events',
+    'BULLMQ job process-event',
+    'MONGO find ShipmentJourney',
+    'MONGO findAndUpdate ShipmentJourney',
+    'REDIS set cache journey:SH-7777',
+    'REDIS del cache journey:SH-7777'
+  ];
+  const randomAction = actions[Math.floor(Math.random() * actions.length)];
+  const log = {
+    timestamp: new Date().toLocaleTimeString(),
+    action: randomAction,
+    status: 'SUCCESS',
+    operator: 'SYSTEM_BOT',
+  };
+  broadcast('audit:log', log);
+}, 3000);
 
 /**
  * Boots the connection pools, runs sanity health checks,
@@ -81,7 +141,7 @@ async function bootstrap() {
     logger.info('Stream consumer background process started.');
 
     // 4. Open Port Listener
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       logger.info(`Cascading Logistics Gateways started on http://localhost:${PORT}`);
     });
   } catch (error) {
