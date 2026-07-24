@@ -1,10 +1,10 @@
 import mongoose from 'mongoose';
 import logger from './logger.js';
 
-const MONGODB_URI = 'mongodb://admin:secure_logistics_password@localhost:27017/logistics?authSource=admin';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://admin:secure_logistics_password@127.0.0.1:27017/logistics?authSource=admin&directConnection=true';
 
 export async function connectDatabase() {
-  logger.info('Initializing MongoDB connection...');
+  logger.info(`Initializing MongoDB connection (${MONGODB_URI})...`);
   
   mongoose.connection.on('connected', () => {
     logger.info('MongoDB connection successfully established.');
@@ -22,7 +22,9 @@ export async function connectDatabase() {
     await mongoose.connect(MONGODB_URI, {
       maxPoolSize: 10,
       serverSelectionTimeoutMS: 5000,
+      connectTimeoutMS: 10000,
       socketTimeoutMS: 45000,
+      directConnection: true,
     });
     return mongoose.connection;
   } catch (error) {

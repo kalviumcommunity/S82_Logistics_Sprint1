@@ -7,9 +7,15 @@ const GROUP_NAME = 'shipment:group';
 const CONSUMER_NAME = 'shipment:consumer:1';
 
 // Initialize the BullMQ Queue
-export const shipmentQueue = new Queue('shipment-events', {
-  connection: redisQueueConnection,
-});
+export let shipmentQueue = null;
+try {
+  shipmentQueue = new Queue('shipment-events', {
+    connection: redisQueueConnection,
+  });
+  shipmentQueue.on('error', () => {});
+} catch (e) {
+  logger.warn('BullMQ shipmentQueue operating in fallback mode.');
+}
 
 let isRunning = false;
 

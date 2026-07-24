@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApi } from '../context/ApiContext.jsx';
+import LandingHero from '../features/landing/LandingHero.jsx';
 import {
   Search, GitCommit, AlertTriangle, CloudRain, Clock,
   Database, Cpu, ChevronRight, Package, MapPin, Zap, TrendingUp
@@ -148,131 +149,13 @@ export const LandingHub = () => {
         </button>
       </header>
 
-      {/* ── Immersive Tactical Canvas ──────────────────────────── */}
-      <div className="tactical-canvas-container">
-        {/* Blueprint dot grid */}
-        <div className="tactical-canvas-grid" />
-
-        {/* Network image */}
-        <img
-          src={logisticsNetwork}
-          className="tactical-canvas-img"
-          alt="Global Logistics Network"
-        />
-
-        {/* 4-side vignette overlay */}
-        <div className="tactical-canvas-overlay" />
-
-        {/* Scanline sweep */}
-        <div className="tactical-canvas-scanline" />
-
-        {/* Status tape at top of canvas */}
-        <div className="tactical-status-tape z-10">
-          {[
-            { dot: 'bg-emerald-500', text: 'NETWORK OPERATIONAL', color: 'text-emerald-500' },
-            { dot: 'bg-slate-600', text: '·', color: 'text-slate-600' },
-            { dot: null, text: '142 NODES ACTIVE', color: 'text-slate-500' },
-            { dot: 'bg-slate-600', text: '·', color: 'text-slate-600' },
-            { dot: null, text: '2,847 SHIPMENTS TRACKED', color: 'text-slate-500' },
-          ].map((item, i) => (
-            <div key={i} className="flex items-center gap-1.5">
-              {item.dot && <span className={`h-1.5 w-1.5 rounded-full ${item.dot} shrink-0 ${item.dot === 'bg-emerald-500' ? 'animate-chip-blink' : ''}`} />}
-              <span className={`font-mono text-[9px] font-bold tracking-widest ${item.color}`}>{item.text}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Center branding overlay */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 z-10" style={{ paddingTop: '26px' }}>
-          <div
-            className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-950/25 border border-emerald-900/35 rounded-full mb-8 animate-fade-slide-in"
-            style={{ animationDelay: '0.05s' }}
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-chip-blink" />
-            <span className="text-[10px] font-mono font-bold text-emerald-500 uppercase tracking-widest">
-              REAL-TIME GEOSPATIAL TRACKING ACTIVE
-            </span>
-          </div>
-
-          <h1
-            className="text-4xl sm:text-5xl font-black text-slate-100 tracking-tight max-w-3xl leading-[1.1] mb-4 font-sans animate-fade-slide-in"
-            style={{ animationDelay: '0.12s' }}
-          >
-            Global Logistics{' '}
-            <span className="text-slate-400 font-black">Command Intelligence</span>
-          </h1>
-
-          <p
-            className="text-sm text-slate-400 max-w-lg leading-relaxed font-sans animate-fade-slide-in"
-            style={{ animationDelay: '0.22s' }}
-          >
-            Real-time geospatial tracking, SLA breach detection, and cascade delay
-            risk modeling. Enter a Serial ID to reconstruct any shipment journey.
-          </p>
-        </div>
-      </div>
-
-      {/* ── Stats + Search Section ─────────────────────────────── */}
-      <section className="flex flex-col items-center justify-center px-6 py-14 text-center">
-
-        {/* Stats Row */}
-        <div
-          className="flex items-stretch gap-4 mb-12 flex-wrap justify-center animate-fade-slide-in"
-          style={{ animationDelay: '0.1s' }}
-        >
-          {STAT_CARDS.map(({ icon: Icon, label, value, delta, accent, valueColor }, i) => (
-            <div
-              key={label}
-              className={`landing-stat-card border border-slate-800/60 bg-slate-900 ${accent}`}
-              style={{ animationDelay: `${0.08 * i}s` }}
-            >
-              <Icon className="h-4 w-4 text-slate-500 mb-2" />
-              <span className={`text-2xl font-extrabold font-mono tracking-tight ${valueColor}`}>
-                {value}
-              </span>
-              <span className="text-[9px] text-slate-600 uppercase tracking-widest font-bold mt-1">
-                {label}
-              </span>
-              <span className="text-[9px] font-mono text-slate-600 mt-1">{delta}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Search Form */}
-        <form
-          onSubmit={handleSearchSubmit}
-          className="w-full max-w-2xl animate-fade-slide-in"
-          style={{ animationDelay: '0.18s' }}
-        >
-          <div className="landing-search-bar bg-slate-900 border border-slate-800/60">
-            <Search className="h-4 w-4 text-slate-500 shrink-0" />
-            <input
-              type="text"
-              id="landing-search-input"
-              placeholder="Enter 12-digit Shipment Serial ID  (e.g. SH-7777)..."
-              value={shipmentIdInput}
-              onChange={(e) => setShipmentIdInput(e.target.value)}
-              className="flex-1 bg-transparent text-slate-100 text-sm placeholder-slate-700 focus:outline-none font-mono tracking-wide"
-            />
-            <button
-              type="submit"
-              id="landing-search-btn"
-              className="landing-search-submit"
-              disabled={isFetching}
-            >
-              {isFetching ? (
-                <span className="flex items-center gap-2">
-                  <span className="h-3 w-3 rounded-full border border-slate-600 border-t-slate-300 animate-spin-slow" />
-                  Scanning...
-                </span>
-              ) : 'Trace Shipment'}
-            </button>
-          </div>
-          <p className="text-[9px] text-slate-700 text-center mt-2.5 font-mono tracking-widest">
-            PUBLIC ACCESS · NO AUTHENTICATION REQUIRED · ENCRYPTED CHANNEL
-          </p>
-        </form>
-      </section>
+      {/* ── Landing Hero with Animated Vector Topology Grid ─────── */}
+      <LandingHero
+        onSearch={(id) => setSearchId(id)}
+        journeyData={journeyData}
+        isLoading={isLoading}
+        isError={Boolean(error)}
+      />
 
 
       {/* ── Journey Result Section ──────────────────────────────── */}

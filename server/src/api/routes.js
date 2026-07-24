@@ -3,11 +3,16 @@ import {
   postShipmentEvent, 
   getShipmentJourney,
   getSystemHealth,
-  patchUserRole,
   getWarehouses
 } from './controllers/shipmentController.js';
+import authRoutes from './routes/authRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 
 const router = Router();
+
+// Auth and User RBAC routes
+router.use('/auth', authRoutes);
+router.use('/users', userRoutes);
 
 // Endpoint for high-throughput ingestion of events
 router.post('/shipment-events', postShipmentEvent);
@@ -17,9 +22,6 @@ router.get('/shipments/:id/journey', getShipmentJourney);
 
 // Endpoint for gateway system telemetry dashboard
 router.get('/health', getSystemHealth);
-
-// Endpoint for administrative role mutations
-router.patch('/users/:id/role', patchUserRole);
 
 // Endpoint to fetch seeded logistics warehouses
 router.get('/warehouses', getWarehouses);

@@ -8,13 +8,14 @@ export const SocketProvider = ({ children }) => {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    // Establish connection to port 3000
+    // Establish connection to backend server with polling handshake and WebSocket upgrade
     const socketInstance = io('http://localhost:3000', {
-      transports: ['websocket'],
+      transports: ['polling', 'websocket'],
+      withCredentials: true,
       autoConnect: true,
       reconnection: true,
-      reconnectionAttempts: 10,
-      reconnectionDelay: 2000,
+      reconnectionAttempts: 15,
+      reconnectionDelay: 1000,
     });
 
     socketInstance.on('connect', () => {
@@ -26,6 +27,10 @@ export const SocketProvider = ({ children }) => {
 
     socketInstance.on('disconnect', () => {
       setIsConnected(false);
+    });
+
+    socketInstance.on('connect_error', (err) => {
+      // Graceful connect retry
     });
 
     setSocket(socketInstance);
