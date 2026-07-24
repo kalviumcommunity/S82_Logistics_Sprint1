@@ -1,9 +1,9 @@
 {
   "amount": {
     "column_type": "numerical",
-    "null_count_before": 0,
+    "null_count_before": 2,
     "strategy": "median_imputation",
-    "value_used": 200.0,
+    "value_used": 225.0,
     "business_reasoning": "Median purchase amount is representative of typical transaction. Mean would be skewed by high-value outliers. Maintains distribution integrity.",
     "risk_assessment": "Low - median is stable metric resistant to outliers"
   },
@@ -17,10 +17,34 @@
   },
   "status_date": {
     "column_type": "datetime_series",
-    "null_count_before": 1,
+    "null_count_before": 2,
     "strategy": "forward_fill",
     "interpretation": "Assumes last known status date is still valid until changed",
     "business_reasoning": "For time-series analysis, forward fill preserves temporal continuity. Status typically does not change frequently.",
     "risk_assessment": "Medium - assumes no change between observations"
+  },
+  "quantity": {
+    "column_type": "numerical",
+    "null_count_before": 1,
+    "strategy": "median_imputation",
+    "value_used": 4.0,
+    "business_reasoning": "Order quantity uses median value to represent standard shipment volume.",
+    "risk_assessment": "Low - maintains integer distribution integrity"
+  },
+  "category": {
+    "column_type": "categorical",
+    "null_count_before": 1,
+    "strategy": "mode_imputation",
+    "value_used": "B",
+    "business_reasoning": "Fills missing category with most frequent classification tier.",
+    "risk_assessment": "Low - aligns with predominant category distribution"
+  },
+  "dwell_duration_min": {
+    "column_type": "numerical",
+    "null_count_before": 2,
+    "strategy": "median_imputation",
+    "value_used": 70.0,
+    "business_reasoning": "Replaces missing warehouse transfer dwell time with median duration to avoid skewing route delay prediction.",
+    "risk_assessment": "Low - median preserves operational route baseline"
   }
 }
