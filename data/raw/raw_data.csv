@@ -1,6 +1,11 @@
-customer_id,name,email,amount,quantity,category,region,last_updated,status_date
-1,Alice,alice@example.com,100.0,10,A,North,2025-01-01,2025-01-01
-2,Bob,,250.0,,B,South,2025-01-02,2025-01-02
-3,Alice,alice@example.com,100.0,10,A,,2025-01-03,
-4,,charlie@example.com,500.0,50,C,West,,2025-01-04
-5,Diana,,200.0,20,B,East,2025-01-05,2025-01-05
+customer_id,name,email,amount,quantity,category,region,last_updated,status_date,shipment_id,warehouse_id,route_id,dwell_duration_min,delay_reason_code,flag_cascade
+1,Alice,alice@example.com,100.0,2,A,North,2025-01-15 08:00:00,2025-01-15 08:00:00,SHP-101,WH-ORD-01,ORD-JFK-01,45.0,NONE,0
+2,Bob,,250.0,5,B,South,,2025-01-15 09:00:00,SHP-102,WH-ORD-01,ORD-LAX-02,120.0,YARD_CONGESTION,1
+3,Alice,alice@example.com,100.0,2,A,North,2025-01-15 10:00:00,2025-01-15 10:00:00,SHP-103,WH-ORD-02,ORD-JFK-01,30.0,NONE,0
+4,,charlie@example.com,500.0,10,C,East,2025-01-15 11:00:00,,SHP-104,,ORD-LAX-02,,WEATHER,1
+5,Diana,,200.0,4,B,South,2025-01-15 12:00:00,2025-01-15 12:00:00,SHP-105,WH-ORD-01,ORD-JFK-01,95.0,MECHANICAL,1
+6,Evan,evan@example.com,,3,A,North,,2025-01-15 13:00:00,SHP-106,WH-ORD-01,ORD-JFK-01,,YARD_CONGESTION,0
+7,Fiona,fiona@example.com,300.0,,B,,2025-01-15 14:00:00,2025-01-15 14:00:00,SHP-107,WH-ORD-02,ORD-LAX-02,60.0,NONE,0
+8,George,george@example.com,150.0,3,,East,2025-01-15 15:00:00,2025-01-15 15:00:00,SHP-108,WH-ORD-01,ORD-JFK-01,110.0,,1
+9,Hannah,hannah@example.com,450.0,8,C,North,2025-01-15 16:00:00,,SHP-109,WH-ORD-01,ORD-LAX-02,80.0,NONE,0
+10,Ian,ian@example.com,,4,B,South,2025-01-15 17:00:00,2025-01-15 17:00:00,SHP-110,WH-ORD-02,ORD-JFK-01,55.0,WEATHER,0
