@@ -4,3 +4,14 @@ trnx_amt,float,Transaction amount in USD,Revenue per transaction,150.99,Monthly 
 purchase_date,datetime,Date transaction occurred,When sale was completed,2025-01-15,Sales velocity,UTC timezone - never null
 cust_segment,string,Customer classification,Business segment (B2B/B2C/SMB),B2B,Segment profitability,Updated monthly from CRM
 flag_churn,integer,Churn indicator (0/1),Whether customer left within 90 days,0,Churn rate prediction,Target variable for retention models
+shipment_id,string,Unique shipment tracking number,Identifies individual parcel or freight package,SHP-98421,Package tracking,Indexed for real-time trace
+scan_timestamp,datetime,Timestamp of shipment scan,Time package scanned at logistics hub,2025-01-15 14:30:00,Scan frequency,UTC timezone - timestamped at scan
+event_type,string,Logistics scan event category,Scan checkpoint stage in journey,SORTING,Operational velocity,Enum: ARRIVED/SORTING/DEPARTED
+warehouse_id,string,Logistics facility node identifier,Warehouse or sorting center location,WH-ORD-01,Hub throughput,Mapped to Redis adjacency matrix
+route_id,string,Transit corridor origin-destination code,Operational transport route link,ORD-JFK-04,Route on-time performance,Links origin and destination nodes
+dwell_duration_min,float,Minutes spent waiting at warehouse hub,Facility processing delay time,145.5,Warehouse dwell efficiency,Triggers alert when threshold exceeded
+queue_length,integer,Package processing queue depth at node,Facility congestion level,342,Node bottleneck index,Monitored in real time via WebSockets
+delay_reason_code,string,Categorical delay root cause code,Primary reason for delay exception,YARD_CONGESTION,Delay root cause breakdown,Categorized by operational team
+flag_delay,integer,Binary delay indicator (0/1),Whether shipment exceeded schedule threshold,1,Shipment delay rate,Threshold calculated per SLA
+flag_cascade,integer,Binary cascading delay indicator (0/1),Whether delay missed downstream transfer window,1,Cascading delay rate,Core target for route delay prediction
+cascade_risk_score,float,Predicted downstream delay probability (0-100),Risk index of causing multi-leg delays,82.4,Route risk index,Calculated dynamically by ML engine
