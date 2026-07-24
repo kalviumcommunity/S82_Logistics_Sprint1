@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApi } from '../context/ApiContext.jsx';
 import { useSocket } from '../context/SocketContext.jsx';
+import NavigationDock from './NavigationDock.jsx';
 import {
   Search, Map, Settings, User, LogOut, ChevronDown
 } from 'lucide-react';
@@ -212,29 +213,8 @@ export const CommandDeckLayout = ({ activeTab, setActiveTab, children }) => {
       {/* ══════════════════════════════════════════════════════════
           BOTTOM TACTICAL FLIGHT DECK
           ══════════════════════════════════════════════════════════ */}
-      <nav className="fixed bottom-5 left-1/2 -translate-x-1/2 z-[200]">
-        <div className="bottom-pill-nav">
-          {visibleTabs.map((tab, idx) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            const showSep = tab.id === TAB_GROUP_BREAK_AFTER && idx < visibleTabs.length - 1;
-            return (
-              <React.Fragment key={tab.id}>
-                <button
-                  id={`nav-tab-${tab.id}`}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`pill-nav-btn ${isActive ? 'pill-nav-active' : 'pill-nav-inactive'}`}
-                >
-                  <Icon className="h-3.5 w-3.5 shrink-0" />
-                  <span className="text-[11px] font-semibold tracking-wide">{tab.label}</span>
-                  {isActive && <span className="pill-active-dot" />}
-                </button>
-                {showSep && <div className="pill-nav-separator" />}
-              </React.Fragment>
-            );
-          })}
-        </div>
-      </nav>
+      {/* Navigation Dock */}
+      <NavigationDock activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {/* Backdrop to close profile drawer */}
       {profileOpen && (

@@ -1,85 +1,149 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import axios from 'axios';
 
-// === Auth State Machine ===
-// appState: 'LANDING' | 'AUTH_GATE' | 'WORKSPACE'
-// user: null | { id, name, email, role }
-
-const ADMIN_EMAIL = 'adminlogistics@gmail.com';
-const ADMIN_PASSWORD = 'zxcvbnm0987654321';
+const API_BASE_URL = 'http://localhost:3000/api/v1';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [appState, setAppState] = useState('LANDING');
+  const [appState, setAppState] = useState('LANDING'); // 'LANDING' | 'AUTH_GATE' | 'WORKSPACE'
   const [user, setUser] = useState(null);
+  const [accessToken, setAccessToken] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Navigate to the auth gate
+  // Navigate to auth gate view
   const openAuthGate = () => {
     setAppState('AUTH_GATE');
   };
 
-  // Navigate back to the landing hub (also logs out)
+  // Return to landing hub
   const returnToLanding = () => {
     setAppState('LANDING');
-    setUser(null);
   };
 
-  // Role display name map
-  const roleDisplayNames = {
-    ADMIN: 'Alexander Mercer',
-    OPERATIONS_MANAGER: 'Sarah Jenkins',
-    WAREHOUSE_MANAGER: 'David Miller',
-    VIEWER: 'Emily Watson',
-  };
-
-  const roleIdMap = {
-    ADMIN: 'USR-001',
-    OPERATIONS_MANAGER: 'USR-002',
-    WAREHOUSE_MANAGER: 'USR-003',
-    VIEWER: 'USR-004',
-  };
-
-  /**
-   * Attempt login. Returns { success: boolean, error?: string }
-   * ADMIN role enforces hardcoded credential check.
-   * All other roles are accepted with any non-empty input.
-   */
-  const login = (email, password, role) => {
-    if (role === 'ADMIN') {
-      if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
-        return { success: false, error: 'Access Denied: Invalid Administrative Credentials' };
-      }
-    }
-
-    if (!email.trim() || !password.trim()) {
-      return { success: false, error: 'Email and Password are required.' };
-    }
-
-    const sessionUser = {
-      id: roleIdMap[role],
-      name: roleDisplayNames[role],
-      email: email.trim(),
-      role,
+  // Helper to set auth state and setup token header
+  const handleAuthSuccess = (userData, token) => {
+    const formattedUser = {
+      id: userData.id || userData._id,
+      name: userData.fullName || userData.name || userData.email.split('@')[0],
+      fullName: userData.fullName || userData.name,
+      email: userData.email,
+      role: userData.role,
+      assignedFacility: userData.assignedFacility || 'HQ-MAIN',
+      status: userData.status || 'ACTIVE',
     };
-
-    setUser(sessionUser);
+    setUser(formattedUser);
+    setAccessToken(token);
     setAppState('WORKSPACE');
-    return { success: true };
   };
 
-  const logout = () => {
-    returnToLanding();
+  // Attempt login with backend API
+  const login = async (email, password) => {
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/auth/login`,
+        { email: email.trim(), password: password.trim() },
+        { withCredentials: true }
+      );
+
+      const { user: userData, accessToken: token } = response.data;
+      handleAuthSuccess(userData, token);
+      return { success: true, user: userData };
+    } catch (error) {
+      const errorMsg =
+        error.response?.data?.message || 'Authentication failed. Please verify credentials.';
+      return { success: false, error: errorMsg };
+    }
   };
 
-  // Role-based access check
+  // Register new user account
+  const register = async (email, password, fullName) => {
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/auth/register`,
+        {
+          email: email.trim(),
+          password: password.trim(),
+          fullName: fullName.trim(),
+        },
+        { withCredentials: true }
+      );
+
+      return {
+        success: true,
+        message: response.data.message,
+        user: response.data.user,
+      };
+    } catch (error) {
+      const errorMsg =
+        error.response?.data?.message || 'Registration failed. Please try again.';
+      return { success: false, error: errorMsg };
+    }
+  };
+
+  // Logout user and revoke session in Redis
+  const logout = async () => {
+    try {
+      await axios.post(`${API_BASE_URL}/auth/logout`, {}, { withCredentials: true });
+    } catch (err) {
+      // Ignore logout errors
+    } finally {
+      setUser(null);
+      setAccessToken(null);
+      setAppState('LANDING');
+    }
+  };
+
+  // Silent token refresh routine
+  const refreshSession = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.post(
+        `${API_BASE_URL}/auth/refresh`,
+        {},
+        { withCredentials: true }
+      );
+
+      const { user: userData, accessToken: token } = response.data;
+      handleAuthSuccess(userData, token);
+    } catch (error) {
+      // Silent refresh failed (no valid cookie or session expired)
+      setUser(null);
+      setAccessToken(null);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Try silent refresh on initial app load
+  useEffect(() => {
+    refreshSession();
+  }, [refreshSession]);
+
+  // Check role access helper
   const hasAccess = (allowedRoles) => {
-    if (!user) return false;
+    if (!user || !user.role) return false;
     return allowedRoles.includes(user.role);
   };
 
   return (
     <AuthContext.Provider
-      value={{ appState, user, openAuthGate, returnToLanding, login, logout, hasAccess }}
+      value={{
+        appState,
+        setAppState,
+        user,
+        setUser,
+        accessToken,
+        setAccessToken,
+        isLoading,
+        openAuthGate,
+        returnToLanding,
+        login,
+        register,
+        logout,
+        hasAccess,
+        refreshSession,
+      }}
     >
       {children}
     </AuthContext.Provider>

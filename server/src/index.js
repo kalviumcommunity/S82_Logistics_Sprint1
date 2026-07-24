@@ -1,5 +1,6 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import cookieParser from 'cookie-parser';
 import { createServer } from 'http';
 import { connectDatabase } from './config/database.js';
 import { redisClient, redisQueueConnection } from './config/redis.js';
@@ -8,13 +9,17 @@ import { setupStreamConsumer, startStreamConsumer } from './workers/streamConsum
 import './workers/journeyWorker.js'; // Ensure worker is loaded and started
 import routes from './api/routes.js';
 import logger from './config/logger.js';
+import { seedAdmin } from './utils/seedAdmin.js';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const INITIAL_PORT = process.env.PORT || 3000;
 
 // Create HTTP server wrapper for Socket.io support
 const server = createServer(app);
 initSocket(server);
+
+// Cookie parsing middleware
+app.use(cookieParser());
 
 // Self-contained CORS middleware to support client requests from dev server
 app.use((req, res, next) => {
@@ -53,6 +58,37 @@ app.use((req, res, next) => {
 // Ingestion and retrieval routes
 app.use('/api/v1', routes);
 
+// System health probe
+app.get('/api/v1/health', async (req, res) => {
+  try {
+    const mongoStatus = mongoose.connection.readyState === 1 ? 'healthy' : 'degraded';
+    
+    // Test Redis connectivity safely
+    let redisStatus = 'degraded';
+    try {
+      const ping = await redisClient.ping();
+      if (ping === 'PONG') redisStatus = 'healthy';
+    } catch (e) {
+      redisStatus = 'degraded';
+    }
+
+    const overallStatus = (mongoStatus === 'healthy' && redisStatus === 'healthy') ? 'OK' : 'DEGRADED';
+
+    return res.status(overallStatus === 'OK' ? 200 : 503).json({
+      status: overallStatus,
+      timestamp: new Date().toISOString(),
+      services: {
+        database: mongoStatus,
+        cache: redisStatus,
+        sockets: 'healthy',
+      },
+    });
+  } catch (error) {
+    logger.error(error, 'Health check failed');
+    return res.status(500).json({ status: 'ERROR', message: error.message });
+  }
+});
+
 // Global Error Handler
 app.use((err, req, res, next) => {
   logger.error(err, 'Unhandled error in gateway assembly');
@@ -62,46 +98,32 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Telemetry Broadcast Loop (every 5 seconds)
-setInterval(async () => {
-  try {
-    const mongoStatus = mongoose.connection.readyState === 1 ? 'healthy' : 'disconnected';
-    const streamLen = await redisClient.xlen('shipment:stream:events').catch(() => 0);
-    const telemetry = {
-      timestamp: new Date().toLocaleTimeString(),
-      mongoStatus,
-      redisStreamLength: streamLen,
-      cpuUsage: (process.cpuUsage().user / 1000000).toFixed(2) + '%',
-      apiQuota: '9,845 / 10,000 requests',
-    };
-    broadcast('system:telemetry', telemetry);
-  } catch (err) {
-    // Fail silently
-  }
-}, 5000);
+/**
+ * Helper to start server listening on an available port if initial port is occupied (EADDRINUSE)
+ */
+function startServerWithPortFallback(portToTry) {
+  const port = Number(portToTry);
 
-// Audit Log Broadcast Loop (every 3 seconds)
-setInterval(() => {
-  const actions = [
-    'XADD shipment:stream:events',
-    'XACK shipment:stream:events',
-    'BULLMQ job process-event',
-    'MONGO find ShipmentJourney',
-    'MONGO findAndUpdate ShipmentJourney',
-    'REDIS set cache journey:SH-7777',
-    'REDIS del cache journey:SH-7777'
-  ];
-  const randomAction = actions[Math.floor(Math.random() * actions.length)];
-  const log = {
-    timestamp: new Date().toLocaleTimeString(),
-    action: randomAction,
-    status: 'SUCCESS',
-    operator: 'SYSTEM_BOT',
+  const onError = (error) => {
+    if (error.code === 'EADDRINUSE') {
+      logger.warn(`Port ${port} is already in use (EADDRINUSE). Automatically switching to next available port ${port + 1}...`);
+      server.removeListener('error', onError);
+      startServerWithPortFallback(port + 1);
+    } else {
+      logger.error({ err: error }, 'Server listener error occurred.');
+    }
   };
-  broadcast('audit:log', log);
-}, 3000);
+
+  server.once('error', onError);
+
+  server.listen(port, '0.0.0.0', () => {
+    server.removeListener('error', onError);
+    logger.info(`Cascading Logistics Gateways started successfully on http://localhost:${port}`);
+  });
+}
 
 /**
+ * Main application bootstrap process.
  * Boots the connection pools, runs sanity health checks,
  * initializes workers/stream pollers, and starts listening.
  */
@@ -109,71 +131,54 @@ async function bootstrap() {
   try {
     // 1. Initialize MongoDB Connection
     await connectDatabase();
+    
+    // 2. Open Port Listener with automatic EADDRINUSE port fallback
+    startServerWithPortFallback(INITIAL_PORT);
 
-    // 2. Perform active database and cache runtime health checks
+    // 3. System Bootstrapper: Seed Admin Account
+    await seedAdmin();
+
+    // 4. Perform active database and cache runtime health checks
     logger.info('Performing startup runtime health checks on infrastructure pools...');
     
-    // Check MongoDB Connection State
     if (mongoose.connection.readyState !== 1) {
       throw new Error('MongoDB connection is not in a ready state.');
     }
-    logger.info('Active MongoDB client check: READY.');
 
-    // Ping Redis Client
-    const redisHealth = await redisClient.ping();
-    if (redisHealth !== 'PONG') {
-      throw new Error(`General Redis client failed healthcheck (response: ${redisHealth})`);
-    }
-    logger.info('Active general caching Redis client check: READY.');
-
-    // Ping Queue Connection
-    const queueRedisHealth = await redisQueueConnection.ping();
-    if (queueRedisHealth !== 'PONG') {
-      throw new Error(`BullMQ Redis client failed healthcheck (response: ${queueRedisHealth})`);
-    }
-    logger.info('Active BullMQ queue Redis client check: READY.');
-
-    // 3. Setup Stream Consumer Group
+    // 5. Initialize BullMQ Stream Consumer
+    logger.info('Initializing BullMQ Stream Consumer pipeline...');
     await setupStreamConsumer();
-
-    // Start background stream poller loop (asynchronous, does not block server listener)
     startStreamConsumer();
-    logger.info('Stream consumer background process started.');
 
-    // 4. Open Port Listener
-    server.listen(PORT, () => {
-      logger.info(`Cascading Logistics Gateways started on http://localhost:${PORT}`);
-    });
-  } catch (error) {
-    logger.fatal(error, 'Bootstrap health checks failed. Process aborting.');
+    // 6. Broadcast periodic infrastructure telemetry via Socket.io (every 5s)
+    setInterval(async () => {
+      try {
+        const mongoStatus = mongoose.connection.readyState === 1 ? 'healthy' : 'degraded';
+        let redisStatus = 'degraded';
+        try {
+          const ping = await redisClient.ping();
+          if (ping === 'PONG') redisStatus = 'healthy';
+        } catch (e) {
+          redisStatus = 'degraded';
+        }
+
+        broadcast('system:telemetry', {
+          timestamp: new Date().toISOString(),
+          mongoStatus,
+          redisStatus,
+          uptime: process.uptime(),
+        });
+      } catch (err) {
+        logger.error(err, 'Failed to broadcast telemetry via Socket.io');
+      }
+    }, 5000);
+
+    logger.info('Cascading Logistics Gateway Assembly initialized cleanly and ready for traffic.');
+  } catch (fatalError) {
+    logger.fatal({ err: fatalError }, 'Fatal initialization error during gateway assembly bootstrap.');
     process.exit(1);
   }
 }
 
-// Graceful platform termination
-const handleTermination = async (signal) => {
-  logger.info(`Received ${signal}. Gracefully stopping platform engine...`);
-  
-  try {
-    await redisClient.quit();
-    await redisQueueConnection.quit();
-    logger.info('Redis connections closed.');
-  } catch (err) {
-    logger.error(err, 'Error closing Redis connections on shutdown.');
-  }
-
-  try {
-    await mongoose.connection.close();
-    logger.info('MongoDB connections closed.');
-  } catch (err) {
-    logger.error(err, 'Error closing MongoDB connections on shutdown.');
-  }
-
-  logger.info('Platform engine stopped successfully.');
-  process.exit(0);
-};
-
-process.on('SIGTERM', () => handleTermination('SIGTERM'));
-process.on('SIGINT', () => handleTermination('SIGINT'));
-
+// Execute bootstrap procedure
 bootstrap();

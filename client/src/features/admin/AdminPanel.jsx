@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../context/ApiContext.jsx';
 import { useSocket } from '../../context/SocketContext.jsx';
+import UserManagementTable from './UserManagementTable.jsx';
 import {
   Cpu, Database, ShieldAlert, Users, Terminal, ShieldCheck,
   Shield, UserX, ChevronDown, Check, Activity
@@ -253,119 +254,8 @@ export const AdminPanel = () => {
         ))}
       </div>
 
-      {/* ══════════════════════════════════════════════════════════════
-          ROLE ASSIGNMENT MANAGEMENT GRID
-          ════════════════════════════════════════════════════════════ */}
-      <div className="card-panel p-5 flex flex-col gap-4">
-        {/* Section header */}
-        <div className="flex items-center justify-between border-b border-slate-800/40 pb-3">
-          <div className="flex items-center gap-2">
-            <Shield className="h-4 w-4 text-slate-500" />
-            <h2 className="text-xs font-black text-slate-200 uppercase tracking-widest">
-              Role Assignment Management Grid
-            </h2>
-          </div>
-          <div className="flex items-center gap-3">
-            {/* Legend inline */}
-            {SYSTEM_ROLES.map((role) => {
-              const r = roleBadgeConfig[role];
-              return (
-                <div key={role} className="hidden md:flex items-center gap-1.5">
-                  <span className={`h-1.5 w-1.5 rounded-full ${r.color.replace('text-', 'bg-')}`} />
-                  <span className={`text-[9px] font-mono font-bold ${r.color}`}>{r.label}</span>
-                </div>
-              );
-            })}
-            <span className="data-label bg-slate-950 border border-slate-800/60 px-2 py-0.5 rounded">
-              {users.length} PERSONNEL
-            </span>
-          </div>
-        </div>
-
-        {/* Hint */}
-        <p className="text-[9px] text-slate-700 font-mono">
-          · Click role badge to change assignment · Revoke action resets personnel to VIEWER access level
-        </p>
-
-        {/* Personnel Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-slate-800/60">
-                {['Identity', 'Email Address', 'User ID', 'Status', 'Current Role Claim', 'Actions'].map((h) => (
-                  <th key={h} className="py-2 px-3 data-label">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800/30">
-              {users.map((item) => {
-                const badge = roleBadgeConfig[item.role] || roleBadgeConfig.VIEWER;
-                return (
-                  <tr
-                    key={item.id}
-                    className={`hover:bg-slate-800/10 transition-colors group ${badge.rowAccent}`}
-                  >
-                    {/* Name */}
-                    <td className="py-3 px-3">
-                      <div className="flex items-center gap-2.5">
-                        <div className="h-7 w-7 rounded-full bg-slate-800 border border-slate-700/60 flex items-center justify-center shrink-0">
-                          <span className="text-[10px] font-bold text-slate-400">
-                            {item.name.charAt(0)}
-                          </span>
-                        </div>
-                        <span className="text-xs font-semibold text-slate-200">{item.name}</span>
-                      </div>
-                    </td>
-
-                    {/* Email */}
-                    <td className="py-3 px-3">
-                      <span className="text-[11px] font-mono text-slate-500">{item.email}</span>
-                    </td>
-
-                    {/* ID */}
-                    <td className="py-3 px-3">
-                      <span className="text-[10px] font-mono text-slate-600">{item.id}</span>
-                    </td>
-
-                    {/* Status */}
-                    <td className="py-3 px-3">
-                      <div className="flex items-center gap-1.5">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-node-flicker" />
-                        <span className="text-[10px] font-mono font-bold text-emerald-500">ACTIVE</span>
-                      </div>
-                    </td>
-
-                    {/* Role Dropdown */}
-                    <td className="py-3 px-3">
-                      <RoleDropdown
-                        userId={item.id}
-                        currentRole={item.role}
-                        onRoleChange={handleRoleChange}
-                        isPending={roleMutation.isPending}
-                      />
-                    </td>
-
-                    {/* Revoke */}
-                    <td className="py-3 px-3">
-                      {item.role !== 'VIEWER' ? (
-                        <button
-                          onClick={() => handleRevokeAccess(item.id)}
-                          className="flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold text-slate-600 hover:text-red-400 border border-transparent hover:border-red-900/40 hover:bg-red-950/20 rounded transition-all cursor-pointer font-mono"
-                        >
-                          <UserX className="h-3 w-3" />
-                          Revoke
-                        </button>
-                      ) : (
-                        <span className="text-[9px] font-mono text-slate-700">—</span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      {/* Role Assignment Management Grid */}
+      <UserManagementTable />
 
       {/* ── Row 2: User Access Matrix + Audit Terminal ─────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
