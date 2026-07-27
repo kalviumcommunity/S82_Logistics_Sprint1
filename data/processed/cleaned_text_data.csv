@@ -1,0 +1,9 @@
+customer_name,product_name,customer_segment,location
+john,electronics,B2B,So Paulo
+john,electronics,B2B,Montral
+john,electronics,B2B,NewYork
+alice,smart phone,SMB,Tokyo 1
+alice,smart phone,SMB,So Paulo
+bob,smart phone,Enterprise,Montral
+charlie,home audio,Enterprise,So Paulo
+charlie,home audio,B2B,Montral
