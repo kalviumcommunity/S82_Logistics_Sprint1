@@ -1,0 +1,26 @@
+{
+  "total_records": 500,
+  "engagement_tier_counts": {
+    "medium": 279,
+    "low": 136,
+    "high": 85
+  },
+  "spend_quartile_counts": {
+    "Q1": 125,
+    "Q2": 125,
+    "Q3": 125,
+    "Q4": 125
+  },
+  "rfm_score_stats": {
+    "min": 3,
+    "max": 15,
+    "mean": 9.002,
+    "median": 9.0
+  },
+  "missing_values_check": {
+    "engagement_tier": 0,
+    "spend_quartile": 0,
+    "rfm_score": 0
+  },
+  "timestamp": "2026-07-27T14:04:05.148275"
+}
