@@ -1,0 +1,4 @@
+customer_id,age,price,birth_date,email,phone,start_date,end_date,valid_age,valid_price,valid_date,valid_customer_id,valid_email,valid_email_format,valid_phone,valid_date_order,passes_all_checks
+CUST-001,28,150.0,1996-03-15,alice@example.com,5551234567,2025-01-01,2025-01-15,True,True,True,True,True,True,True,True,True
+CUST-009,26,125.5,1998-09-30,ian@example.com,5558901234,2025-01-05,2025-01-20,True,True,True,True,True,True,True,True,True
+CUST-010,39,340.0,1985-02-14,julia@example.com,5559012345,2025-01-08,2025-01-28,True,True,True,True,True,True,True,True,True
