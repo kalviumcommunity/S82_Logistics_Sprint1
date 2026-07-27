@@ -3,7 +3,7 @@ import { redisQueueConnection, redisClient } from '../config/redis.js';
 import ShipmentEvent from '../models/ShipmentEvent.js';
 import ShipmentJourney from '../models/ShipmentJourney.js';
 import Warehouse from '../models/Warehouse.js';
-import { broadcast } from '../config/socket.js';
+import { broadcast, getIO } from '../config/socket.js';
 import logger from '../config/logger.js';
 
 /**
@@ -92,6 +92,33 @@ try {
         await redisClient.set(cacheKey, JSON.stringify(journey), 'EX', 300);
 
         broadcast('risk:update', journey);
+
+        if (riskScore > 70 || status === 'DELAYED' || status === 'CRITICAL_DELAY' || rawEvent.status === 'DELAYED') {
+          const alertPayload = {
+            shipmentId,
+            status,
+            riskScore,
+            locationId: rawEvent.locationId || 'HUB-CENTRAL',
+            delayReason: rawEvent.metadata?.delayReason || 'Cascading Route Delay',
+            timestamp: rawEvent.timestamp || new Date().toISOString(),
+          };
+
+          try {
+            const io = getIO();
+            if (io) {
+              io.emit('cascade:alert', alertPayload);
+              io.to('room:operations').emit('cascade:alert', alertPayload);
+              io.to(`room:shipment:${shipmentId}`).emit('cascade:alert', alertPayload);
+            } else {
+              broadcast('cascade:alert', alertPayload);
+              broadcast('cascade:alert', alertPayload, 'room:operations');
+            }
+            logger.info(`[WEBSOCKET] Cascade alert emitted for shipment ${shipmentId} (Score: ${riskScore})`);
+          } catch (wsErr) {
+            logger.error({ err: wsErr, shipmentId }, 'Failed to emit cascade:alert WebSocket payload');
+          }
+        }
+
         return { shipmentId, journeyId: journey._id, status, riskScore };
       } catch (err) {
         logger.error({ err, shipmentId }, 'Failed to process shipment event in worker.');

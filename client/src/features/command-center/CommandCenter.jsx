@@ -111,25 +111,40 @@ export const CommandCenter = () => {
   // Socket telemetry alerts
   useEffect(() => {
     if (!socket) return;
-    const handleRiskUpdate = (journey) => {
-      if (journey.riskScore >= 70) {
-        const newAlert = {
-          id: Date.now(),
-          shipmentId: journey.shipmentId,
-          riskScore: journey.riskScore,
-          status: journey.status,
-          timestamp: new Date().toLocaleTimeString(),
-          message: `Critical risk score alert: ${journey.riskScore} at ${
-            journey.legs[journey.legs.length - 1]?.locationId || 'unknown terminal'
-          }`,
-        };
-        setAlerts((prev) => [newAlert, ...prev].slice(0, 10));
-        setActiveToast(newAlert);
-        setTimeout(() => setActiveToast(null), 5000);
-      }
+
+    const handleCascadeAlert = (payload) => {
+      const newAlert = {
+        id: payload.id || Date.now(),
+        shipmentId: payload.shipmentId || 'SH-UNKNOWN',
+        riskScore: payload.riskScore ?? 80,
+        status: payload.status || 'DELAYED',
+        timestamp: payload.timestamp
+          ? (payload.timestamp.includes('T') ? new Date(payload.timestamp).toLocaleTimeString() : payload.timestamp)
+          : new Date().toLocaleTimeString(),
+        message: payload.delayReason || `Critical risk score alert: ${payload.riskScore}% at ${payload.locationId || 'terminal'}`,
+      };
+      setAlerts((prev) => [newAlert, ...prev].slice(0, 10));
     };
-    socket.on('risk:update', handleRiskUpdate);
-    return () => socket.off('risk:update', handleRiskUpdate);
+
+    socket.on('cascade:alert', handleCascadeAlert);
+    socket.on('risk:update', (journey) => {
+      const rScore = journey.currentRiskScore ?? journey.riskScore;
+      if (rScore >= 70 || journey.status === 'DELAYED' || journey.status === 'CRITICAL_DELAY') {
+        handleCascadeAlert({
+          shipmentId: journey.shipmentId,
+          riskScore: rScore,
+          status: journey.status,
+          locationId: journey.legs?.[journey.legs.length - 1]?.locationId,
+          delayReason: 'Cascading Route Risk Threshold Exceeded',
+          timestamp: new Date().toLocaleTimeString(),
+        });
+      }
+    });
+
+    return () => {
+      socket.off('cascade:alert', handleCascadeAlert);
+      socket.off('risk:update');
+    };
   }, [socket]);
 
   const polylinePositions = journeyLegs.map(leg => [
