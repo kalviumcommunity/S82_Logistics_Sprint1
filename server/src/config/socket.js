@@ -20,10 +20,26 @@ export function initSocket(server) {
   io.on('connection', (socket) => {
     logger.info({ socketId: socket.id, transport: socket.conn.transport.name }, 'Socket.io client connected successfully.');
 
-    // Join room if requested (e.g. admin or monitoring group)
+    // Join room if requested (e.g. room:operations, room:shipment:${id}, or legacy room names)
     socket.on('join', (room) => {
-      socket.join(room);
-      logger.debug({ socketId: socket.id, room }, 'Socket joined room.');
+      if (room) {
+        socket.join(room);
+        logger.info({ socketId: socket.id, room }, `[WEBSOCKET] Socket joined room: ${room}`);
+      }
+    });
+
+    socket.on('join_room', (room) => {
+      if (room) {
+        socket.join(room);
+        logger.info({ socketId: socket.id, room }, `[WEBSOCKET] Socket joined room: ${room}`);
+      }
+    });
+
+    socket.on('leave_room', (room) => {
+      if (room) {
+        socket.leave(room);
+        logger.info({ socketId: socket.id, room }, `[WEBSOCKET] Socket left room: ${room}`);
+      }
     });
 
     socket.on('disconnect', (reason) => {
@@ -56,6 +72,8 @@ export function broadcast(event, data, room = null) {
     logger.error({ err, event }, 'Error broadcasting socket event');
   }
 }
+
+export { io };
 
 export default {
   initSocket,

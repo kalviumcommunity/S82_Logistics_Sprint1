@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useApi } from '../context/ApiContext.jsx';
 import { useSocket } from '../context/SocketContext.jsx';
 import { Search, Map, Settings, Shield, User } from 'lucide-react';
+import Header from './Header.jsx';
+import AlertToastContainer from './AlertToastContainer.jsx';
 
 export const SidebarLayout = () => {
   const { user } = useAuth();
@@ -120,37 +122,8 @@ export const SidebarLayout = () => {
 
       {/* Main Page Viewport */}
       <main className="flex-1 flex flex-col overflow-hidden bg-[#090d16] relative">
-        {/* Telemetry Top Header Strip */}
-        <div className="h-10 bg-[#0f172a] border-b border-slate-800/60 flex items-center justify-between px-6 shrink-0 z-50">
-          <div className="flex items-center gap-3">
-            <span className="text-[9px] uppercase tracking-widest text-slate-500 font-bold">SYS_MONITOR</span>
-            <div className="h-4 w-px bg-slate-800/60" />
-            
-            {/* SYS_OK text chip */}
-            <div className="flex items-center gap-1 bg-slate-950 px-2 py-0.5 border border-slate-800/60 rounded">
-              <span className={`h-1.5 w-1.5 rounded-full ${dbHealthy ? 'bg-emerald-500' : 'bg-red-500 animate-pulse'}`} />
-              <span className="font-mono text-[10px] text-emerald-500 font-bold uppercase">
-                {dbHealthy ? 'SYS_OK' : 'SYS_ERR'}
-              </span>
-            </div>
-
-            {/* STREAM INGEST text chip */}
-            <div className="flex items-center bg-slate-950 px-2 py-0.5 border border-slate-800/60 rounded">
-              <span className="font-mono text-[10px] text-slate-400">STREAM INGEST: 12k/s</span>
-            </div>
-
-            {/* LATENCY text chip */}
-            <div className="flex items-center bg-slate-950 px-2 py-0.5 border border-slate-800/60 rounded">
-              <span className="font-mono text-[10px] text-amber-500">
-                LATENCY: {networkStats.latencyMs !== null ? `${networkStats.latencyMs}ms` : '42ms'}
-              </span>
-            </div>
-          </div>
-
-          <div className="text-[9px] font-mono text-slate-500 uppercase">
-            REFRESH_RATE: 5000MS
-          </div>
-        </div>
+        <AlertToastContainer />
+        <Header />
 
         {/* Content Outlet */}
         <div className="flex-1 overflow-y-auto">
