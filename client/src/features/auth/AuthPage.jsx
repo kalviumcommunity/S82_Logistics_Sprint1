@@ -186,12 +186,12 @@ export const AuthPage = () => {
         </button>
 
         {/* Auth Card Container */}
-        <div className="w-full max-w-md border border-slate-800/60 bg-slate-900/90 rounded-3xl p-8 shadow-2xl backdrop-blur-md flex flex-col gap-6">
+        <div className="w-full max-w-md border border-slate-800/60 bg-[#0d1321] rounded-lg p-8 shadow-2xl backdrop-blur-md flex flex-col gap-6">
 
           {/* Card Header */}
           <div className="flex flex-col gap-4 border-b border-slate-800/60 pb-5">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-slate-950 border border-slate-800/80 rounded-2xl">
+              <div className="p-2.5 bg-[#06090f] border border-slate-800/80 rounded-lg">
                 <Shield className="h-6 w-6 text-emerald-400" />
               </div>
               <div>
@@ -205,14 +205,14 @@ export const AuthPage = () => {
             </div>
 
             {/* Segmented Dual-Mode Toggle */}
-            <div className="grid grid-cols-2 p-1 bg-slate-950 border border-slate-800/80 rounded-2xl mt-1">
+            <div className="grid grid-cols-2 p-1 bg-[#06090f] border border-slate-800/80 rounded-lg mt-1 font-mono">
               <button
                 type="button"
                 id="auth-toggle-signin"
                 onClick={() => handleModeSwitch('SIGN_IN')}
-                className={`py-2 text-center text-xs font-mono font-bold rounded-xl transition-all cursor-pointer ${
+                className={`py-2 text-center text-xs font-mono font-bold rounded transition-all cursor-pointer ${
                   isSignIn
-                    ? 'bg-slate-800 text-emerald-400 border border-slate-700/60 shadow-md'
+                    ? 'bg-[#0d1321] text-emerald-400 border border-slate-700/60 shadow-md'
                     : 'text-slate-500 hover:text-slate-300'
                 }`}
               >
@@ -222,9 +222,9 @@ export const AuthPage = () => {
                 type="button"
                 id="auth-toggle-signup"
                 onClick={() => handleModeSwitch('SIGN_UP')}
-                className={`py-2 text-center text-xs font-mono font-bold rounded-xl transition-all cursor-pointer ${
+                className={`py-2 text-center text-xs font-mono font-bold rounded transition-all cursor-pointer ${
                   !isSignIn
-                    ? 'bg-slate-800 text-emerald-400 border border-slate-700/60 shadow-md'
+                    ? 'bg-[#0d1321] text-emerald-400 border border-slate-700/60 shadow-md'
                     : 'text-slate-500 hover:text-slate-300'
                 }`}
               >

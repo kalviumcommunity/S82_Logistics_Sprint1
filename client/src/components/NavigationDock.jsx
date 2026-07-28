@@ -49,16 +49,16 @@ export const NavigationDock = ({ activeTab, setActiveTab }) => {
               key={tab.id}
               id={`nav-dock-${tab.id}`}
               onClick={() => setActiveTab(tab.id)}
-              className={`pill-nav-btn relative flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-all duration-200 select-none ${
+              className={`pill-nav-btn relative flex items-center gap-2 px-4 py-2 rounded-full text-xs font-mono font-bold cursor-pointer transition-all duration-200 select-none ${
                 isActive
-                  ? 'bg-slate-800/90 text-emerald-400 font-bold border border-slate-700/80 shadow-[0_0_12px_rgba(16,185,129,0.25)] scale-105'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 hover:scale-[1.02]'
+                  ? 'bg-slate-800/90 text-emerald-400 border border-slate-700/80'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
               }`}
             >
-              <Icon className={`h-3.5 w-3.5 shrink-0 transition-transform duration-200 ${isActive ? 'scale-110 text-emerald-400' : ''}`} />
+              <Icon className={`h-3.5 w-3.5 shrink-0 transition-transform duration-200 ${isActive ? 'text-emerald-400' : ''}`} />
               <span>{tab.label}</span>
               {isActive && (
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-chip-blink shadow-[0_0_6px_#10b981]" />
+                <span className="absolute bottom-0 left-3 right-3 h-[2px] bg-emerald-500 rounded-full" />
               )}
             </button>
           );

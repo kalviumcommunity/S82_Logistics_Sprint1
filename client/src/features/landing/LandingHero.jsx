@@ -57,13 +57,13 @@ export const LandingHero = ({ onSearch, journeyData, isLoading, isError }) => {
                 value={trackingInput}
                 onChange={(e) => setTrackingInput(e.target.value.toUpperCase())}
                 placeholder="e.g. LGS-8842-XT9"
-                className="w-full bg-[#0d1321] border border-slate-800/80 rounded-2xl px-5 py-4 pl-12 text-sm font-mono text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/40 transition-all shadow-2xl"
+                className="w-full bg-[#0d1321] border border-slate-800/60 rounded-lg px-5 py-3.5 pl-12 text-sm font-mono text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500/60 transition-all shadow-xl"
               />
               <Search className="absolute left-4 h-5 w-5 text-slate-500" />
               <button
                 type="submit"
                 disabled={isLoading}
-                className="absolute right-2 px-5 py-2.5 bg-slate-800 hover:bg-emerald-600 border border-slate-700/60 hover:border-emerald-500 rounded-xl text-xs font-mono font-bold text-slate-200 hover:text-white transition-all shadow-md flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                className="absolute right-2 px-4 py-2 bg-slate-800 hover:bg-emerald-600 border border-slate-700/60 rounded-lg text-xs font-mono font-bold text-slate-200 hover:text-white transition-all shadow-md flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
                 {isLoading ? (
                   <span className="flex items-center gap-2">
@@ -88,7 +88,7 @@ export const LandingHero = ({ onSearch, journeyData, isLoading, isError }) => {
                     key={s}
                     type="button"
                     onClick={() => { setTrackingInput(s); onSearch(s); }}
-                    className="px-2 py-0.5 bg-slate-900 border border-slate-800/60 hover:border-slate-700 rounded text-[9px] font-mono text-slate-400 hover:text-emerald-400 transition-colors"
+                    className="px-2 py-0.5 bg-[#0d1321] border border-slate-800/60 hover:border-slate-700 rounded text-[9px] font-mono text-slate-400 hover:text-emerald-400 transition-colors"
                   >
                     {s}
                   </button>
@@ -99,7 +99,7 @@ export const LandingHero = ({ onSearch, journeyData, isLoading, isError }) => {
         </div>
 
         {/* Right 5 Columns: Interactive Vector Global Topology Map Graphic */}
-        <div className="lg:col-span-5 relative w-full h-[320px] bg-[#0b101d] border border-slate-800/60 rounded-3xl p-4 overflow-hidden flex flex-col justify-between shadow-2xl">
+        <div className="lg:col-span-5 relative w-full h-[320px] bg-[#0d1321] border border-slate-800/60 rounded-lg p-4 overflow-hidden flex flex-col justify-between shadow-2xl">
           {/* SVG Abstract Topology Vector Grid */}
           <svg className="absolute inset-0 w-full h-full opacity-60" viewBox="0 0 600 400" fill="none">
             <defs>
@@ -121,13 +121,9 @@ export const LandingHero = ({ onSearch, journeyData, isLoading, isError }) => {
             <path d="M 120 100 Q 280 300 480 280" stroke="#334155" strokeWidth="1.5" fill="none" strokeDasharray="3 3" />
 
             {/* Hub Nodes */}
-            <circle cx="80" cy="280" r="6" fill="#10b981" />
-            <circle cx="80" cy="280" r="12" fill="#10b981" opacity="0.25" className="animate-ping" />
-
-            <circle cx="320" cy="220" r="7" fill="#f59e0b" />
-            <circle cx="320" cy="220" r="14" fill="#f59e0b" opacity="0.25" className="animate-pulse" />
-
-            <circle cx="520" cy="100" r="6" fill="#ef4444" />
+            <circle cx="80" cy="280" r="5" fill="#10b981" />
+            <circle cx="320" cy="220" r="6" fill="#f59e0b" />
+            <circle cx="520" cy="100" r="5" fill="#ef4444" />
 
             {/* Node Labels */}
             <text x="70" y="305" fill="#94a3b8" fontSize="10" fontFamily="monospace" fontWeight="bold">HQ-GLOBAL [ORD]</text>
@@ -149,7 +145,7 @@ export const LandingHero = ({ onSearch, journeyData, isLoading, isError }) => {
           </div>
 
           {/* Bottom Card Summary Overlay */}
-          <div className="relative z-10 bg-slate-900/90 border border-slate-800/80 rounded-2xl p-3 flex items-center justify-between backdrop-blur-md">
+          <div className="relative z-10 bg-[#06090f]/90 border border-slate-800/80 rounded-lg p-3 flex items-center justify-between backdrop-blur-md">
             <div>
               <p className="text-[9px] font-mono text-slate-500 uppercase">ACTIVE SHIPMENT INSPECTED</p>
               <p className="text-xs font-mono font-bold text-slate-200 mt-0.5">{journey?.shipmentId || 'SH-7777'}</p>

@@ -52,31 +52,44 @@ export const Header = () => {
   };
 
   return (
-    <header className="h-12 bg-[#0a0f1a] border-b border-slate-800/60 flex items-center justify-between px-6 shrink-0 z-50 relative select-none">
-      {/* Left: Branding */}
+    <header className="h-12 bg-[#06090f] border-b border-slate-800/60 flex items-center justify-between px-6 shrink-0 z-50 relative select-none">
+      {/* Left: Branding & Minimalist Dual-Arrow Logo */}
       <div className="flex items-center gap-3">
         <svg width="22" height="22" viewBox="0 0 28 28" fill="none" className="shrink-0">
-          <path d="M5 9L14 3.5L23 9" stroke="#cbd5e1" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M5 18.5L14 24L23 18.5" stroke="#cbd5e1" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M5 9L14 3.5L23 9" stroke="#94a3b8" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M5 18.5L14 24L23 18.5" stroke="#94a3b8" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
           <path d="M14 3.5V24" stroke="#334155" strokeWidth="1" strokeDasharray="2.5 3.5" />
           <circle cx="14" cy="13.5" r="1.5" fill="none" stroke="#475569" strokeWidth="1" />
         </svg>
         <div className="hidden sm:flex flex-col leading-none">
-          <span className="text-[10px] font-black tracking-widest text-slate-300 uppercase">
+          <span className="text-[10px] font-bold tracking-widest text-slate-200 uppercase font-sans">
             CASCADING DELAY
           </span>
-          <span className="text-[8px] font-mono text-slate-400 tracking-widest mt-0.5">OPERATIONS OS</span>
+          <span className="text-[8px] font-mono text-slate-500 tracking-widest mt-0.5">OPERATIONS OS</span>
         </div>
         <div className="h-4 w-px bg-slate-800/80 ml-1 hidden sm:block" />
       </div>
 
-      {/* Center: Live Telemetry & WS Connection Health */}
+      {/* Center: Live Status Chips */}
       <div className="flex items-center gap-2.5">
-        {/* WS Connection Health Tag */}
-        <div className="flex items-center gap-1.5 bg-slate-950 px-2.5 py-1 border border-slate-800/60 rounded">
+        {/* SYS_OK */}
+        <div className="hidden sm:flex items-center gap-1.5 bg-[#0d1321] px-2.5 py-1 border border-slate-800/60 rounded">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-chip-blink" />
+          <span className="font-mono text-[10px] text-emerald-500 font-bold tracking-wider">
+            SYS_OK
+          </span>
+        </div>
+
+        {/* STREAM INGEST */}
+        <div className="hidden md:flex items-center bg-[#0d1321] px-2.5 py-1 border border-slate-800/60 rounded">
+          <span className="font-mono text-[10px] text-slate-400 tracking-wide">STREAM INGEST: 12k/s</span>
+        </div>
+
+        {/* WS CONNECTION STATUS */}
+        <div className="flex items-center gap-1.5 bg-[#0d1321] px-2.5 py-1 border border-slate-800/60 rounded">
           {isConnected ? (
             <>
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_#10b981]" />
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
               <span className="font-mono text-[10px] text-emerald-400 font-bold tracking-wider">
                 WS: ACTIVE
               </span>
@@ -91,13 +104,8 @@ export const Header = () => {
           )}
         </div>
 
-        {/* STREAM INGEST */}
-        <div className="hidden md:flex items-center bg-slate-950 px-2.5 py-1 border border-slate-800/60 rounded">
-          <span className="font-mono text-[10px] text-slate-400 tracking-wide">STREAM INGEST: 12k/s</span>
-        </div>
-
         {/* LATENCY */}
-        <div className="hidden sm:flex items-center bg-slate-950 px-2.5 py-1 border border-slate-800/60 rounded">
+        <div className="hidden lg:flex items-center bg-[#0d1321] px-2.5 py-1 border border-slate-800/60 rounded">
           <span className="font-mono text-[10px] text-amber-400 tracking-wide">
             LATENCY: {networkStats.latencyMs !== null ? `${networkStats.latencyMs}ms` : '42ms'}
           </span>

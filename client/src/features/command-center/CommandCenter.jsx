@@ -215,16 +215,16 @@ export const CommandCenter = () => {
       {/* ── Main Command Grid ──────────────────────────────────────── */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
-        {/* Visual Map Frame */}
-        <div className="xl:col-span-2 flex flex-col gap-3 card-panel p-4 h-[560px]">
-          <div className="flex items-center justify-between border-b border-slate-800/40 pb-2.5">
-            <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+        {/* Visual Map Frame (70% / 2 cols) */}
+        <div className="xl:col-span-2 flex flex-col gap-3 bg-[#0d1321] border border-slate-800/60 rounded-lg p-4 h-[560px] shadow-2xl">
+          <div className="flex items-center justify-between border-b border-slate-800/60 pb-2.5">
+            <h2 className="text-xs font-bold text-slate-300 uppercase tracking-widest flex items-center gap-2 font-mono">
               <Truck className="h-4 w-4 text-slate-400" />
-              Geospatial Fleet Coordinates Tracker
+              GEOSPATIAL FLEET COORDINATES TRACKER (70% PANEL)
             </h2>
             {/* Live badge */}
-            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-950/20 border border-emerald-900/30 rounded text-[9px] font-mono font-bold text-emerald-500">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-chip-blink" />
+            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#06090f] border border-slate-800/60 rounded text-[9px] font-mono font-bold text-emerald-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
               LIVE FLEET · SH-7777
             </div>
           </div>
