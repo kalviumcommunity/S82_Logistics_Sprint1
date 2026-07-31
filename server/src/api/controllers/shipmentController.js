@@ -3,6 +3,7 @@ import { redisClient } from '../../config/redis.js';
 import { ShipmentEventIngestSchema } from '../validation.js';
 import ShipmentJourney from '../../models/ShipmentJourney.js';
 import Warehouse from '../../models/Warehouse.js';
+import { calculatePredictiveRisk } from '../../services/riskEngine.js';
 import logger from '../../config/logger.js';
 
 /**
@@ -143,6 +144,77 @@ export async function patchUserRole(req, res, next) {
 }
 
 /**
+ * GET /api/v1/shipments/:id/risk-analysis
+ * Predictive risk breakdown endpoint (Protected for ADMIN & OPERATIONS_MANAGER)
+ */
+export async function getShipmentRiskAnalysis(req, res, next) {
+  const { id } = req.params;
+
+  try {
+    const journey = await ShipmentJourney.findOne({ shipmentId: id });
+    
+    const legs = journey?.legs || [];
+    const currentLeg = legs[legs.length - 1] || {};
+    const locationId = currentLeg.locationId || 'HUB-CHICAGO';
+    const nextLocationId = 'HUB-DETROIT';
+
+    // Query Redis for live warehouse topology and telemetry
+    const redisWarehouse = await redisClient.hgetall('graph:warehouse:' + locationId).catch(() => ({}));
+    const whDoc = !redisWarehouse.name ? await Warehouse.findOne({ warehouseId: locationId }) : null;
+
+    const currentFacility = {
+      warehouseId: locationId,
+      name: redisWarehouse.name || whDoc?.name || 'Chicago Central Hub',
+      currentQueueLength: parseInt(redisWarehouse.currentQueueLength || whDoc?.currentQueueLength || '12', 10),
+      dwellTimeAvg: parseInt(redisWarehouse.dwellTimeAvg || whDoc?.dwellTimeAvg || '3600', 10),
+      actualDwell: currentLeg.dwellDuration || 5400,
+      capacity: 15,
+    };
+
+    const redisNextWarehouse = await redisClient.hgetall('graph:warehouse:' + nextLocationId).catch(() => ({}));
+    const nextFacility = {
+      warehouseId: nextLocationId,
+      name: redisNextWarehouse.name || 'Detroit Transfer Hub',
+      currentQueueLength: parseInt(redisNextWarehouse.currentQueueLength || '14', 10),
+      dwellTimeAvg: parseInt(redisNextWarehouse.dwellTimeAvg || '3000', 10),
+      capacity: 15,
+    };
+
+    const routeTelemetry = await redisClient.hgetall(`graph:edge:${locationId}:${nextLocationId}`).catch(() => ({}));
+    if (currentLeg.weatherException) {
+      routeTelemetry.weatherException = true;
+    }
+
+    const shipmentData = {
+      promisedSlaEta: journey?.currentEta || new Date(Date.now() + 3600000),
+      remainingTransitMs: 3600000,
+    };
+
+    const riskResult = calculatePredictiveRisk(
+      shipmentData,
+      currentFacility,
+      nextFacility,
+      routeTelemetry
+    );
+
+    const overallRiskScore = journey?.riskScore ?? journey?.currentRiskScore ?? riskResult.overallRiskScore;
+    const status = journey?.status || riskResult.status;
+
+    return res.status(200).json({
+      shipmentId: id,
+      overallRiskScore,
+      status,
+      factors: riskResult.factors,
+      predictedDelayMinutes: riskResult.predictedDelayMinutes,
+      impactedDownstreamNodes: riskResult.impactedDownstreamNodes,
+    });
+  } catch (error) {
+    logger.error({ err: error, shipmentId: id }, 'Error retrieving predictive risk analysis');
+    next(error);
+  }
+}
+
+/**
  * GET /api/v1/warehouses
  * Fetch all seeded logistics warehouses nodes
  */
@@ -162,6 +234,7 @@ export async function getWarehouses(req, res, next) {
 export default {
   postShipmentEvent,
   getShipmentJourney,
+  getShipmentRiskAnalysis,
   getSystemHealth,
   patchUserRole,
   getWarehouses,
