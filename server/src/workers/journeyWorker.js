@@ -3,45 +3,64 @@ import { redisQueueConnection, redisClient } from '../config/redis.js';
 import ShipmentEvent from '../models/ShipmentEvent.js';
 import ShipmentJourney from '../models/ShipmentJourney.js';
 import Warehouse from '../models/Warehouse.js';
+import { calculatePredictiveRisk } from '../services/riskEngine.js';
 import { broadcast, getIO } from '../config/socket.js';
 import logger from '../config/logger.js';
 
 /**
- * Mathematical evaluation of shipment risk score and delivery status
+ * Fetch live node state from Redis RAM (sub-2ms), falling back to DB if unpopulated
  */
-async function evaluateRiskAndEta(legs, currentLegEvent) {
-  const warehouse = await Warehouse.findOne({ warehouseId: currentLegEvent.locationId });
-  let queueRiskModifier = 0;
+async function getWarehouseTelemetryFromRedis(locationId) {
+  if (!locationId) return {};
+  try {
+    const redisData = await redisClient.hgetall('graph:warehouse:' + locationId);
+    if (redisData && Object.keys(redisData).length > 0) {
+      return {
+        warehouseId: locationId,
+        name: redisData.name || locationId,
+        currentQueueLength: parseInt(redisData.currentQueueLength || '0', 10),
+        dwellTimeAvg: parseInt(redisData.dwellTimeAvg || '0', 10),
+        capacity: parseInt(redisData.capacity || '15', 10),
+      };
+    }
 
-  if (warehouse) {
-    if (warehouse.currentQueueLength > 10) queueRiskModifier += 25;
-    if (warehouse.averageDwellTimeMinutes > 90) queueRiskModifier += 20;
+    // Fallback query to MongoDB Warehouse
+    const whDoc = await Warehouse.findOne({ warehouseId: locationId });
+    if (whDoc) {
+      const whData = {
+        name: whDoc.name,
+        currentQueueLength: String(whDoc.currentQueueLength || 0),
+        dwellTimeAvg: String(whDoc.dwellTimeAvg || 0),
+        capacity: '15',
+      };
+      await redisClient.hset('graph:warehouse:' + locationId, whData);
+      return {
+        warehouseId: locationId,
+        name: whDoc.name,
+        currentQueueLength: whDoc.currentQueueLength || 0,
+        dwellTimeAvg: whDoc.dwellTimeAvg || 0,
+        capacity: 15,
+      };
+    }
+  } catch (err) {
+    logger.warn({ err, locationId }, 'Failed to fetch warehouse telemetry from Redis');
   }
+  return { warehouseId: locationId, currentQueueLength: 0, dwellTimeAvg: 0, capacity: 15 };
+}
 
-  const weatherDelayCount = legs.reduce((acc, leg) => {
-    return acc + (leg.status === 'DELAYED' && leg.delayReason === 'WEATHER' ? 1 : 0);
-  }, 0);
-  const weatherRiskModifier = weatherDelayCount * 15;
-
-  const totalCalculatedModifier = queueRiskModifier + weatherRiskModifier;
-  const rawRiskScore = Math.min(100, Math.max(0, 10 + totalCalculatedModifier));
-
-  let calculatedStatus = 'IN_TRANSIT';
-  if (rawRiskScore > 75) {
-    calculatedStatus = 'CRITICAL_DELAY';
-  } else if (rawRiskScore > 40) {
-    calculatedStatus = 'DELAY_RISK';
+/**
+ * Fetch edge telemetry from Redis RAM (weather, traffic, congestion)
+ */
+async function getEdgeTelemetryFromRedis(currentLocation, nextLocation) {
+  if (!currentLocation || !nextLocation) return {};
+  try {
+    const key = `graph:edge:${currentLocation}:${nextLocation}`;
+    const redisData = await redisClient.hgetall(key);
+    return redisData || {};
+  } catch (err) {
+    logger.warn({ err, currentLocation, nextLocation }, 'Failed to fetch edge telemetry from Redis');
+    return {};
   }
-
-  const baseDate = new Date(currentLegEvent.timestamp || Date.now());
-  const delayHoursAdded = Math.floor(rawRiskScore / 10);
-  const expectedEta = new Date(baseDate.getTime() + delayHoursAdded * 3600 * 1000);
-
-  return {
-    riskScore: rawRiskScore,
-    status: calculatedStatus,
-    expectedEta,
-  };
 }
 
 let journeyWorker = null;
@@ -51,7 +70,7 @@ try {
     'shipment-events',
     async (job) => {
       const { event: rawEvent } = job.data;
-      const { shipmentId } = rawEvent;
+      const { shipmentId, locationId, nextLocationId } = rawEvent;
 
       logger.info({ shipmentId, jobName: job.name }, 'Processing shipment event job...');
 
@@ -64,43 +83,89 @@ try {
         if (!journey) {
           journey = new ShipmentJourney({
             shipmentId,
-            origin: rawEvent.locationId || 'HUB-ORIGIN',
-            destination: rawEvent.metadata?.destination || 'HUB-DESTINATION',
-            status: 'IN_TRANSIT',
-            currentRiskScore: 0,
+            origin: locationId || 'HUB-ORIGIN',
+            destination: rawEvent.metadata?.destination || nextLocationId || 'HUB-DESTINATION',
+            status: 'SAFE',
+            riskScore: 0,
+            currentEta: new Date(Date.now() + 7200000),
             legs: [],
           });
         }
 
+        const legDwell = rawEvent.dwellDuration ?? rawEvent.metadata?.dwellDuration ?? 0;
+        const weatherException = rawEvent.weatherException ?? rawEvent.metadata?.weatherException ?? false;
+
         journey.legs.push({
-          locationId: rawEvent.locationId,
-          timestamp: rawEvent.timestamp,
-          eventType: rawEvent.eventType,
-          status: rawEvent.status || 'NORMAL',
-          delayReason: rawEvent.metadata?.delayReason || null,
+          sequenceIndex: journey.legs.length,
+          locationId: locationId || 'HUB-UNKNOWN',
+          timestamp: rawEvent.timestamp ? new Date(rawEvent.timestamp) : new Date(),
+          coordinates: {
+            type: 'Point',
+            coordinates: rawEvent.coordinates || [0, 0],
+          },
+          dwellDuration: legDwell,
+          weatherException: Boolean(weatherException),
         });
 
-        const { riskScore, status, expectedEta } = await evaluateRiskAndEta(journey.legs, rawEvent);
-        journey.currentRiskScore = riskScore;
+        // Redis Sub-2ms Topology & Telemetry Lookup
+        const currentFacility = await getWarehouseTelemetryFromRedis(locationId);
+        currentFacility.actualDwell = legDwell;
+
+        const nextFacilityId = nextLocationId || rawEvent.metadata?.nextLocationId;
+        const nextFacility = await getWarehouseTelemetryFromRedis(nextFacilityId);
+
+        const routeTelemetry = await getEdgeTelemetryFromRedis(locationId, nextFacilityId);
+        if (weatherException) {
+          routeTelemetry.weatherException = true;
+        }
+
+        // Run Predictive Risk Engine calculation
+        const riskResult = calculatePredictiveRisk(
+          {
+            promisedSlaEta: journey.currentEta || journey.estimatedDelivery,
+            remainingTransitMs: 3600000,
+          },
+          currentFacility,
+          nextFacility,
+          routeTelemetry
+        );
+
+        const { overallRiskScore, status, predictedDelayMinutes } = riskResult;
+
+        journey.riskScore = overallRiskScore;
+        if (journey.currentRiskScore !== undefined) {
+          journey.currentRiskScore = overallRiskScore;
+        }
         journey.status = status;
-        journey.estimatedDelivery = expectedEta;
-        journey.updatedAt = new Date();
+
+        // Dynamic ETA calculation based on predicted delay minutes
+        const baseTimestamp = rawEvent.timestamp ? new Date(rawEvent.timestamp).getTime() : Date.now();
+        const revisedEtaMs = baseTimestamp + (3600000 + predictedDelayMinutes * 60000);
+        journey.currentEta = new Date(revisedEtaMs);
+        if (journey.estimatedDelivery !== undefined) {
+          journey.estimatedDelivery = journey.currentEta;
+        }
 
         await journey.save();
 
+        // Purge retrieval cache in Redis (journey:${shipmentId})
         const cacheKey = `journey:${shipmentId}`;
-        await redisClient.set(cacheKey, JSON.stringify(journey), 'EX', 300);
+        await redisClient.del(cacheKey);
 
+        // Broadcast risk update
         broadcast('risk:update', journey);
 
-        if (riskScore > 70 || status === 'DELAYED' || status === 'CRITICAL_DELAY' || rawEvent.status === 'DELAYED') {
+        // Real-time WebSocket Alert Pipeline for high risk
+        if (overallRiskScore > 70 || status === 'DELAYED') {
           const alertPayload = {
             shipmentId,
             status,
-            riskScore,
-            locationId: rawEvent.locationId || 'HUB-CENTRAL',
-            delayReason: rawEvent.metadata?.delayReason || 'Cascading Route Delay',
+            riskScore: overallRiskScore,
+            locationId: locationId || 'HUB-CENTRAL',
+            delayReason: rawEvent.metadata?.delayReason || `Predicted Cascading Delay (+${predictedDelayMinutes}m)`,
             timestamp: rawEvent.timestamp || new Date().toISOString(),
+            riskFactors: riskResult.factors,
+            predictedDelayMinutes,
           };
 
           try {
@@ -113,13 +178,13 @@ try {
               broadcast('cascade:alert', alertPayload);
               broadcast('cascade:alert', alertPayload, 'room:operations');
             }
-            logger.info(`[WEBSOCKET] Cascade alert emitted for shipment ${shipmentId} (Score: ${riskScore})`);
+            logger.info(`[WEBSOCKET] Cascade alert emitted for shipment ${shipmentId} (Risk Score: ${overallRiskScore})`);
           } catch (wsErr) {
             logger.error({ err: wsErr, shipmentId }, 'Failed to emit cascade:alert WebSocket payload');
           }
         }
 
-        return { shipmentId, journeyId: journey._id, status, riskScore };
+        return { shipmentId, journeyId: journey._id, status, riskScore: overallRiskScore };
       } catch (err) {
         logger.error({ err, shipmentId }, 'Failed to process shipment event in worker.');
         throw err;

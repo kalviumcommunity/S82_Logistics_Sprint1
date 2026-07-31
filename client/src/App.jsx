@@ -5,6 +5,7 @@ import AuthGate from './components/AuthGate.jsx';
 import CommandDeckLayout from './components/CommandDeckLayout.jsx';
 import JourneyTracker from './features/tracking/JourneyTracker.jsx';
 import CommandCenter from './features/command-center/CommandCenter.jsx';
+import WarehouseDeck from './features/warehouse/WarehouseDeck.jsx';
 import AdminPanel from './features/admin/AdminPanel.jsx';
 import ProtectedRoute from './routes/ProtectedRoute.jsx';
 import { RefreshCw } from 'lucide-react';
@@ -13,7 +14,7 @@ import { RefreshCw } from 'lucide-react';
 const WORKSPACE_VIEWS = {
   tracking: JourneyTracker,
   command: CommandCenter,
-  warehouse: JourneyTracker, // Facility / Warehouse Deck view
+  warehouse: WarehouseDeck, // Facility / Warehouse Deck view
   admin: AdminPanel,
 };
 
