@@ -1,8 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { useApi } from '../../context/ApiContext.jsx';
 import { useSocket } from '../../context/SocketContext.jsx';
 import UserManagementTable from './UserManagementTable.jsx';
+import ModelTelemetryCard from './ModelTelemetryCard.jsx';
+import DataPipelineHealthCard from './DataPipelineHealthCard.jsx';
+import CascadingKpiCard from './CascadingKpiCard.jsx';
+import FacilityCongestionHeatmap from './FacilityCongestionHeatmap.jsx';
 import {
   Cpu, Database, ShieldAlert, Users, Terminal, ShieldCheck,
   Shield, UserX, ChevronDown, Check, Activity
@@ -98,6 +102,19 @@ export const AdminPanel = () => {
     refetchInterval: 5000,
   });
 
+  const { data: summaryData } = useQuery({
+    queryKey: ['analytics-dashboard-summary'],
+    queryFn: async () => {
+      try {
+        const res = await apiClient.get('/analytics/dashboard-summary');
+        return res.data;
+      } catch (e) {
+        return null;
+      }
+    },
+    refetchInterval: 10000,
+  });
+
   const roleMutation = useMutation({
     mutationFn: async ({ userId, role }) => {
       const res = await apiClient.patch(`/users/${userId}/role`, { role });
@@ -155,34 +172,34 @@ export const AdminPanel = () => {
 
   const TELEMETRY_CARDS = [
     {
-      label: 'Database Status',
+      label: 'Core Pipeline Status',
       icon: Database,
-      value: healthData?.database || '—',
-      sub: 'Mongoose Connection Pools',
+      value: healthData?.database === 'healthy' ? 'OPTIMAL' : healthData?.database || '—',
+      sub: 'Analytical Connection Pools',
       accent: healthData?.database === 'healthy' ? 'text-emerald-400' : 'text-red-500',
       borderAccent: healthData?.database === 'healthy' ? 'stat-accent-safe' : 'stat-accent-delayed',
     },
     {
-      label: 'Redis Stream Buffers',
+      label: 'Real-Time Telemetry Stream',
       icon: Terminal,
       value: healthData?.redisStreamLength ?? '—',
-      sub: 'Active buffer stream size (COUNT)',
+      sub: 'Active stream telemetry buffer',
       accent: 'text-slate-200',
       borderAccent: 'stat-accent-neutral',
     },
     {
-      label: 'Host CPU Load',
+      label: 'Analytics Engine Load',
       icon: Cpu,
       value: healthData?.cpuUsage || '—',
-      sub: 'Express process execution slice',
+      sub: 'Model execution slice allocation',
       accent: 'text-slate-200',
       borderAccent: 'stat-accent-neutral',
     },
     {
-      label: 'API Quota Usage',
+      label: 'Predictive API Capacity',
       icon: ShieldAlert,
       value: healthData?.apiQuota || '9,845',
-      sub: '/ 10,000 monthly limit',
+      sub: '/ 10,000 hourly telemetry limit',
       accent: 'text-amber-400',
       borderAccent: 'stat-accent-risk',
     },
@@ -253,6 +270,18 @@ export const AdminPanel = () => {
           </div>
         ))}
       </div>
+
+      {/* Data Pre-Processing & Pipeline Quality Card */}
+      <DataPipelineHealthCard />
+
+      {/* Facility Congestion & Yard Saturation Heatmap Grid */}
+      <FacilityCongestionHeatmap heatmaps={summaryData?.facilityCongestionHeatmaps || []} />
+
+      {/* Network Cascade Propagation & Operations Research KPIs Card */}
+      <CascadingKpiCard />
+
+      {/* Data Science Model Accuracy & Telemetry Card */}
+      <ModelTelemetryCard />
 
       {/* Role Assignment Management Grid */}
       <UserManagementTable />

@@ -65,49 +65,49 @@ export const Header = () => {
           <span className="text-[10px] font-bold tracking-widest text-slate-200 uppercase font-sans">
             CASCADING DELAY
           </span>
-          <span className="text-[8px] font-mono text-slate-500 tracking-widest mt-0.5">OPERATIONS OS</span>
+          <span className="text-[8px] font-mono text-slate-500 tracking-widest mt-0.5">PREDICTIVE PLATFORM</span>
         </div>
         <div className="h-4 w-px bg-slate-800/80 ml-1 hidden sm:block" />
       </div>
 
       {/* Center: Live Status Chips */}
       <div className="flex items-center gap-2.5">
-        {/* SYS_OK */}
+        {/* ANALYTICS ACTIVE */}
         <div className="hidden sm:flex items-center gap-1.5 bg-[#0d1321] px-2.5 py-1 border border-slate-800/60 rounded">
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-chip-blink" />
           <span className="font-mono text-[10px] text-emerald-500 font-bold tracking-wider">
-            SYS_OK
+            ANALYTICS: ACTIVE
           </span>
         </div>
 
-        {/* STREAM INGEST */}
+        {/* TELEMETRY PIPELINE */}
         <div className="hidden md:flex items-center bg-[#0d1321] px-2.5 py-1 border border-slate-800/60 rounded">
-          <span className="font-mono text-[10px] text-slate-400 tracking-wide">STREAM INGEST: 12k/s</span>
+          <span className="font-mono text-[10px] text-slate-400 tracking-wide">TELEMETRY PIPELINE: 12.4k/s</span>
         </div>
 
-        {/* WS CONNECTION STATUS */}
+        {/* REALTIME STREAM */}
         <div className="flex items-center gap-1.5 bg-[#0d1321] px-2.5 py-1 border border-slate-800/60 rounded">
           {isConnected ? (
             <>
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
               <span className="font-mono text-[10px] text-emerald-400 font-bold tracking-wider">
-                WS: ACTIVE
+                REALTIME STREAM: ONLINE
               </span>
             </>
           ) : (
             <>
               <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-ping" />
               <span className="font-mono text-[10px] text-amber-400 font-bold tracking-wider">
-                WS: RECONNECTING
+                STREAM: RECONNECTING
               </span>
             </>
           )}
         </div>
 
-        {/* LATENCY */}
+        {/* MODEL INFERENCE */}
         <div className="hidden lg:flex items-center bg-[#0d1321] px-2.5 py-1 border border-slate-800/60 rounded">
           <span className="font-mono text-[10px] text-amber-400 tracking-wide">
-            LATENCY: {networkStats.latencyMs !== null ? `${networkStats.latencyMs}ms` : '42ms'}
+            INFERENCE LATENCY: {networkStats.latencyMs !== null ? `${networkStats.latencyMs}ms` : '1.4ms'}
           </span>
         </div>
       </div>

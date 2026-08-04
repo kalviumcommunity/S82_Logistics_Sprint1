@@ -134,7 +134,11 @@ export async function login(req, res, next) {
     );
 
     // Save refresh token in Redis (7 days TTL = 604800s)
-    await redisClient.set(`refresh:${userId}`, refreshToken, 'EX', 604800);
+    try {
+      await redisClient.set(`refresh:${userId}`, refreshToken, 'EX', 604800);
+    } catch (redisErr) {
+      logger.warn({ err: redisErr.message }, 'Redis token cache write skipped during login');
+    }
 
     // Set Refresh Token in HttpOnly cookie
     res.cookie('refreshToken', refreshToken, {

@@ -1,9 +1,0 @@
-customer_name,product_name,customer_segment,location
-JOHN," Electronics ",b2b,São Paulo
-john,electronics,"B 2 B","Montréal"
-John,ELECTRONICS,b2 b,"New-York!"
- ALICE ," Smart Phone ",sme,"Tokyo #1"
-Alice,smart phone,small medium enterprise,"São Paulo "
-BOB,SMART PHONE,enterprise," Montréal"
-Charlie," Home Audio ",Enterprise,São Paulo
-charlie,home audio,b2b,Montréal
