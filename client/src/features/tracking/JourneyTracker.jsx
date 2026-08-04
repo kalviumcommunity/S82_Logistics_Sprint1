@@ -92,12 +92,12 @@ export const JourneyTracker = () => {
               {networkStats.source === 'cache' ? (
                 <>
                   <Cpu className="h-3 w-3" />
-                  Source: RAM Cache
+                  Pipeline: Predictive Cache
                 </>
               ) : (
                 <>
                   <Database className="h-3 w-3" />
-                  Source: MongoDB Grid
+                  Pipeline: Historical Data Store
                 </>
               )}
             </div>

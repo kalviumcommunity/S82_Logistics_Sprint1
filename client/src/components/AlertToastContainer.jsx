@@ -5,7 +5,13 @@ import { useNavigate } from 'react-router-dom';
 
 export const AlertToastContainer = () => {
   const { activeAlerts, clearAlert } = useSocket();
-  const navigate = useNavigate();
+
+  let navigate = null;
+  try {
+    navigate = useNavigate();
+  } catch (e) {
+    // Router context fallback
+  }
 
   if (!activeAlerts || activeAlerts.length === 0) {
     return null;
@@ -15,10 +21,15 @@ export const AlertToastContainer = () => {
   const visibleAlerts = activeAlerts.slice(0, 3);
 
   const handleInspect = (shipmentId) => {
-    if (shipmentId) {
-      navigate(`/tracking?shipmentId=${shipmentId}`);
+    const targetUrl = shipmentId ? `/track?shipmentId=${shipmentId}` : '/track';
+    if (navigate) {
+      try {
+        navigate(targetUrl);
+      } catch (err) {
+        window.location.href = targetUrl;
+      }
     } else {
-      navigate('/tracking');
+      window.location.href = targetUrl;
     }
   };
 

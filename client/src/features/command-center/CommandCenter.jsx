@@ -5,10 +5,11 @@ import { useSocket } from '../../context/SocketContext.jsx';
 import { MapContainer, TileLayer, Marker, Polyline, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import {
-  ShieldAlert, Activity, BarChart3, AlertCircle, Truck, RefreshCw, Clock
+  ShieldAlert, Activity, BarChart3, AlertCircle, Truck, RefreshCw, Clock, Zap
 } from 'lucide-react';
 
 import { RiskBreakdownModal } from './RiskBreakdownModal.jsx';
+import { SimulationDrawer } from './SimulationDrawer.jsx';
 
 // Sharp non-glowing dot icons for the map
 const createDotIcon = (color) => {
@@ -80,9 +81,17 @@ export const CommandCenter = () => {
   const [selectedRiskShipmentId, setSelectedRiskShipmentId] = useState(null);
   const [isRiskModalOpen, setIsRiskModalOpen] = useState(false);
 
+  const [simShipmentId, setSimShipmentId] = useState(null);
+  const [isSimDrawerOpen, setIsSimDrawerOpen] = useState(false);
+
   const handleOpenRiskModal = (shipmentId) => {
     setSelectedRiskShipmentId(shipmentId);
     setIsRiskModalOpen(true);
+  };
+
+  const handleOpenSimulation = (shipmentId) => {
+    setSimShipmentId(shipmentId || 'SH-7777');
+    setIsSimDrawerOpen(true);
   };
 
   const [alerts, setAlerts] = useState([
@@ -118,7 +127,7 @@ export const CommandCenter = () => {
   const warehouses = warehousesRes?.data || [];
 
   // Fetch active route
-  const { data: journeyRes } = useQuery({
+  const { data: journeyRes, refetch: refetchJourney } = useQuery({
     queryKey: ['fleet-shipment-journey'],
     queryFn: async () => {
       const res = await apiClient.get('/shipments/SH-7777/journey').catch(() => null);
@@ -130,7 +139,7 @@ export const CommandCenter = () => {
   const mapCenter   = [39.8283, -98.5795];
   const mapZoom     = 4;
 
-  // Socket telemetry alerts
+  // Socket telemetry alerts and route updates
   useEffect(() => {
     if (!socket) return;
 
@@ -148,7 +157,18 @@ export const CommandCenter = () => {
       setAlerts((prev) => [newAlert, ...prev].slice(0, 10));
     };
 
+    const handleRouteUpdated = (payload) => {
+      refetchJourney();
+      setActiveToast({
+        shipmentId: payload.shipmentId,
+        message: `Route rerouted to ${payload.appliedRouteName || payload.appliedRouteId}. Risk score normalized to ${payload.riskScore}.`,
+        timestamp: new Date().toLocaleTimeString(),
+        riskScore: payload.riskScore,
+      });
+    };
+
     socket.on('cascade:alert', handleCascadeAlert);
+    socket.on('route:updated', handleRouteUpdated);
     socket.on('risk:update', (journey) => {
       const rScore = journey.currentRiskScore ?? journey.riskScore;
       if (rScore >= 70 || journey.status === 'DELAYED' || journey.status === 'CRITICAL_DELAY') {
@@ -165,9 +185,10 @@ export const CommandCenter = () => {
 
     return () => {
       socket.off('cascade:alert', handleCascadeAlert);
+      socket.off('route:updated', handleRouteUpdated);
       socket.off('risk:update');
     };
-  }, [socket]);
+  }, [socket, refetchJourney]);
 
   const polylinePositions = journeyLegs.map(leg => [
     leg.coordinates.coordinates[1],
@@ -224,6 +245,13 @@ export const CommandCenter = () => {
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-chip-blink" />
             <span className="font-mono text-[9px] text-slate-400 tracking-wider">SYNC {now}</span>
           </div>
+          <button
+            onClick={() => handleOpenSimulation('SH-7777')}
+            className="flex items-center gap-2 px-3.5 py-1.5 border border-emerald-800/60 bg-emerald-950/40 text-xs text-emerald-400 font-mono rounded-lg hover:bg-emerald-900/50 hover:border-emerald-700/80 transition-all cursor-pointer font-bold shadow-md"
+          >
+            <Zap className="h-3.5 w-3.5 fill-current" />
+            What-If Reroute Engine
+          </button>
           <button
             onClick={() => { refetchWarehouses(); }}
             className="flex items-center gap-2 px-3 py-1.5 border border-slate-800 bg-slate-900 text-xs text-slate-300 rounded-lg hover:bg-slate-800 hover:border-slate-700 transition-all cursor-pointer font-semibold"
@@ -534,6 +562,16 @@ export const CommandCenter = () => {
         shipmentId={selectedRiskShipmentId}
         isOpen={isRiskModalOpen}
         onClose={() => setIsRiskModalOpen(false)}
+      />
+
+      {/* What-If Reroute & Simulation Engine Drawer */}
+      <SimulationDrawer
+        shipmentId={simShipmentId}
+        isOpen={isSimDrawerOpen}
+        onClose={() => setIsSimDrawerOpen(false)}
+        onRerouteApplied={() => {
+          refetchJourney();
+        }}
       />
 
     </div>

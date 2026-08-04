@@ -8,13 +8,17 @@ import {
 } from './controllers/shipmentController.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import simulationRoutes from './routes/simulationRoutes.js';
+import analyticsRoutes from './routes/analyticsRoutes.js';
 import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
 
 const router = Router();
 
-// Auth and User RBAC routes
+// Auth, User RBAC, Simulation, and Analytics routes
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
+router.use('/simulations', simulationRoutes);
+router.use('/analytics', analyticsRoutes);
 
 // Endpoint for high-throughput ingestion of events
 router.post('/shipment-events', postShipmentEvent);

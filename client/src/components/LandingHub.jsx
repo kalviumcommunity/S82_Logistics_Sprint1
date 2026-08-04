@@ -125,14 +125,14 @@ export const LandingHub = () => {
         <div className="hidden md:flex items-center gap-2 absolute left-1/2 -translate-x-1/2">
           <div className="telemetry-chip">
             <span className="telemetry-status-dot" />
-            <span className="font-mono text-[10px] text-emerald-500 font-bold tracking-wider">SYS_OK</span>
+            <span className="font-mono text-[10px] text-emerald-500 font-bold tracking-wider">ANALYTICS ENGINE: ONLINE</span>
           </div>
           <div className="telemetry-chip">
-            <span className="font-mono text-[10px] text-slate-400 tracking-wide">STREAM INGEST: 12k/s</span>
+            <span className="font-mono text-[10px] text-slate-400 tracking-wide">TELEMETRY PIPELINE: 12.4k/s</span>
           </div>
           <div className="telemetry-chip">
             <span className="font-mono text-[10px] text-amber-500 tracking-wide">
-              LATENCY: {networkStats.latencyMs !== null ? `${networkStats.latencyMs}ms` : '42ms'}
+              INFERENCE: {networkStats.latencyMs !== null ? `${networkStats.latencyMs}ms` : '1.4ms'}
             </span>
           </div>
         </div>
@@ -283,7 +283,7 @@ export const LandingHub = () => {
                 {networkStats.source && (
                   <div className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-900 border border-slate-800/60 rounded-md text-[9px] text-slate-500 font-mono">
                     {networkStats.source === 'cache' ? <Cpu className="h-2.5 w-2.5" /> : <Database className="h-2.5 w-2.5" />}
-                    {networkStats.source === 'cache' ? 'RAM Cache' : 'MongoDB'}
+                    {networkStats.source === 'cache' ? 'Predictive Cache' : 'Historical Data Store'}
                   </div>
                 )}
               </div>
