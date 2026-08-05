@@ -1,23 +1,23 @@
 {
   "amount": {
     "column_type": "numerical",
-    "null_count_before": 2,
+    "null_count_before": 497,
     "strategy": "median_imputation",
-    "value_used": 225.0,
+    "value_used": 2539.733704062523,
     "business_reasoning": "Median purchase amount is representative of typical transaction. Mean would be skewed by high-value outliers. Maintains distribution integrity.",
     "risk_assessment": "Low - median is stable metric resistant to outliers"
   },
   "email": {
     "column_type": "categorical_identifier",
-    "null_count_before": 2,
+    "null_count_before": 266,
     "strategy": "drop_rows",
-    "rows_affected": 2,
+    "rows_affected": 266,
     "business_reasoning": "Email is critical for customer contact and marketing campaigns. Rows without email cannot be used for outreach. Data is incomplete.",
     "risk_assessment": "Low - only affects small percentage of data"
   },
   "status_date": {
     "column_type": "datetime_series",
-    "null_count_before": 2,
+    "null_count_before": 388,
     "strategy": "forward_fill",
     "interpretation": "Assumes last known status date is still valid until changed",
     "business_reasoning": "For time-series analysis, forward fill preserves temporal continuity. Status typically does not change frequently.",
@@ -25,25 +25,25 @@
   },
   "quantity": {
     "column_type": "numerical",
-    "null_count_before": 1,
+    "null_count_before": 403,
     "strategy": "median_imputation",
-    "value_used": 4.0,
+    "value_used": 50.0,
     "business_reasoning": "Order quantity uses median value to represent standard shipment volume.",
     "risk_assessment": "Low - maintains integer distribution integrity"
   },
   "category": {
     "column_type": "categorical",
-    "null_count_before": 1,
+    "null_count_before": 488,
     "strategy": "mode_imputation",
-    "value_used": "B",
+    "value_used": "Freight Express",
     "business_reasoning": "Fills missing category with most frequent classification tier.",
     "risk_assessment": "Low - aligns with predominant category distribution"
   },
   "dwell_duration_min": {
     "column_type": "numerical",
-    "null_count_before": 2,
+    "null_count_before": 839,
     "strategy": "median_imputation",
-    "value_used": 70.0,
+    "value_used": 60.25746444531155,
     "business_reasoning": "Replaces missing warehouse transfer dwell time with median duration to avoid skewing route delay prediction.",
     "risk_assessment": "Low - median preserves operational route baseline"
   }

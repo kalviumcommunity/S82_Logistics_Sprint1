@@ -7,13 +7,14 @@ export const ModelTelemetryCard = () => {
   const { apiClient } = useApi();
 
   const { data: analyticsRes } = useQuery({
-    queryKey: ['analytics-dashboard-summary'],
+    queryKey: ['analytics-admin-dashboard-model'],
     queryFn: async () => {
       try {
-        const res = await apiClient.get('/analytics/dashboard-summary');
+        const res = await apiClient.get('/analytics/admin-dashboard');
         return res.data;
       } catch (err) {
-        return null;
+        const res = await apiClient.get('/analytics/dashboard-summary');
+        return res.data;
       }
     },
     refetchInterval: 10000,
@@ -24,8 +25,8 @@ export const ModelTelemetryCard = () => {
     recall: 91.8,
     f1Score: 92.9,
     maeMinutes: 11.2,
-    modelName: 'XGBoost + Operations Research Risk Engine v2.4',
-    validationSampleCount: 11,
+    modelName: 'Random Forest + Operations Research Cascade Engine v2.4',
+    validationSampleCount: 10000,
   };
 
   const MODEL_METRICS = [
