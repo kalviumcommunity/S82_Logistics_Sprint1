@@ -3,10 +3,10 @@
   "left_table": "customers",
   "right_table": "orders",
   "join_key": "customer_id",
-  "left_rows": 1000,
-  "right_rows": 5000,
-  "result_rows": 5006,
-  "unmatched_left": 56,
-  "unmatched_right": 50,
+  "left_rows": 8000,
+  "right_rows": 10000,
+  "result_rows": 10500,
+  "unmatched_left": 500,
+  "unmatched_right": 0,
   "reasoning": "Left join preserves all customers; unmatched customers have no orders while preserving 1:N order relationship without dropping zero-order customer records."
 }

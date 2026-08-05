@@ -1,20 +1,20 @@
 {
-  "total_records": 500,
+  "total_records": 10000,
   "engagement_tier_counts": {
-    "medium": 279,
-    "low": 136,
-    "high": 85
+    "medium": 5790,
+    "low": 2221,
+    "high": 1989
   },
   "spend_quartile_counts": {
-    "Q1": 125,
-    "Q2": 125,
-    "Q3": 125,
-    "Q4": 125
+    "Q1": 2500,
+    "Q2": 2500,
+    "Q3": 2500,
+    "Q4": 2500
   },
   "rfm_score_stats": {
     "min": 3,
     "max": 15,
-    "mean": 9.002,
+    "mean": 8.9982,
     "median": 9.0
   },
   "missing_values_check": {
@@ -22,5 +22,5 @@
     "spend_quartile": 0,
     "rfm_score": 0
   },
-  "timestamp": "2026-07-27T14:04:05.148275"
+  "timestamp": "2026-08-05T10:34:30.680801"
 }

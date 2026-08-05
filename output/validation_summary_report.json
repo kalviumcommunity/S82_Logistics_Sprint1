@@ -1,17 +1,17 @@
 {
-  "total_records": 10,
-  "passed_records": 3,
-  "failed_records": 7,
-  "pass_rate_pct": 30.0,
+  "total_records": 10000,
+  "passed_records": 9666,
+  "failed_records": 334,
+  "pass_rate_pct": 96.66,
   "check_failure_breakdown": {
-    "valid_age": 1,
-    "valid_price": 1,
-    "valid_date": 2,
-    "valid_customer_id": 1,
-    "valid_email": 0,
-    "valid_email_format": 1,
-    "valid_phone": 1,
-    "valid_date_order": 1
+    "valid_age": 133,
+    "valid_price": 84,
+    "valid_date": 0,
+    "valid_customer_id": 56,
+    "valid_email": 50,
+    "valid_email_format": 156,
+    "valid_phone": 125,
+    "valid_date_order": 0
   },
-  "timestamp": "2026-07-27T13:24:48.535680"
+  "timestamp": "2026-08-05T09:48:44.780117"
 }

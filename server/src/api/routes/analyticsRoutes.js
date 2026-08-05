@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   getPipelineQualityController,
   getDashboardSummaryController,
+  getAdminDashboardController,
 } from '../controllers/analyticsController.js';
 import { authenticateToken, authorizeRoles } from '../../middleware/auth.js';
 
@@ -21,6 +22,14 @@ router.get(
   authenticateToken,
   authorizeRoles('ADMIN'),
   getDashboardSummaryController
+);
+
+// Protected admin analytics dashboard endpoint (ADMIN only)
+router.get(
+  '/admin-dashboard',
+  authenticateToken,
+  authorizeRoles('ADMIN'),
+  getAdminDashboardController
 );
 
 export default router;
