@@ -8,19 +8,38 @@ import {
   ShieldAlert, Activity, BarChart3, AlertCircle, Truck, RefreshCw, Clock
 } from 'lucide-react';
 
-// Sharp non-glowing dot icons for the map
-const createDotIcon = (color) => {
-  const colorHex = color === 'red' ? '#ef4444' : color === 'amber' ? '#f59e0b' : '#10b981';
-  return L.divIcon({
+// Static, pre-rendered non-glowing dot icons for the map
+const MAP_ICONS = {
+  red: L.divIcon({
     html: `
       <div style="position:relative;width:16px;height:16px;display:flex;align-items:center;justify-content:center;">
-        <span style="display:block;width:8px;height:8px;border-radius:50%;background:${colorHex};border:2px solid #090d16;box-shadow:0 0 4px ${colorHex}80;"></span>
+        <span style="display:block;width:8px;height:8px;border-radius:50%;background:#ef4444;border:2px solid #090d16;box-shadow:0 0 4px #ef444480;"></span>
       </div>
     `,
     className: 'custom-dot-icon',
     iconSize: [16, 16],
     iconAnchor: [8, 8],
-  });
+  }),
+  amber: L.divIcon({
+    html: `
+      <div style="position:relative;width:16px;height:16px;display:flex;align-items:center;justify-content:center;">
+        <span style="display:block;width:8px;height:8px;border-radius:50%;background:#f59e0b;border:2px solid #090d16;box-shadow:0 0 4px #f59e0b80;"></span>
+      </div>
+    `,
+    className: 'custom-dot-icon',
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
+  }),
+  emerald: L.divIcon({
+    html: `
+      <div style="position:relative;width:16px;height:16px;display:flex;align-items:center;justify-content:center;">
+        <span style="display:block;width:8px;height:8px;border-radius:50%;background:#10b981;border:2px solid #090d16;box-shadow:0 0 4px #10b98180;"></span>
+      </div>
+    `,
+    className: 'custom-dot-icon',
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
+  })
 };
 
 // High-fidelity mock datasets
@@ -244,7 +263,7 @@ export const CommandCenter = () => {
                 <Marker
                   key={wh.warehouseId}
                   position={[wh.coordinates.coordinates[1], wh.coordinates.coordinates[0]]}
-                  icon={createDotIcon(wh.currentQueueLength >= 10 ? 'red' : wh.currentQueueLength >= 5 ? 'amber' : 'emerald')}
+                  icon={MAP_ICONS[wh.currentQueueLength >= 10 ? 'red' : wh.currentQueueLength >= 5 ? 'amber' : 'emerald']}
                 >
                   <Popup>
                     <div className="text-[11px] leading-relaxed">
@@ -270,7 +289,7 @@ export const CommandCenter = () => {
                     <Marker
                       key={idx}
                       position={[leg.coordinates.coordinates[1], leg.coordinates.coordinates[0]]}
-                      icon={createDotIcon(leg.weatherException ? 'red' : 'emerald')}
+                      icon={MAP_ICONS[leg.weatherException ? 'red' : 'emerald']}
                     >
                       <Popup>
                         <div className="text-[11px]">

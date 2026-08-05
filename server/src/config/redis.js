@@ -71,7 +71,11 @@ class MemoryRedisClient {
     return 'OK';
   }
 
-  async xreadgroup() {
+  async xreadgroup(...args) {
+    const blockIdx = args.indexOf('BLOCK');
+    if (blockIdx !== -1) {
+      await new Promise(resolve => setTimeout(resolve, Number(args[blockIdx + 1]) || 2000));
+    }
     return null;
   }
 

@@ -14,7 +14,7 @@ export const ApiProvider = ({ children }) => {
   // Pre-configured Axios Instance pointing to Express API Gateway
   const apiClient = useMemo(() => {
     const instance = axios.create({
-      baseURL: 'http://localhost:3000/api/v1',
+      baseURL: 'http://localhost:3005/api/v1',
       timeout: 10000,
       withCredentials: true,
       headers: {

@@ -1,10 +1,11 @@
+import 'dotenv/config';
 import mongoose from 'mongoose';
 import Warehouse from '../src/models/Warehouse.js';
 import ShipmentEvent from '../src/models/ShipmentEvent.js';
 import ShipmentJourney from '../src/models/ShipmentJourney.js';
 import logger from '../src/config/logger.js';
 
-const MONGODB_URI = 'mongodb://admin:secure_logistics_password@localhost:27017/logistics?authSource=admin';
+const MONGODB_URI = process.env.MONGODB_URI;
 const GATEWAY_URL = 'http://localhost:3000/api/v1';
 
 async function seedData() {
@@ -173,4 +174,4 @@ async function runTests() {
   logger.info('--- INTEGRATION TESTS COMPLETED ---');
 }
 
-runTests().catch(logger.error);
+runTests().catch(e => logger.error(e));

@@ -7,10 +7,10 @@ export const CommandDeckLayout = ({ activeTab, setActiveTab, children }) => {
   return (
     <div className="flex flex-col h-screen w-screen bg-[#090d16] text-slate-100 overflow-hidden font-sans relative">
       {/* Real-time Floating Industrial Alert Toast Stack */}
-      <AlertToastContainer />
+      <AlertToastContainer setActiveTab={setActiveTab} />
 
       {/* Global Telemetry & WebSocket Connection Status Header */}
-      <Header />
+      <Header setActiveTab={setActiveTab} />
 
       {/* Main Content Area */}
       <main className="flex-1 overflow-y-auto pb-24 relative">

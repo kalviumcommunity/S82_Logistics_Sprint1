@@ -1,6 +1,8 @@
+import 'dotenv/config';
 import express from 'express';
 import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import { createServer } from 'http';
 import { connectDatabase } from './config/database.js';
 import { redisClient, redisQueueConnection } from './config/redis.js';
@@ -21,20 +23,12 @@ initSocket(server);
 // Cookie parsing middleware
 app.use(cookieParser());
 
-// Self-contained CORS middleware to support client requests from dev server
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (['http://localhost:5173', 'http://127.0.0.1:5173'].includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  }
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
-  next();
-});
+// CORS middleware to support client requests from dev server
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:3000'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+}));
 
 // Standard json parsing middleware
 app.use(express.json());

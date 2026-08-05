@@ -4,6 +4,7 @@ import { useApi } from '../../context/ApiContext.jsx';
 import { 
   Search, GitCommit, AlertTriangle, CloudRain, Clock, Database, Cpu, Compass
 } from 'lucide-react';
+import JourneyMap from './JourneyMap.jsx';
 
 export const JourneyTracker = () => {
   const { apiClient, networkStats } = useApi();
@@ -145,10 +146,14 @@ export const JourneyTracker = () => {
           </p>
         </div>
       ) : journeyData?.data ? (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="flex flex-col gap-6">
           
-          {/* Timeline Display Card */}
-          <div className="lg:col-span-2 bg-[#0f172a] border border-slate-800/60 rounded-lg p-5 flex flex-col gap-5">
+          <JourneyMap legs={journeyData.data.legs} currentStatus={currentStatus} />
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            {/* Timeline Display Card */}
+            <div className="lg:col-span-2 bg-[#0f172a] border border-slate-800/60 rounded-lg p-5 flex flex-col gap-5">
             <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800/40 pb-2 flex items-center gap-2">
               <GitCommit className="h-4.5 w-4.5 text-slate-450" />
               Chronological Path Reconstruction
@@ -276,6 +281,8 @@ export const JourneyTracker = () => {
                 Risk score weights reflect active bottlenecks along transit networks. High queue densities, severe climate alerts, and target delivery breaches compound points. Scores above 35 indicate dynamic warnings, while scores exceeding 70 trigger automatic delay declarations.
               </p>
             </div>
+
+          </div>
 
           </div>
 

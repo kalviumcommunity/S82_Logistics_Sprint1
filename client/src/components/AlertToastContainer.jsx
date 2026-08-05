@@ -1,11 +1,9 @@
 import React from 'react';
 import { useSocket } from '../context/SocketContext.jsx';
-import { ShieldAlert, AlertTriangle, ArrowRight, X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { ArrowRight, X, ShieldAlert, AlertTriangle } from 'lucide-react';
 
-export const AlertToastContainer = () => {
+export const AlertToastContainer = ({ setActiveTab }) => {
   const { activeAlerts, clearAlert } = useSocket();
-  const navigate = useNavigate();
 
   if (!activeAlerts || activeAlerts.length === 0) {
     return null;
@@ -15,11 +13,8 @@ export const AlertToastContainer = () => {
   const visibleAlerts = activeAlerts.slice(0, 3);
 
   const handleInspect = (shipmentId) => {
-    if (shipmentId) {
-      navigate(`/tracking?shipmentId=${shipmentId}`);
-    } else {
-      navigate('/tracking');
-    }
+    setActiveTab('tracking');
+    // If we wanted to search by shipmentId, we could update the global state or JourneyTracker's state.
   };
 
   return (
