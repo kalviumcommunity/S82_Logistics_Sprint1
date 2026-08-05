@@ -83,16 +83,33 @@ class MemoryRedisClient {
     return 1;
   }
 
-  async hset() {
+  async hset(key, fieldOrObj, value) {
+    if (!this.hashStore) this.hashStore = new Map();
+    if (!this.hashStore.has(key)) this.hashStore.set(key, new Map());
+    const hash = this.hashStore.get(key);
+    if (typeof fieldOrObj === 'object' && fieldOrObj !== null) {
+      for (const [k, v] of Object.entries(fieldOrObj)) {
+        hash.set(k, String(v));
+      }
+    } else if (typeof fieldOrObj === 'string') {
+      hash.set(fieldOrObj, String(value));
+    }
     return 1;
   }
 
-  async hget() {
-    return null;
+  async hget(key, field) {
+    if (!this.hashStore || !this.hashStore.has(key)) return null;
+    return this.hashStore.get(key).get(field) || null;
   }
 
-  async hgetall() {
-    return {};
+  async hgetall(key) {
+    if (!this.hashStore || !this.hashStore.has(key)) return {};
+    const hash = this.hashStore.get(key);
+    const result = {};
+    for (const [k, v] of hash.entries()) {
+      result[k] = v;
+    }
+    return result;
   }
 
   async eval() {

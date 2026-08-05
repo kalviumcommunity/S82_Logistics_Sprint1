@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Search, MapPin, CheckCircle2, Clock, AlertTriangle, ShieldCheck, ChevronRight, PackageCheck, Radio } from 'lucide-react';
+import predictiveMeshImg from '../../assets/predictive_analytics_mesh.png';
 
 export const LandingHero = ({ onSearch, journeyData, isLoading, isError }) => {
   const [trackingInput, setTrackingInput] = useState('LGS-8842-XT9');
@@ -24,11 +25,11 @@ export const LandingHero = ({ onSearch, journeyData, isLoading, isError }) => {
       <div className="flex items-center gap-2 self-start px-3 py-1 bg-slate-900/90 border border-slate-800/80 rounded-full shadow-lg">
         <span className="h-2 w-2 rounded-full bg-emerald-500 animate-chip-blink" />
         <span className="font-mono text-[10px] font-bold text-slate-300 uppercase tracking-widest">
-          CASCADING DELAY INTELLIGENCE ENGINE v4.2
+          PREDICTIVE OPERATIONS RESEARCH ENGINE v4.2
         </span>
       </div>
 
-      {/* Hero Header + Animated SVG Vector Topology Overlay */}
+      {/* Hero Header + Generative Mesh Graphic */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
         
         {/* Left 7 Columns: Title & Search Bar */}
@@ -41,7 +42,7 @@ export const LandingHero = ({ onSearch, journeyData, isLoading, isError }) => {
               </span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-400 max-w-xl leading-relaxed mt-2 font-sans">
-              Real-time route risk evaluation, automated warehouse transfer tracking, and delay propagation prediction powered by Redis Streams &amp; Express telemetry.
+              Real-time route risk evaluation, automated warehouse transfer tracking, and delay propagation prediction powered by high-velocity Machine Learning risk engines &amp; Operations Research delay propagation models.
             </p>
           </div>
 
@@ -57,13 +58,13 @@ export const LandingHero = ({ onSearch, journeyData, isLoading, isError }) => {
                 value={trackingInput}
                 onChange={(e) => setTrackingInput(e.target.value.toUpperCase())}
                 placeholder="e.g. LGS-8842-XT9"
-                className="w-full bg-[#0d1321] border border-slate-800/80 rounded-2xl px-5 py-4 pl-12 text-sm font-mono text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/40 transition-all shadow-2xl"
+                className="w-full bg-[#0d1321] border border-slate-800/60 rounded-lg px-5 py-3.5 pl-12 text-sm font-mono text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500/60 transition-all shadow-xl"
               />
               <Search className="absolute left-4 h-5 w-5 text-slate-500" />
               <button
                 type="submit"
                 disabled={isLoading}
-                className="absolute right-2 px-5 py-2.5 bg-slate-800 hover:bg-emerald-600 border border-slate-700/60 hover:border-emerald-500 rounded-xl text-xs font-mono font-bold text-slate-200 hover:text-white transition-all shadow-md flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                className="absolute right-2 px-4 py-2 bg-slate-800 hover:bg-emerald-600 border border-slate-700/60 rounded-lg text-xs font-mono font-bold text-slate-200 hover:text-white transition-all shadow-md flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
                 {isLoading ? (
                   <span className="flex items-center gap-2">
@@ -88,7 +89,7 @@ export const LandingHero = ({ onSearch, journeyData, isLoading, isError }) => {
                     key={s}
                     type="button"
                     onClick={() => { setTrackingInput(s); onSearch(s); }}
-                    className="px-2 py-0.5 bg-slate-900 border border-slate-800/60 hover:border-slate-700 rounded text-[9px] font-mono text-slate-400 hover:text-emerald-400 transition-colors"
+                    className="px-2 py-0.5 bg-[#0d1321] border border-slate-800/60 hover:border-slate-700 rounded text-[9px] font-mono text-slate-400 hover:text-emerald-400 transition-colors"
                   >
                     {s}
                   </button>
@@ -98,58 +99,30 @@ export const LandingHero = ({ onSearch, journeyData, isLoading, isError }) => {
           </form>
         </div>
 
-        {/* Right 5 Columns: Interactive Vector Global Topology Map Graphic */}
-        <div className="lg:col-span-5 relative w-full h-[320px] bg-[#0b101d] border border-slate-800/60 rounded-3xl p-4 overflow-hidden flex flex-col justify-between shadow-2xl">
-          {/* SVG Abstract Topology Vector Grid */}
-          <svg className="absolute inset-0 w-full h-full opacity-60" viewBox="0 0 600 400" fill="none">
-            <defs>
-              <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
-                <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#1e293b" strokeWidth="0.5" strokeDasharray="2 2" />
-              </pattern>
-              <linearGradient id="routeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#10b981" stopOpacity="0.8" />
-                <stop offset="50%" stopColor="#f59e0b" stopOpacity="0.9" />
-                <stop offset="100%" stopColor="#ef4444" stopOpacity="0.8" />
-              </linearGradient>
-            </defs>
-
-            {/* Background Grid */}
-            <rect width="100%" height="100%" fill="url(#grid)" />
-
-            {/* Vector Route Lines */}
-            <path d="M 80 280 Q 200 120 320 220 T 520 100" stroke="url(#routeGradient)" strokeWidth="2.5" fill="none" strokeDasharray="6 4" className="animate-pulse" />
-            <path d="M 120 100 Q 280 300 480 280" stroke="#334155" strokeWidth="1.5" fill="none" strokeDasharray="3 3" />
-
-            {/* Hub Nodes */}
-            <circle cx="80" cy="280" r="6" fill="#10b981" />
-            <circle cx="80" cy="280" r="12" fill="#10b981" opacity="0.25" className="animate-ping" />
-
-            <circle cx="320" cy="220" r="7" fill="#f59e0b" />
-            <circle cx="320" cy="220" r="14" fill="#f59e0b" opacity="0.25" className="animate-pulse" />
-
-            <circle cx="520" cy="100" r="6" fill="#ef4444" />
-
-            {/* Node Labels */}
-            <text x="70" y="305" fill="#94a3b8" fontSize="10" fontFamily="monospace" fontWeight="bold">HQ-GLOBAL [ORD]</text>
-            <text x="310" y="245" fill="#f59e0b" fontSize="10" fontFamily="monospace" fontWeight="bold">WH-FRANKFURT [FRA]</text>
-            <text x="480" y="85" fill="#ef4444" fontSize="10" fontFamily="monospace" fontWeight="bold">DEST-SINGAPORE [SIN]</text>
-          </svg>
+        {/* Right 5 Columns: Generative Mesh Graphics Card */}
+        <div className="lg:col-span-5 relative w-full h-[320px] bg-[#0d1321] border border-slate-800/60 rounded-xl p-3 overflow-hidden flex flex-col justify-between shadow-2xl group">
+          <img
+            src={predictiveMeshImg}
+            alt="Predictive Analytics Network Mesh"
+            className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-700"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0d1321] via-transparent to-[#0d1321]/60" />
 
           {/* Top Overlay Badge */}
-          <div className="relative z-10 flex items-center justify-between border-b border-slate-800/60 pb-3">
+          <div className="relative z-10 flex items-center justify-between border-b border-slate-800/60 pb-2.5 bg-[#06090f]/70 backdrop-blur-md p-2.5 rounded-lg">
             <div className="flex items-center gap-2">
               <Radio className="h-4 w-4 text-emerald-400 animate-pulse" />
-              <span className="font-mono text-[10px] font-bold text-slate-300 uppercase tracking-widest">
-                LIVE TOPOLOGY VECTOR GRID
+              <span className="font-mono text-[10px] font-bold text-slate-200 uppercase tracking-widest">
+                PREDICTIVE NETWORK TOPOLOGY
               </span>
             </div>
-            <span className="font-mono text-[9px] text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 px-2 py-0.5 rounded">
-              3 ACTIVE LEGS
+            <span className="font-mono text-[9px] text-emerald-400 bg-emerald-950/60 border border-emerald-800/40 px-2 py-0.5 rounded font-bold">
+              ML MODEL ONLINE
             </span>
           </div>
 
           {/* Bottom Card Summary Overlay */}
-          <div className="relative z-10 bg-slate-900/90 border border-slate-800/80 rounded-2xl p-3 flex items-center justify-between backdrop-blur-md">
+          <div className="relative z-10 bg-[#06090f]/90 border border-slate-800/80 rounded-lg p-3 flex items-center justify-between backdrop-blur-md">
             <div>
               <p className="text-[9px] font-mono text-slate-500 uppercase">ACTIVE SHIPMENT INSPECTED</p>
               <p className="text-xs font-mono font-bold text-slate-200 mt-0.5">{journey?.shipmentId || 'SH-7777'}</p>

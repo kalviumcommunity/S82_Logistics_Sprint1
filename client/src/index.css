@@ -16,7 +16,7 @@
 body {
   margin: 0;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: #090d16;
+  background-color: #06090f;
   color: #f1f5f9;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
@@ -294,9 +294,9 @@ body {
    SHARED CARD / PANEL SYSTEM
    ══════════════════════════════════════════════════════════════════ */
 .card-panel {
-  background: #0f172a;
-  border: 1px solid rgba(51, 65, 85, 0.5);
-  border-radius: 12px;
+  background: #0d1321;
+  border: 1px solid rgba(51, 65, 85, 0.6);
+  border-radius: 8px;
   box-shadow: 0 2px 16px rgba(0,0,0,0.35);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }

@@ -5,6 +5,7 @@ import AuthGate from './components/AuthGate.jsx';
 import CommandDeckLayout from './components/CommandDeckLayout.jsx';
 import JourneyTracker from './features/tracking/JourneyTracker.jsx';
 import CommandCenter from './features/command-center/CommandCenter.jsx';
+import WarehouseDeck from './features/warehouse/WarehouseDeck.jsx';
 import AdminPanel from './features/admin/AdminPanel.jsx';
 import ProtectedRoute from './routes/ProtectedRoute.jsx';
 import { RefreshCw } from 'lucide-react';
@@ -13,7 +14,7 @@ import { RefreshCw } from 'lucide-react';
 const WORKSPACE_VIEWS = {
   tracking: JourneyTracker,
   command: CommandCenter,
-  warehouse: JourneyTracker, // Facility / Warehouse Deck view
+  warehouse: WarehouseDeck, // Facility / Warehouse Deck view
   admin: AdminPanel,
 };
 
@@ -33,31 +34,40 @@ const TAB_ROLES = {
   admin: ['ADMIN'],                                                       // /admin
 };
 
+const getTabFromPath = () => {
+  const path = window.location.pathname;
+  if (path.includes('/command')) return 'command';
+  if (path.includes('/admin')) return 'admin';
+  if (path.includes('/warehouse')) return 'warehouse';
+  if (path.includes('/track')) return 'tracking';
+  return null;
+};
+
 function WorkspaceContainer() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState(() => ROLE_DEFAULT_TAB[user?.role] || 'tracking');
+  const [activeTab, setActiveTab] = useState(() => getTabFromPath() || ROLE_DEFAULT_TAB[user?.role] || 'command');
 
-  // Reset tab to authorized default if user's role claim changes
+  // Sync activeTab with URL path or authorized role defaults
   useEffect(() => {
-    const allowed = TAB_ROLES[activeTab] || [];
-    if (!allowed.includes(user?.role)) {
-      setActiveTab(ROLE_DEFAULT_TAB[user?.role] || 'tracking');
+    const pathTab = getTabFromPath();
+    if (pathTab && pathTab !== activeTab) {
+      setActiveTab(pathTab);
     }
-  }, [user?.role, activeTab]);
+  }, [activeTab]);
 
-  const CurrentView = WORKSPACE_VIEWS[activeTab] || JourneyTracker;
+  const CurrentView = WORKSPACE_VIEWS[activeTab] || CommandCenter;
   const allowedRolesForCurrentTab = TAB_ROLES[activeTab] || [];
 
   return (
     <CommandDeckLayout activeTab={activeTab} setActiveTab={setActiveTab}>
       <ProtectedRoute
         allowedRoles={allowedRolesForCurrentTab}
-        fallbackTab="tracking"
+        fallbackTab="command"
         onUnauthorized={(target) => {
           if (target === 'auth') {
             // Handled by AuthContext openAuthGate
           } else {
-            setActiveTab('tracking'); // Bounce unauthorized attempt to /track
+            setActiveTab('command');
           }
         }}
       >
@@ -74,7 +84,7 @@ function App() {
     return (
       <div className="h-screen w-screen bg-[#090d16] flex flex-col items-center justify-center gap-3 text-slate-400 font-mono text-xs">
         <RefreshCw className="h-5 w-5 text-emerald-400 animate-spin" />
-        <span>Verifying Security Perimeter &amp; Redis Tokens...</span>
+        <span>Initializing Security Perimeter &amp; Predictive Models...</span>
       </div>
     );
   }

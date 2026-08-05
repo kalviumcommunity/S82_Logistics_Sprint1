@@ -5,6 +5,13 @@ import { ArrowRight, X, ShieldAlert, AlertTriangle } from 'lucide-react';
 export const AlertToastContainer = ({ setActiveTab }) => {
   const { activeAlerts, clearAlert } = useSocket();
 
+  let navigate = null;
+  try {
+    navigate = useNavigate();
+  } catch (e) {
+    // Router context fallback
+  }
+
   if (!activeAlerts || activeAlerts.length === 0) {
     return null;
   }
@@ -13,8 +20,16 @@ export const AlertToastContainer = ({ setActiveTab }) => {
   const visibleAlerts = activeAlerts.slice(0, 3);
 
   const handleInspect = (shipmentId) => {
-    setActiveTab('tracking');
-    // If we wanted to search by shipmentId, we could update the global state or JourneyTracker's state.
+    const targetUrl = shipmentId ? `/track?shipmentId=${shipmentId}` : '/track';
+    if (navigate) {
+      try {
+        navigate(targetUrl);
+      } catch (err) {
+        window.location.href = targetUrl;
+      }
+    } else {
+      window.location.href = targetUrl;
+    }
   };
 
   return (

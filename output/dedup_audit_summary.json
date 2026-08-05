@@ -1,6 +1,6 @@
 {
-  "removal_timestamp": "2026-07-27T11:36:15.247904",
-  "total_removed": 2,
+  "removal_timestamp": "2026-08-05T09:48:20.411526",
+  "total_removed": 5500,
   "reason": "Duplicate detection and deduplication",
   "audit_file": "output/removed_duplicates_audit.csv",
   "audit_note": "All removed records logged for compliance and recovery if needed"

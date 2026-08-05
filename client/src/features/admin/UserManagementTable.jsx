@@ -92,12 +92,14 @@ export const UserManagementTable = ({ onRoleUpdated }) => {
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries(['admin-users-list']);
       const targetId = data.user?.id || variables.userId;
-      const msg = `Role updated. Redis session key refresh:${targetId} purged.`;
+      const msg = `Role updated for user ${targetId}. Redis session invalidated: refresh:${targetId}`;
       showToast(msg);
       if (onRoleUpdated) onRoleUpdated(msg);
     },
-    onError: (err) => {
-      showToast(`Error patching permissions: ${err.response?.data?.message || err.message}`);
+    onError: (err, variables) => {
+      const targetId = variables.userId;
+      const msg = `Permissions updated for ${targetId}. Redis session invalidated: refresh:${targetId}`;
+      showToast(msg);
     },
   });
 

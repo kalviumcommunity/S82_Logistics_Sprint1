@@ -5,12 +5,19 @@ import { useSocket } from '../../context/SocketContext.jsx';
 import { MapContainer, TileLayer, Marker, Polyline, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import {
-  ShieldAlert, Activity, BarChart3, AlertCircle, Truck, RefreshCw, Clock
+  ShieldAlert, Activity, BarChart3, AlertCircle, Truck, RefreshCw, Clock, Zap
 } from 'lucide-react';
 
 // Static, pre-rendered non-glowing dot icons for the map
 const MAP_ICONS = {
   red: L.divIcon({
+import { RiskBreakdownModal } from './RiskBreakdownModal.jsx';
+import { SimulationDrawer } from './SimulationDrawer.jsx';
+
+// Sharp non-glowing dot icons for the map
+const createDotIcon = (color) => {
+  const colorHex = color === 'red' ? '#ef4444' : color === 'amber' ? '#f59e0b' : '#10b981';
+  return L.divIcon({
     html: `
       <div style="position:relative;width:16px;height:16px;display:flex;align-items:center;justify-content:center;">
         <span style="display:block;width:8px;height:8px;border-radius:50%;background:#ef4444;border:2px solid #090d16;box-shadow:0 0 4px #ef444480;"></span>
@@ -64,23 +71,51 @@ const interventions = [
   { id: 'INT-311', shipmentId: 'SH-7777', route: 'NY-BOS (Local Courier Relay)', cost: '+$180', avertedPenalties: '-$800',   netSaving: '+$620', action: 'DISPATCH' },
 ];
 
-const renderStatusTag = (status) => {
+const renderStatusTag = (status, onClick) => {
   if (status === 'SAFE') {
     return <span className="text-emerald-500 font-bold uppercase tracking-widest text-[10px] font-mono">SAFE</span>;
   }
   if (status === 'AT_RISK') {
-    return <span className="text-amber-500 font-bold uppercase tracking-widest text-[10px] font-mono">AT_RISK</span>;
+    return (
+      <button
+        onClick={onClick}
+        title="Click to view predictive risk breakdown"
+        className="px-1.5 py-0.5 border border-amber-900/40 bg-amber-950/30 text-amber-500 hover:text-amber-300 font-bold uppercase tracking-widest text-[9px] rounded font-mono cursor-pointer transition-all hover:scale-105"
+      >
+        AT_RISK
+      </button>
+    );
   }
   return (
-    <span className="px-1.5 py-0.5 border border-red-900/40 bg-red-950/20 text-red-500 font-bold uppercase tracking-widest text-[9px] rounded font-mono">
+    <button
+      onClick={onClick}
+      title="Click to view predictive risk breakdown"
+      className="px-1.5 py-0.5 border border-red-900/40 bg-red-950/20 text-red-500 hover:text-red-300 font-bold uppercase tracking-widest text-[9px] rounded font-mono cursor-pointer transition-all hover:scale-105"
+    >
       DELAYED
-    </span>
+    </button>
   );
 };
 
 export const CommandCenter = () => {
   const { apiClient } = useApi();
   const { socket } = useSocket();
+
+  const [selectedRiskShipmentId, setSelectedRiskShipmentId] = useState(null);
+  const [isRiskModalOpen, setIsRiskModalOpen] = useState(false);
+
+  const [simShipmentId, setSimShipmentId] = useState(null);
+  const [isSimDrawerOpen, setIsSimDrawerOpen] = useState(false);
+
+  const handleOpenRiskModal = (shipmentId) => {
+    setSelectedRiskShipmentId(shipmentId);
+    setIsRiskModalOpen(true);
+  };
+
+  const handleOpenSimulation = (shipmentId) => {
+    setSimShipmentId(shipmentId || 'SH-7777');
+    setIsSimDrawerOpen(true);
+  };
 
   const [alerts, setAlerts] = useState([
     {
@@ -115,7 +150,7 @@ export const CommandCenter = () => {
   const warehouses = warehousesRes?.data || [];
 
   // Fetch active route
-  const { data: journeyRes } = useQuery({
+  const { data: journeyRes, refetch: refetchJourney } = useQuery({
     queryKey: ['fleet-shipment-journey'],
     queryFn: async () => {
       const res = await apiClient.get('/shipments/SH-7777/journey').catch(() => null);
@@ -127,7 +162,7 @@ export const CommandCenter = () => {
   const mapCenter   = [39.8283, -98.5795];
   const mapZoom     = 4;
 
-  // Socket telemetry alerts
+  // Socket telemetry alerts and route updates
   useEffect(() => {
     if (!socket) return;
 
@@ -145,7 +180,18 @@ export const CommandCenter = () => {
       setAlerts((prev) => [newAlert, ...prev].slice(0, 10));
     };
 
+    const handleRouteUpdated = (payload) => {
+      refetchJourney();
+      setActiveToast({
+        shipmentId: payload.shipmentId,
+        message: `Route rerouted to ${payload.appliedRouteName || payload.appliedRouteId}. Risk score normalized to ${payload.riskScore}.`,
+        timestamp: new Date().toLocaleTimeString(),
+        riskScore: payload.riskScore,
+      });
+    };
+
     socket.on('cascade:alert', handleCascadeAlert);
+    socket.on('route:updated', handleRouteUpdated);
     socket.on('risk:update', (journey) => {
       const rScore = journey.currentRiskScore ?? journey.riskScore;
       if (rScore >= 70 || journey.status === 'DELAYED' || journey.status === 'CRITICAL_DELAY') {
@@ -162,9 +208,10 @@ export const CommandCenter = () => {
 
     return () => {
       socket.off('cascade:alert', handleCascadeAlert);
+      socket.off('route:updated', handleRouteUpdated);
       socket.off('risk:update');
     };
-  }, [socket]);
+  }, [socket, refetchJourney]);
 
   const polylinePositions = journeyLegs.map(leg => [
     leg.coordinates.coordinates[1],
@@ -222,6 +269,13 @@ export const CommandCenter = () => {
             <span className="font-mono text-[9px] text-slate-400 tracking-wider">SYNC {now}</span>
           </div>
           <button
+            onClick={() => handleOpenSimulation('SH-7777')}
+            className="flex items-center gap-2 px-3.5 py-1.5 border border-emerald-800/60 bg-emerald-950/40 text-xs text-emerald-400 font-mono rounded-lg hover:bg-emerald-900/50 hover:border-emerald-700/80 transition-all cursor-pointer font-bold shadow-md"
+          >
+            <Zap className="h-3.5 w-3.5 fill-current" />
+            What-If Reroute Engine
+          </button>
+          <button
             onClick={() => { refetchWarehouses(); }}
             className="flex items-center gap-2 px-3 py-1.5 border border-slate-800 bg-slate-900 text-xs text-slate-300 rounded-lg hover:bg-slate-800 hover:border-slate-700 transition-all cursor-pointer font-semibold"
           >
@@ -234,16 +288,16 @@ export const CommandCenter = () => {
       {/* ── Main Command Grid ──────────────────────────────────────── */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
-        {/* Visual Map Frame */}
-        <div className="xl:col-span-2 flex flex-col gap-3 card-panel p-4 h-[560px]">
-          <div className="flex items-center justify-between border-b border-slate-800/40 pb-2.5">
-            <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+        {/* Visual Map Frame (70% / 2 cols) */}
+        <div className="xl:col-span-2 flex flex-col gap-3 bg-[#0d1321] border border-slate-800/60 rounded-lg p-4 h-[560px] shadow-2xl">
+          <div className="flex items-center justify-between border-b border-slate-800/60 pb-2.5">
+            <h2 className="text-xs font-bold text-slate-300 uppercase tracking-widest flex items-center gap-2 font-mono">
               <Truck className="h-4 w-4 text-slate-400" />
-              Geospatial Fleet Coordinates Tracker
+              GEOSPATIAL FLEET COORDINATES TRACKER (70% PANEL)
             </h2>
             {/* Live badge */}
-            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-950/20 border border-emerald-900/30 rounded text-[9px] font-mono font-bold text-emerald-500">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-chip-blink" />
+            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#06090f] border border-slate-800/60 rounded text-[9px] font-mono font-bold text-emerald-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
               LIVE FLEET · SH-7777
             </div>
           </div>
@@ -328,7 +382,9 @@ export const CommandCenter = () => {
                 alerts.map((alert) => (
                   <div
                     key={alert.id}
-                    className="bg-red-950/15 border-l-2 border-l-red-500/70 border border-red-900/35 rounded-r-xl rounded-bl-xl p-3 flex flex-col gap-1.5 shrink-0 transition-all animate-fade-slide-in"
+                    onClick={() => handleOpenRiskModal(alert.shipmentId)}
+                    className="bg-red-950/15 border-l-2 border-l-red-500/70 border border-red-900/35 hover:border-red-500/60 rounded-r-xl rounded-bl-xl p-3 flex flex-col gap-1.5 shrink-0 transition-all cursor-pointer animate-fade-slide-in hover:bg-red-950/30"
+                    title="Click to view detailed predictive risk breakdown"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
@@ -340,11 +396,14 @@ export const CommandCenter = () => {
                       <span className="text-[9px] font-mono text-slate-600">{alert.timestamp}</span>
                     </div>
                     <p className="font-bold text-slate-200 text-[11px]">
-                      Shipment: <span className="font-mono">{alert.shipmentId}</span>
+                      Shipment: <span className="font-mono text-amber-400">{alert.shipmentId}</span>
                     </p>
                     <p className="text-slate-400 text-[11px] leading-normal">{alert.message}</p>
-                    <div className="flex items-center gap-1.5 text-[9px] font-mono text-red-400 bg-red-950/40 px-2 py-0.5 rounded-md border border-red-900/20 w-max">
-                      RISK SCORE: {alert.riskScore}
+                    <div className="flex items-center justify-between mt-0.5">
+                      <div className="flex items-center gap-1.5 text-[9px] font-mono text-red-400 bg-red-950/40 px-2 py-0.5 rounded-md border border-red-900/20 w-max">
+                        RISK SCORE: {alert.riskScore}
+                      </div>
+                      <span className="text-[9px] font-mono text-slate-400 underline font-semibold">View Factor Breakdown &rarr;</span>
                     </div>
                   </div>
                 ))
@@ -421,11 +480,16 @@ export const CommandCenter = () => {
               <tbody>
                 {inboundShipments.map((ship) => (
                   <tr key={ship.id} className="border-b border-slate-800/30 hover:bg-slate-800/10">
-                    <td className="py-2.5 px-2 font-mono text-slate-200 font-semibold text-[10px]">{ship.id}</td>
+                    <td
+                      onClick={() => handleOpenRiskModal(ship.id)}
+                      className="py-2.5 px-2 font-mono text-slate-200 font-semibold text-[10px] cursor-pointer hover:text-amber-400 hover:underline"
+                    >
+                      {ship.id}
+                    </td>
                     <td className="py-2.5 px-2 text-slate-400">{ship.origin}</td>
                     <td className="py-2.5 px-2 font-mono text-slate-300">{ship.eta}</td>
                     <td className="py-2.5 px-2 text-right font-mono text-slate-500">{ship.delay}</td>
-                    <td className="py-2.5 px-2 text-right">{renderStatusTag(ship.status)}</td>
+                    <td className="py-2.5 px-2 text-right">{renderStatusTag(ship.status, () => handleOpenRiskModal(ship.id))}</td>
                   </tr>
                 ))}
               </tbody>
@@ -453,11 +517,16 @@ export const CommandCenter = () => {
               <tbody>
                 {outboundShipments.map((ship) => (
                   <tr key={ship.id} className="border-b border-slate-800/30 hover:bg-slate-800/10">
-                    <td className="py-2.5 px-2 font-mono text-slate-200 font-semibold text-[10px]">{ship.id}</td>
+                    <td
+                      onClick={() => handleOpenRiskModal(ship.id)}
+                      className="py-2.5 px-2 font-mono text-slate-200 font-semibold text-[10px] cursor-pointer hover:text-amber-400 hover:underline"
+                    >
+                      {ship.id}
+                    </td>
                     <td className="py-2.5 px-2 text-slate-400">{ship.destination}</td>
                     <td className="py-2.5 px-2 font-mono text-slate-300">{ship.departure}</td>
                     <td className="py-2.5 px-2 text-slate-500">{ship.carrier}</td>
-                    <td className="py-2.5 px-2 text-right">{renderStatusTag(ship.status)}</td>
+                    <td className="py-2.5 px-2 text-right">{renderStatusTag(ship.status, () => handleOpenRiskModal(ship.id))}</td>
                   </tr>
                 ))}
               </tbody>
@@ -489,7 +558,12 @@ export const CommandCenter = () => {
               {interventions.map((int) => (
                 <tr key={int.id} className="border-b border-slate-800/30 hover:bg-slate-800/10">
                   <td className="py-2.5 px-2 font-mono text-slate-500 text-[10px]">{int.id}</td>
-                  <td className="py-2.5 px-2 font-mono text-slate-200 font-bold text-[10px]">{int.shipmentId}</td>
+                  <td
+                    onClick={() => handleOpenRiskModal(int.shipmentId)}
+                    className="py-2.5 px-2 font-mono text-slate-200 font-bold text-[10px] cursor-pointer hover:text-amber-400 hover:underline"
+                  >
+                    {int.shipmentId}
+                  </td>
                   <td className="py-2.5 px-2 text-slate-300 font-semibold">{int.route}</td>
                   <td className="py-2.5 px-2 text-right font-mono text-red-400 font-semibold">{int.cost}</td>
                   <td className="py-2.5 px-2 text-right font-mono text-emerald-500 font-semibold">{int.avertedPenalties}</td>
@@ -505,6 +579,23 @@ export const CommandCenter = () => {
           </table>
         </div>
       </div>
+
+      {/* Industrial Slide-Over Risk Breakdown Drawer */}
+      <RiskBreakdownModal
+        shipmentId={selectedRiskShipmentId}
+        isOpen={isRiskModalOpen}
+        onClose={() => setIsRiskModalOpen(false)}
+      />
+
+      {/* What-If Reroute & Simulation Engine Drawer */}
+      <SimulationDrawer
+        shipmentId={simShipmentId}
+        isOpen={isSimDrawerOpen}
+        onClose={() => setIsSimDrawerOpen(false)}
+        onRerouteApplied={() => {
+          refetchJourney();
+        }}
+      />
 
     </div>
   );

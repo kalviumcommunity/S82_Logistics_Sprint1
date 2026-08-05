@@ -6,6 +6,8 @@ import {
 } from 'lucide-react';
 import JourneyMap from './JourneyMap.jsx';
 
+import { JourneyStepper } from './JourneyStepper.jsx';
+
 export const JourneyTracker = () => {
   const { apiClient, networkStats } = useApi();
   const [shipmentIdInput, setShipmentIdInput] = useState('SH-7777');
@@ -91,12 +93,12 @@ export const JourneyTracker = () => {
               {networkStats.source === 'cache' ? (
                 <>
                   <Cpu className="h-3 w-3" />
-                  Source: RAM Cache
+                  Pipeline: Predictive Cache
                 </>
               ) : (
                 <>
                   <Database className="h-3 w-3" />
-                  Source: MongoDB Grid
+                  Pipeline: Historical Data Store
                 </>
               )}
             </div>
@@ -236,6 +238,9 @@ export const JourneyTracker = () => {
                 );
               })}
             </div>
+          {/* Timeline Stepper Display */}
+          <div className="lg:col-span-2">
+            <JourneyStepper journeyData={journeyData.data} />
           </div>
 
           {/* Side Risk Summary Panel */}

@@ -2,23 +2,37 @@ import { Router } from 'express';
 import { 
   postShipmentEvent, 
   getShipmentJourney,
+  getShipmentRiskAnalysis,
   getSystemHealth,
   getWarehouses
 } from './controllers/shipmentController.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import simulationRoutes from './routes/simulationRoutes.js';
+import analyticsRoutes from './routes/analyticsRoutes.js';
+import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
 
 const router = Router();
 
-// Auth and User RBAC routes
+// Auth, User RBAC, Simulation, and Analytics routes
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
+router.use('/simulations', simulationRoutes);
+router.use('/analytics', analyticsRoutes);
 
 // Endpoint for high-throughput ingestion of events
 router.post('/shipment-events', postShipmentEvent);
 
 // Endpoint for cache-aside journey retrieval
 router.get('/shipments/:id/journey', getShipmentJourney);
+
+// Endpoint for predictive risk factor breakdown analysis (Protected: ADMIN, OPERATIONS_MANAGER)
+router.get(
+  '/shipments/:id/risk-analysis',
+  authenticateToken,
+  authorizeRoles('ADMIN', 'OPERATIONS_MANAGER'),
+  getShipmentRiskAnalysis
+);
 
 // Endpoint for gateway system telemetry dashboard
 router.get('/health', getSystemHealth);

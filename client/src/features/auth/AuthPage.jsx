@@ -4,6 +4,7 @@ import {
   ArrowLeft, Shield, ChevronRight, Eye, EyeOff, AlertTriangle,
   CheckCircle2, User, KeyRound, Mail, ShieldAlert, Sparkles, Anchor, Radio
 } from 'lucide-react';
+import cyberDeckImg from '../../assets/cyber_security_deck.png';
 
 const ADMIN_EMAIL = 'adminlogistics@gmail.com';
 const ADMIN_PASSWORD = 'zxcvbnm0987654321';
@@ -90,55 +91,28 @@ export const AuthPage = () => {
   return (
     <div className="min-h-screen w-screen bg-[#06090f] grid grid-cols-1 lg:grid-cols-12 font-sans text-slate-100 overflow-hidden">
 
-      {/* ── Left Panel (40%): Twilight Container Terminal Vector Graphic ─────────────── */}
-      <div className="hidden lg:flex lg:col-span-5 relative bg-[#090d16] border-r border-slate-800/60 p-10 flex-col justify-between overflow-hidden">
-        
-        {/* Custom SVG Twilight Container Terminal Illustration */}
-        <svg className="absolute inset-0 w-full h-full opacity-40 pointer-events-none" viewBox="0 0 500 800" fill="none">
-          <defs>
-            <linearGradient id="twilightSky" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#0b1329" />
-              <stop offset="50%" stopColor="#1e1b4b" />
-              <stop offset="100%" stopColor="#06090f" />
-            </linearGradient>
-          </defs>
-
-          {/* Sky Gradient Backdrop */}
-          <rect width="100%" height="100%" fill="url(#twilightSky)" />
-
-          {/* Gantry Crane Structure */}
-          <path d="M 80 150 L 380 150 M 120 150 L 120 550 M 340 150 L 340 550" stroke="#334155" strokeWidth="4" />
-          <path d="M 120 220 L 340 220 M 120 320 L 340 320 M 120 420 L 340 420" stroke="#1e293b" strokeWidth="2" strokeDasharray="4 4" />
-
-          {/* Crane Hoist & Container */}
-          <line x1="230" y1="150" x2="230" y2="280" stroke="#475569" strokeWidth="2" />
-          <rect x="180" y="280" width="100" height="50" fill="#0f172a" stroke="#10b981" strokeWidth="2" rx="4" />
-          <text x="195" y="310" fill="#10b981" fontSize="10" fontFamily="monospace" fontWeight="bold">LGS-CONTAINER-01</text>
-
-          {/* Stacked Cargo Containers */}
-          <rect x="80" y="450" width="120" height="60" fill="#1e293b" stroke="#334155" strokeWidth="1.5" rx="3" />
-          <rect x="210" y="450" width="120" height="60" fill="#0f172a" stroke="#f59e0b" strokeWidth="1.5" rx="3" />
-          <rect x="80" y="385" width="120" height="60" fill="#090d16" stroke="#ef4444" strokeWidth="1.5" rx="3" />
-
-          {/* Pulsing Beacon Tower Indicators */}
-          <circle cx="80" cy="150" r="5" fill="#ef4444" className="animate-ping" />
-          <circle cx="380" cy="150" r="5" fill="#10b981" className="animate-pulse" />
-          <circle cx="230" cy="280" r="4" fill="#f59e0b" className="animate-ping" />
-        </svg>
+      {/* ── Left Panel (40%): Generative Cybersecurity Deck Graphic ─────────────── */}
+      <div className="hidden lg:flex lg:col-span-5 relative bg-[#090d16] border-r border-slate-800/60 p-10 flex-col justify-between overflow-hidden group">
+        <img
+          src={cyberDeckImg}
+          alt="Cyber Security Deck"
+          className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-105 transition-transform duration-700"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#090d16] via-[#090d16]/70 to-[#090d16]/90" />
 
         {/* Top Header & Security Badge */}
         <div className="relative z-10 flex flex-col gap-4">
-          <div className="flex items-center gap-2 px-3 py-1 bg-slate-900/90 border border-slate-800/80 rounded-full self-start shadow-md">
+          <div className="flex items-center gap-2 px-3 py-1 bg-slate-900/90 border border-slate-800/80 rounded-full self-start shadow-md backdrop-blur-md">
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-chip-blink" />
             <span className="font-mono text-[9px] font-bold text-slate-300 uppercase tracking-widest">
-              STATELESS JWT · REDIS SESSION PERIMETER
+              ZERO TRUST AUTHENTICATION PERIMETER
             </span>
           </div>
 
           <div className="flex items-center gap-2 text-slate-400 mt-2">
             <Anchor className="h-5 w-5 text-emerald-400" />
             <span className="font-mono text-xs font-bold text-slate-300 uppercase tracking-wider">
-              AUTOMATED TERMINAL GATEWAY
+              OPERATIONS RESEARCH GATEWAY
             </span>
           </div>
         </div>
@@ -152,7 +126,7 @@ export const AuthPage = () => {
             </span>
           </h2>
           <p className="text-xs text-slate-400 leading-relaxed max-w-sm font-sans">
-            Stateless role-based identity security portal. Route predictions, scans, and facility queues protected by Express &amp; Redis tokens.
+            Stateless role-based identity security portal. Route predictions, scans, and facility queues protected by zero-trust encryption protocols.
           </p>
 
           {/* Master Admin Credential Fill Shortcut */}
@@ -186,12 +160,12 @@ export const AuthPage = () => {
         </button>
 
         {/* Auth Card Container */}
-        <div className="w-full max-w-md border border-slate-800/60 bg-slate-900/90 rounded-3xl p-8 shadow-2xl backdrop-blur-md flex flex-col gap-6">
+        <div className="w-full max-w-md border border-slate-800/60 bg-[#0d1321] rounded-lg p-8 shadow-2xl backdrop-blur-md flex flex-col gap-6">
 
           {/* Card Header */}
           <div className="flex flex-col gap-4 border-b border-slate-800/60 pb-5">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-slate-950 border border-slate-800/80 rounded-2xl">
+              <div className="p-2.5 bg-[#06090f] border border-slate-800/80 rounded-lg">
                 <Shield className="h-6 w-6 text-emerald-400" />
               </div>
               <div>
@@ -205,14 +179,14 @@ export const AuthPage = () => {
             </div>
 
             {/* Segmented Dual-Mode Toggle */}
-            <div className="grid grid-cols-2 p-1 bg-slate-950 border border-slate-800/80 rounded-2xl mt-1">
+            <div className="grid grid-cols-2 p-1 bg-[#06090f] border border-slate-800/80 rounded-lg mt-1 font-mono">
               <button
                 type="button"
                 id="auth-toggle-signin"
                 onClick={() => handleModeSwitch('SIGN_IN')}
-                className={`py-2 text-center text-xs font-mono font-bold rounded-xl transition-all cursor-pointer ${
+                className={`py-2 text-center text-xs font-mono font-bold rounded transition-all cursor-pointer ${
                   isSignIn
-                    ? 'bg-slate-800 text-emerald-400 border border-slate-700/60 shadow-md'
+                    ? 'bg-[#0d1321] text-emerald-400 border border-slate-700/60 shadow-md'
                     : 'text-slate-500 hover:text-slate-300'
                 }`}
               >
@@ -222,9 +196,9 @@ export const AuthPage = () => {
                 type="button"
                 id="auth-toggle-signup"
                 onClick={() => handleModeSwitch('SIGN_UP')}
-                className={`py-2 text-center text-xs font-mono font-bold rounded-xl transition-all cursor-pointer ${
+                className={`py-2 text-center text-xs font-mono font-bold rounded transition-all cursor-pointer ${
                   !isSignIn
-                    ? 'bg-slate-800 text-emerald-400 border border-slate-700/60 shadow-md'
+                    ? 'bg-[#0d1321] text-emerald-400 border border-slate-700/60 shadow-md'
                     : 'text-slate-500 hover:text-slate-300'
                 }`}
               >
@@ -383,7 +357,7 @@ export const AuthPage = () => {
           {/* Card Footer */}
           <div className="border-t border-slate-800/40 pt-4 text-center">
             <p className="text-[9px] text-slate-600 font-mono uppercase tracking-widest">
-              EXPRESS JWT · REDIS SESSION ENGINE · AUDIT LOGGED
+              ZERO TRUST SECURITY PERIMETER · AUDIT LOGGED
             </p>
           </div>
         </div>
