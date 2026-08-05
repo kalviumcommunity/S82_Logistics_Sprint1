@@ -2,6 +2,8 @@ import os
 import sys
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Ensure UTF-8 output handling for Windows terminal
 if hasattr(sys.stdout, 'reconfigure'):
@@ -12,155 +14,212 @@ if hasattr(sys.stdout, 'reconfigure'):
 
 os.makedirs('output', exist_ok=True)
 
-# Generate synthetic dataset matching problem specification & logistics domain alignment
+# Set random seed for reproducibility
 np.random.seed(42)
 
-# Enterprise (5% of base, 1% churn, ~70% of revenue)
+# =========================================================================
+# Dataset Generation: Logistics Customer Segments & Operational Telemetry
+# =========================================================================
+# Enterprise (5% of base, 1% churn, $150k average LTV, ~0.8 support tickets, ~730 days retention)
 n_enterprise = 500
 enterprise_df = pd.DataFrame({
     'customer_id': [f"CUST-ENT-{i:04d}" for i in range(1, n_enterprise + 1)],
     'customer_type': 'Enterprise',
-    'product': np.random.choice(['Freight', 'Express', 'Standard'], size=n_enterprise, p=[0.7, 0.2, 0.1]),
-    'revenue': np.random.uniform(12000, 18000, size=n_enterprise),
+    'product_tier': np.random.choice(['Freight Express', 'Priority Direct', 'Standard Ground'], size=n_enterprise, p=[0.7, 0.2, 0.1]),
+    'region': np.random.choice(['North America', 'Europe', 'Asia Pacific'], size=n_enterprise, p=[0.5, 0.3, 0.2]),
+    'lifetime_value': np.random.normal(loc=150000, scale=15000, size=n_enterprise).clip(100000, 200000),
     'churn': (np.random.uniform(0, 1, size=n_enterprise) < 0.01).astype(int),
-    'support_tickets': np.random.poisson(lam=0.8, size=n_enterprise)
+    'support_tickets': np.random.poisson(lam=0.8, size=n_enterprise),
+    'retention_days': np.random.normal(loc=730, scale=60, size=n_enterprise).clip(365, 1095)
 })
 
-# SMB (40% of base, 12% churn, ~20% of revenue)
+# SMB (40% of base, 12% churn, $12k average LTV, ~4.2 support tickets, ~180 days retention)
 n_smb = 4000
 smb_df = pd.DataFrame({
     'customer_id': [f"CUST-SMB-{i:04d}" for i in range(1, n_smb + 1)],
     'customer_type': 'SMB',
-    'product': np.random.choice(['Freight', 'Express', 'Standard'], size=n_smb, p=[0.2, 0.5, 0.3]),
-    'revenue': np.random.uniform(400, 600, size=n_smb),
+    'product_tier': np.random.choice(['Freight Express', 'Priority Direct', 'Standard Ground'], size=n_smb, p=[0.2, 0.5, 0.3]),
+    'region': np.random.choice(['North America', 'Europe', 'Asia Pacific'], size=n_smb, p=[0.4, 0.4, 0.2]),
+    'lifetime_value': np.random.normal(loc=12000, scale=2000, size=n_smb).clip(5000, 25000),
     'churn': (np.random.uniform(0, 1, size=n_smb) < 0.12).astype(int),
-    'support_tickets': np.random.poisson(lam=4.2, size=n_smb)
+    'support_tickets': np.random.poisson(lam=4.2, size=n_smb),
+    'retention_days': np.random.normal(loc=180, scale=30, size=n_smb).clip(30, 365)
 })
 
-# Startups (55% of base, 8% churn, ~10% of revenue)
+# Startup (55% of base, 8% churn, $2k average LTV, ~2.5 support tickets, ~345 days retention)
 n_startup = 5500
 startup_df = pd.DataFrame({
     'customer_id': [f"CUST-STU-{i:04d}" for i in range(1, n_startup + 1)],
     'customer_type': 'Startup',
-    'product': np.random.choice(['Freight', 'Express', 'Standard'], size=n_startup, p=[0.1, 0.3, 0.6]),
-    'revenue': np.random.uniform(150, 250, size=n_startup),
+    'product_tier': np.random.choice(['Freight Express', 'Priority Direct', 'Standard Ground'], size=n_startup, p=[0.1, 0.3, 0.6]),
+    'region': np.random.choice(['North America', 'Europe', 'Asia Pacific'], size=n_startup, p=[0.6, 0.2, 0.2]),
+    'lifetime_value': np.random.normal(loc=2000, scale=400, size=n_startup).clip(500, 5000),
     'churn': (np.random.uniform(0, 1, size=n_startup) < 0.08).astype(int),
-    'support_tickets': np.random.poisson(lam=2.5, size=n_startup)
+    'support_tickets': np.random.poisson(lam=2.5, size=n_startup),
+    'retention_days': np.random.normal(loc=345, scale=45, size=n_startup).clip(60, 600)
 })
 
 df = pd.concat([enterprise_df, smb_df, startup_df], ignore_index=True)
 
 print("=" * 80)
-print("LOGISTICS SEGMENT GROUPBY & PIVOT INSIGHTS PIPELINE")
+print("LOGISTICS CUSTOMER SEGMENTATION & OPERATIONAL METRICS ANALYSIS")
+print("Aligned with Problem Statement: Predicting Cascading Delays & Churn Risk Across Routes")
 print("=" * 80)
 
 # =========================================================================
-# Task 1: Single-Level GroupBy with Multiple Aggregations
+# Task 1: Define Segments and Compute Metrics
 # =========================================================================
-print("\n[TASK 1] Single-Level GroupBy with Multiple Aggregations")
-segment_metrics = df.groupby('customer_type').agg({
-    'churn': 'mean',
-    'revenue': 'sum',
-    'customer_id': 'count',
-    'support_tickets': 'mean'
-})
-
-segment_metrics.columns = ['churn_rate', 'total_revenue', 'customer_count', 'avg_support_tickets']
-print("\nSegment Metrics:")
-print(segment_metrics.to_string())
-
-# =========================================================================
-# Task 2: Multi-Level GroupBy
-# =========================================================================
-print("\n" + "-" * 70)
-print("[TASK 2] Multi-Level GroupBy (customer_type x product)")
+print("\n[TASK 1] Define Segments and Compute Metrics")
 print("-" * 70)
 
-product_segment = df.groupby(['customer_type', 'product']).agg({
-    'revenue': 'sum',
+segment_metrics = df.groupby('customer_type').agg({
+    'lifetime_value': 'mean',
+    'churn': 'mean',
+    'support_tickets': 'mean',
+    'retention_days': 'mean',
     'customer_id': 'count'
 })
 
-product_segment.columns = ['total_revenue', 'customer_count']
+segment_metrics.columns = ['avg_ltv', 'churn_rate', 'avg_tickets', 'avg_retention', 'count']
 
-# Unstack for cleaner view
-product_segment_pivot = product_segment.unstack()
-print("\nMulti-Level GroupBy (Unstacked View):")
-print(product_segment_pivot.to_string())
+print("\nComputed Segment Metrics:")
+print(segment_metrics.to_string())
+
+print("\nSegment Size & Base Percentage Breakdown:")
+total_customers = len(df)
+for seg in segment_metrics.index:
+    count = segment_metrics.loc[seg, 'count']
+    pct = (count / total_customers) * 100
+    print(f" - {seg}: {count:,} customers ({pct:.1f}% of base)")
 
 # =========================================================================
-# Task 3: Pivot Table
+# Task 2: Summary Statistics Table
 # =========================================================================
 print("\n" + "-" * 70)
-print("[TASK 3] Two-Dimensional Pivot Table")
+print("[TASK 2] Summary Statistics Table (Rankings & Readable Labels)")
 print("-" * 70)
 
-pivot = pd.pivot_table(
-    df,
-    values='revenue',
-    index='customer_type',
-    columns='product',
-    aggfunc='sum'
+segment_summary = segment_metrics.copy()
+segment_summary['ltv_rank'] = segment_summary['avg_ltv'].rank(ascending=False)
+segment_summary['churn_rank'] = segment_summary['churn_rate'].rank(ascending=True)
+
+print("\nSegment Summary Table (Rankings):")
+print(segment_summary[['avg_ltv', 'ltv_rank', 'churn_rate', 'churn_rank']])
+
+# Formatted summary display table
+formatted_summary = pd.DataFrame({
+    'Segment Size': segment_summary['count'].map('{:,}'.format),
+    'Avg LTV ($)': segment_summary['avg_ltv'].map('${:,.0f}'.format),
+    'LTV Rank': segment_summary['ltv_rank'].astype(int),
+    'Churn Rate (%)': segment_summary['churn_rate'].map('{:.1%}'.format),
+    'Churn Rank': segment_summary['churn_rank'].astype(int),
+    'Avg Tickets': segment_summary['avg_tickets'].map('{:.1f}'.format),
+    'Avg Retention': segment_summary['avg_retention'].map('{:.0f} days'.format)
+}, index=segment_summary.index)
+
+print("\nFormatted Summary Table:")
+print(formatted_summary.to_string())
+
+# =========================================================================
+# Task 3: Visual Comparison (Heatmap)
+# =========================================================================
+print("\n" + "-" * 70)
+print("[TASK 3] Visual Comparison (Heatmap)")
+print("-" * 70)
+
+# Normalize metrics 0-1 for intuitive color scaling where 1.0 = Best (Green) and 0.0 = Worst (Red)
+norm_df = segment_metrics[['avg_ltv', 'churn_rate', 'avg_tickets']].copy()
+norm_df['avg_ltv_norm'] = (norm_df['avg_ltv'] - norm_df['avg_ltv'].min()) / (norm_df['avg_ltv'].max() - norm_df['avg_ltv'].min())
+norm_df['churn_norm'] = 1.0 - (norm_df['churn_rate'] - norm_df['churn_rate'].min()) / (norm_df['churn_rate'].max() - norm_df['churn_rate'].min())
+norm_df['tickets_norm'] = 1.0 - (norm_df['avg_tickets'] - norm_df['avg_tickets'].min()) / (norm_df['avg_tickets'].max() - norm_df['avg_tickets'].min())
+
+color_matrix = norm_df[['avg_ltv_norm', 'churn_norm', 'tickets_norm']]
+color_matrix.columns = ['Avg LTV ($)', 'Churn Rate (%)', 'Avg Support Tickets']
+
+# Matrix annotations with raw formatted values
+annot_matrix = np.array([
+    [
+        f"${segment_metrics.loc[idx, 'avg_ltv']:,.0f}",
+        f"{segment_metrics.loc[idx, 'churn_rate']:.1%}",
+        f"{segment_metrics.loc[idx, 'avg_tickets']:.1f}"
+    ]
+    for idx in segment_metrics.index
+])
+
+plt.figure(figsize=(10, 6))
+sns.heatmap(
+    color_matrix,
+    annot=annot_matrix,
+    fmt='',
+    cmap='RdYlGn',
+    vmin=0,
+    vmax=1,
+    cbar_kws={'label': 'Performance Index (1.0 = Favorable / Green, 0.0 = High Risk / Red)'},
+    linewidths=1.5,
+    annot_kws={"size": 12, "weight": "bold"}
 )
 
-print("\nPivot Table (Revenue by customer_type and product):")
-print(pivot.to_string())
+plt.title('Logistics Customer Segment Metrics Comparison Heatmap', fontsize=14, pad=15, weight='bold')
+plt.xlabel('Customer Metrics', fontsize=12, labelpad=10)
+plt.ylabel('Customer Segment', fontsize=12, labelpad=10)
+plt.tight_layout()
+
+heatmap_path_root = 'segment_heatmap.png'
+heatmap_path_output = 'output/segment_heatmap.png'
+
+plt.savefig(heatmap_path_root, dpi=300)
+plt.savefig(heatmap_path_output, dpi=300)
+plt.close()
+
+print(f"✓ Heatmap visualization saved to: {heatmap_path_root}")
+print(f"✓ Heatmap visualization duplicate saved to: {heatmap_path_output}")
 
 # =========================================================================
-# Task 4: Rank and Identify Top/Bottom Performers
-# =========================================================================
-print("\n" + "-" * 70)
-print("[TASK 4] Rank and Identify Top/Bottom Performers")
-print("-" * 70)
-
-# Rank segments by churn
-segment_metrics['churn_rank'] = segment_metrics['churn_rate'].rank()
-
-# Sort to see worst first
-worst_first = segment_metrics.sort_values('churn_rate', ascending=False)
-print("\nSegments Sorted by Churn Rate (Worst First):")
-print(worst_first[['churn_rate', 'churn_rank', 'total_revenue', 'customer_count']].to_string())
-
-# Profit/revenue ranking
-segment_metrics['revenue_contribution'] = (segment_metrics['total_revenue'] / segment_metrics['total_revenue'].sum() * 100)
-print("\nRevenue Contribution vs Churn Rate:")
-print(segment_metrics[['revenue_contribution', 'churn_rate']].to_string())
-
-# =========================================================================
-# Task 5: Surface Actionable Segment Insights
+# Task 4: Top and Bottom Performer Analysis
 # =========================================================================
 print("\n" + "-" * 70)
-print("[TASK 5] Surface Actionable Segment Insights")
+print("[TASK 4] Top and Bottom Performer Analysis")
 print("-" * 70)
 
-insights = []
+top_segment = segment_metrics['avg_ltv'].idxmax()
+top_value = segment_metrics.loc[top_segment, 'avg_ltv']
 
-for segment in segment_metrics.index:
-    row = segment_metrics.loc[segment]
-    
-    insight = {
-        'segment': segment,
-        'customer_count': int(row['customer_count']),
-        'churn_rate': f"{row['churn_rate']:.1%}",
-        'total_revenue': f"${row['total_revenue']:.0f}",
-        'revenue_contribution': f"{row['revenue_contribution']:.1f}%",
-        'action': ''
-    }
-    
-    # Action based on metrics
-    if row['churn_rate'] > 0.10:
-        insight['action'] = 'HIGH PRIORITY: Churn above 10%. Investigate pain points.'
-    elif row['churn_rate'] < 0.02:
-        insight['action'] = 'Healthy. Maintain current service level.'
-    else:
-        insight['action'] = 'Monitor. No immediate action needed.'
-    
-    insights.append(insight)
+high_churn = segment_metrics['churn_rate'].idxmax()
 
-insights_df = pd.DataFrame(insights)
-print("\nSegment Actionable Insights Summary:")
-print(insights_df.to_string(index=False))
+insights = f"""
+HIGHEST VALUE: {top_segment} = ${top_value:,.0f}
+HIGHEST CHURN: {high_churn} = {segment_metrics.loc[high_churn, 'churn_rate']:.1%}
+BEST RETENTION: {segment_metrics['avg_retention'].idxmax()}
+"""
 
-out_path = 'output/segment_insights.csv'
-insights_df.to_csv(out_path, index=False)
-print(f"\n✓ Saved segment insights report to {out_path}")
+print(insights)
+
+# =========================================================================
+# Task 5: Business-Facing Insights
+# =========================================================================
+print("\n" + "-" * 70)
+print("[TASK 5] Business-Facing Insights")
+print("-" * 70)
+
+business_summary = """
+SEGMENT STRATEGY SUMMARY:
+
+Enterprise (5% of base, $150k LTV, 1% churn):
+- Highest value, lowest churn customer segment. Enterprise clients drive bulk volume across primary transit corridors with high SLA commitments.
+- Action: Maintain premium dedicated account support, proactive delay monitoring, and priority warehouse transfer routing to prevent cascading delivery disruptions and protect contract renewals.
+
+SMB (40% of base, $12k LTV, 12% churn):
+- Middle value, highest churn risk segment experiencing severe operational friction evidenced by elevated support ticket volume (4.2 tickets/customer).
+- Action: Improve onboarding workflows, implement automated route exception notifications, and offer self-service tier support to streamline delivery issue resolution and reduce customer churn.
+
+Startup (55% of base, $2k LTV, 8% churn):
+- Lowest average lifetime value, moderate churn rate with solid retention span (345 days average retention).
+- Action: Deploy automated self-service analytics, digital learning hubs, and standardized API integrations so startups can scale parcel shipments with minimal manual support touchpoints.
+"""
+
+print(business_summary)
+
+# Export segment metrics to CSV in output directory
+csv_out = 'output/segment_metrics.csv'
+segment_summary.to_csv(csv_out)
+print(f"✓ Saved segment summary metrics to {csv_out}")
