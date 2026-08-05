@@ -3,7 +3,6 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useApi } from '../context/ApiContext.jsx';
 import { useSocket } from '../context/SocketContext.jsx';
 import { Bell, ShieldAlert, ChevronDown, LogOut, Trash2, ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 const roleBadgeStyles = {
   ADMIN: 'bg-red-950/30 text-red-400 border-red-900/40',
@@ -26,14 +25,13 @@ const avatarRingClass = {
   VIEWER: 'border border-slate-700/50',
 };
 
-export const Header = () => {
+export const Header = ({ setActiveTab }) => {
   const { user, logout } = useAuth();
   const { networkStats } = useApi();
   const { isConnected, activeAlerts, clearAlert, clearAllAlerts } = useSocket();
   
   const [profileOpen, setProfileOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
-  const navigate = useNavigate();
 
   const initials = user?.name
     ?.split(' ')
@@ -44,11 +42,7 @@ export const Header = () => {
 
   const handleInspectAlert = (shipmentId) => {
     setAlertsOpen(false);
-    if (shipmentId) {
-      navigate(`/tracking?shipmentId=${shipmentId}`);
-    } else {
-      navigate('/tracking');
-    }
+    setActiveTab('tracking');
   };
 
   return (

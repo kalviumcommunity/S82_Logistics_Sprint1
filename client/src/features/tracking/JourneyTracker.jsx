@@ -4,6 +4,7 @@ import { useApi } from '../../context/ApiContext.jsx';
 import { 
   Search, GitCommit, AlertTriangle, CloudRain, Clock, Database, Cpu, Compass
 } from 'lucide-react';
+import JourneyMap from './JourneyMap.jsx';
 
 import { JourneyStepper } from './JourneyStepper.jsx';
 
@@ -147,8 +148,96 @@ export const JourneyTracker = () => {
           </p>
         </div>
       ) : journeyData?.data ? (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="flex flex-col gap-6">
           
+          <JourneyMap legs={journeyData.data.legs} currentStatus={currentStatus} />
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            {/* Timeline Display Card */}
+            <div className="lg:col-span-2 bg-[#0f172a] border border-slate-800/60 rounded-lg p-5 flex flex-col gap-5">
+            <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800/40 pb-2 flex items-center gap-2">
+              <GitCommit className="h-4.5 w-4.5 text-slate-450" />
+              Chronological Path Reconstruction
+            </h2>
+
+            {/* Stepper Timeline */}
+            <div className="relative pl-6 border-l border-slate-850 flex flex-col gap-6 ml-2.5">
+              {journeyData.data.legs.map((leg, index) => {
+                const isLast = index === journeyData.data.legs.length - 1;
+                // Leg is considered impacted if it registers an exception or comes after one in a delayed journey
+                const isException = leg.weatherException;
+                const isDelayed = isException || (currentStatus === 'DELAYED' && index > 0);
+
+                return (
+                  <div key={index} className="relative group">
+                    
+                    {/* Tiny sharp structural dot node */}
+                    {isLast ? (
+                      <span className="absolute -left-[30px] top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#090d16] border border-slate-850">
+                        <span className="absolute inline-flex h-3.5 w-3.5 rounded-full animate-pulse-ring bg-sky-500/20"></span>
+                        <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${currentStatus === 'DELAYED' ? 'bg-red-500' : currentStatus === 'AT_RISK' ? 'bg-amber-500' : 'bg-emerald-500'}`}></span>
+                      </span>
+                    ) : (
+                      <span className={`absolute -left-[27px] top-2 h-2.5 w-2.5 rounded-full border-2 border-[#090d16] ${
+                        isException ? 'bg-red-500' : 'bg-slate-700'
+                      }`} />
+                    )}
+
+                    {/* Leg Detail Block */}
+                    <div className={`bg-[#090d16] border rounded-lg p-3 flex flex-col gap-1.5 transition-all ${
+                      isDelayed 
+                        ? 'border-red-900/40 text-red-500' 
+                        : 'border-slate-800/60 text-slate-350'
+                    }`}>
+                      <div className="flex items-center justify-between gap-4">
+                        <span className={`text-[11px] font-bold ${isDelayed ? 'text-red-400' : 'text-slate-200'}`}>
+                          {index === 0 ? 'Start Hub' : isLast ? 'Current Location' : `Hub Leg ${index}`}
+                        </span>
+                        <span className="text-[10px] font-mono text-slate-500">
+                          {new Date(leg.timestamp).toLocaleString()}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between text-xs font-mono">
+                        <div>
+                          <p className={`text-[10px] font-bold ${isDelayed ? 'text-red-400' : 'text-slate-400'}`}>
+                            Location ID: {leg.locationId}
+                          </p>
+                          <p className="text-slate-550 text-[9px] mt-0.5">
+                            Coords: {leg.coordinates.coordinates[1].toFixed(4)}, {leg.coordinates.coordinates[0].toFixed(4)}
+                          </p>
+                        </div>
+
+                        {/* Dwell details */}
+                        {index < journeyData.data.legs.length - 1 && (
+                          <div className="flex items-center gap-1 text-slate-400 bg-slate-900/50 border border-slate-850 px-2 py-0.5 rounded">
+                            <Clock className="h-3 w-3 text-slate-500 font-mono" />
+                            <span className="text-[9px]">Dwell: {formatDwellTime(leg.dwellDuration)}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Monospace revised ETA if delayed */}
+                      {isDelayed && (
+                        <div className="text-[10px] font-mono text-red-500 font-semibold mt-1">
+                          REVISED ETA: {new Date(journeyData.data.currentEta).toLocaleString()}
+                        </div>
+                      )}
+
+                      {/* Weather exception warning banner */}
+                      {leg.weatherException && (
+                        <div className="flex items-center gap-2 mt-1 px-2.5 py-1.5 bg-red-950/20 border border-red-900/40 text-red-500 rounded text-[9px] font-mono">
+                          <CloudRain className="h-3.5 w-3.5 shrink-0" />
+                          <span>WEATHER EXCEPTION DETECTED: IMPACTING DOWNSTREAM ETAs</span>
+                        </div>
+                      )}
+                    </div>
+
+                  </div>
+                );
+              })}
+            </div>
           {/* Timeline Stepper Display */}
           <div className="lg:col-span-2">
             <JourneyStepper journeyData={journeyData.data} />
@@ -197,6 +286,8 @@ export const JourneyTracker = () => {
                 Risk score weights reflect active bottlenecks along transit networks. High queue densities, severe climate alerts, and target delivery breaches compound points. Scores above 35 indicate dynamic warnings, while scores exceeding 70 trigger automatic delay declarations.
               </p>
             </div>
+
+          </div>
 
           </div>
 

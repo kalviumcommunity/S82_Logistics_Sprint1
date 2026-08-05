@@ -46,7 +46,7 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     // Establish connection to backend server with polling handshake and WebSocket upgrade
-    const socketInstance = io('http://localhost:3000', {
+    const socketInstance = io('http://localhost:3005', {
       transports: ['polling', 'websocket'],
       withCredentials: true,
       autoConnect: true,

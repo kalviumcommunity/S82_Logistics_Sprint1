@@ -21,53 +21,7 @@ const roleBadgeConfig = {
   VIEWER:            { label: 'VIEWER', color: 'text-slate-400', bg: 'bg-slate-900',    border: 'border-slate-800/60', rowAccent: 'row-accent-viewer'  },
 };
 
-const RoleDropdown = ({ userId, currentRole, onRoleChange, isPending }) => {
-  const [open, setOpen] = useState(false);
-  const ref = useRef(null);
-  const badge = roleBadgeConfig[currentRole] || roleBadgeConfig.VIEWER;
-
-  useEffect(() => {
-    const handleClick = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
-    };
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, []);
-
-  return (
-    <div className="relative inline-block" ref={ref}>
-      <button
-        onClick={() => setOpen(!open)}
-        disabled={isPending}
-        className={`flex items-center gap-1.5 px-2.5 py-1 border rounded text-[10px] font-bold font-mono tracking-wider cursor-pointer transition-all ${badge.bg} ${badge.border} ${badge.color} hover:brightness-125 disabled:opacity-50 disabled:cursor-not-allowed`}
-      >
-        {badge.label}
-        <ChevronDown className={`h-2.5 w-2.5 transition-transform ${open ? 'rotate-180' : ''}`} />
-      </button>
-
-      {open && (
-        <div
-          className="absolute right-0 top-full mt-1.5 w-44 bg-slate-900 border border-slate-800/60 rounded-xl shadow-2xl z-50 overflow-hidden"
-          style={{ animation: 'fadeSlideIn 0.15s ease-out both' }}
-        >
-          {SYSTEM_ROLES.map((role) => {
-            const r = roleBadgeConfig[role];
-            return (
-              <button
-                key={role}
-                onClick={() => { onRoleChange(userId, role); setOpen(false); }}
-                className="w-full flex items-center justify-between px-3 py-2.5 text-[10px] font-mono font-bold hover:bg-slate-800/60 transition-colors"
-              >
-                <span className={r.color}>{r.label}</span>
-                {currentRole === role && <Check className="h-3 w-3 text-emerald-500" />}
-              </button>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-};
+// Removed unused RoleDropdown
 
 export const AdminPanel = () => {
   const { apiClient } = useApi();
@@ -102,6 +56,7 @@ export const AdminPanel = () => {
     refetchInterval: 5000,
   });
 
+  // Role mutation removed from here as it is handled in UserManagementTable
   const { data: summaryData } = useQuery({
     queryKey: ['analytics-dashboard-summary'],
     queryFn: async () => {

@@ -1,9 +1,8 @@
 import React from 'react';
 import { useSocket } from '../context/SocketContext.jsx';
-import { ShieldAlert, AlertTriangle, ArrowRight, X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { ArrowRight, X, ShieldAlert, AlertTriangle } from 'lucide-react';
 
-export const AlertToastContainer = () => {
+export const AlertToastContainer = ({ setActiveTab }) => {
   const { activeAlerts, clearAlert } = useSocket();
 
   let navigate = null;

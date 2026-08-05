@@ -1,29 +1,9 @@
-# Dependency directories
-**/node_modules/
-
-# Local env files
-**/.env
-**/.env.local
-
-# Logs
-**/*.log
-**/logs/
-
-# IDE files
-.vscode/
-.idea/
-.project
-.metadata
-
-# Python bytecode & stackdumps
-__pycache__/
-*.pyc
-*.stackdump
-
-# Ignore large CSV dataset files
-*.csv
-cleaned_data/*.csv
-server/src/cleaned_data/*.csv
-server/src/data/*.csv
-data/*.csv
-!data/DescriptionDataCoSupplyChain.csv
+node_modules/
+.env
+.env.local
+dist/
+build/
+*.log
+.DS_Store
+CVS
+.svn
