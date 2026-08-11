@@ -142,16 +142,17 @@ export const CommandCenter = () => {
 
   const warehouses = warehousesRes?.data || [];
 
-  // Fetch active route
-  const { data: journeyRes, refetch: refetchJourney } = useQuery({
-    queryKey: ['fleet-shipment-journey'],
+  // Fetch active shipments
+  const { data: activeShipmentsRes, refetch: refetchShipments } = useQuery({
+    queryKey: ['fleet-active-shipments'],
     queryFn: async () => {
-      const res = await apiClient.get('/shipments/SH-7777/journey').catch(() => null);
+      const res = await apiClient.get('/shipments/active').catch(() => null);
       return res?.data || null;
     },
+    refetchInterval: 5000,
   });
 
-  const journeyLegs = journeyRes?.data?.legs || [];
+  const activeShipments = activeShipmentsRes?.data || [];
   const mapCenter   = [11.1271, 78.6569];
   const mapZoom     = 7;
 
@@ -174,7 +175,7 @@ export const CommandCenter = () => {
     };
 
     const handleRouteUpdated = (payload) => {
-      refetchJourney();
+      refetchShipments();
       setActiveToast({
         shipmentId: payload.shipmentId,
         message: `Route rerouted to ${payload.appliedRouteName || payload.appliedRouteId}. Risk score normalized to ${payload.riskScore}.`,
@@ -204,12 +205,7 @@ export const CommandCenter = () => {
       socket.off('route:updated', handleRouteUpdated);
       socket.off('risk:update');
     };
-  }, [socket, refetchJourney]);
-
-  const polylinePositions = journeyLegs.map(leg => [
-    leg.coordinates.coordinates[1],
-    leg.coordinates.coordinates[0],
-  ]);
+  }, [socket, refetchShipments]);
 
   const now = new Date().toLocaleTimeString();
 
@@ -291,7 +287,7 @@ export const CommandCenter = () => {
             {/* Live badge */}
             <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#06090f] border border-slate-800/60 rounded text-[9px] font-mono font-bold text-emerald-400">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-              LIVE FLEET · SH-7777
+              GLOBAL FLEET View
             </div>
           </div>
 
@@ -323,32 +319,27 @@ export const CommandCenter = () => {
                 </Marker>
               ))}
 
-              {polylinePositions.length > 0 && (
-                <>
-                  <Polyline
-                    positions={polylinePositions}
-                    color="#10b981"
-                    weight={1.5}
-                    dashArray="5, 9"
-                    opacity={0.8}
-                  />
-                  {journeyLegs.map((leg, idx) => (
-                    <Marker
-                      key={idx}
-                      position={[leg.coordinates.coordinates[1], leg.coordinates.coordinates[0]]}
-                      icon={MAP_ICONS[leg.weatherException ? 'red' : 'emerald']}
-                    >
-                      <Popup>
-                        <div className="text-[11px]">
-                          <p className="font-bold text-emerald-500">Leg {idx}: {leg.locationId}</p>
-                          <p className="text-slate-400 mt-0.5">Wait Time: <span className="font-mono">{leg.dwellDuration ? `${Math.round(leg.dwellDuration / 3600)}h` : 'In Transit'}</span></p>
-                          {leg.weatherException && <p className="text-red-500 font-semibold mt-1">⚠ Weather exception logged.</p>}
-                        </div>
-                      </Popup>
-                    </Marker>
-                  ))}
-                </>
-              )}
+              {activeShipments.map((shipment) => {
+                if (!shipment.legs || shipment.legs.length === 0) return null;
+                const lastLeg = shipment.legs[shipment.legs.length - 1];
+                const iconColor = shipment.status === 'DELAYED' || lastLeg.weatherException ? 'red' : shipment.status === 'AT_RISK' ? 'amber' : 'emerald';
+                return (
+                  <Marker
+                    key={shipment.shipmentId}
+                    position={[lastLeg.coordinates.coordinates[1], lastLeg.coordinates.coordinates[0]]}
+                    icon={MAP_ICONS[iconColor]}
+                  >
+                    <Popup>
+                      <div className="text-[11px]">
+                        <p className="font-bold text-emerald-500">Shipment {shipment.shipmentId}</p>
+                        <p className="text-slate-400 mt-0.5">Location: <span className="font-mono">{lastLeg.locationId}</span></p>
+                        <p className="text-slate-400">Status: <span className={`font-mono font-bold ${shipment.status === 'DELAYED' ? 'text-red-500' : shipment.status === 'AT_RISK' ? 'text-amber-500' : 'text-emerald-500'}`}>{shipment.status}</span></p>
+                        {lastLeg.weatherException && <p className="text-red-500 font-semibold mt-1">⚠ Weather exception logged.</p>}
+                      </div>
+                    </Popup>
+                  </Marker>
+                );
+              })}
             </MapContainer>
           </div>
         </div>
@@ -586,7 +577,7 @@ export const CommandCenter = () => {
         isOpen={isSimDrawerOpen}
         onClose={() => setIsSimDrawerOpen(false)}
         onRerouteApplied={() => {
-          refetchJourney();
+          refetchShipments();
         }}
       />
 

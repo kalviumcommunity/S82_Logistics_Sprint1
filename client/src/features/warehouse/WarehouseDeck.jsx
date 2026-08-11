@@ -153,16 +153,31 @@ export const WarehouseDeck = () => {
     refetchInterval: 10000,
   });
 
+  // Calculate live telemetry metrics
+  const chennaiWh = warehousesRes?.data?.find(w => w.warehouseId === 'WH-CHENNAI-01');
+  const yardOccupancy = chennaiWh ? Math.min(100, Math.round((chennaiWh.currentQueueLength / 15) * 100)) : 78;
+  const avgWaitSec = chennaiWh ? chennaiWh.dwellTimeAvg : (42 * 60 + 15);
+  const avgWaitMin = Math.floor(avgWaitSec / 60);
+  const avgWaitSecRem = avgWaitSec % 60;
+  
+  const criticalCount = inboundList.filter(s => s.priority === 'CRITICAL').length;
+
   const handleRowClick = (shipment) => {
     setSelectedShipment(shipment);
     setDrawerOpen(true);
   };
 
   const handlePrioritizeOffload = (shipmentId) => {
-    // Elevate priority locally
-    setInboundList((prev) =>
-      prev.map((s) => (s.id === shipmentId ? { ...s, priority: 'CRITICAL', status: 'PRIORITIZED' } : s))
-    );
+    // Elevate priority locally and move to front of the queue
+    setInboundList((prev) => {
+      const newList = prev.map((s) => (s.id === shipmentId ? { ...s, priority: 'CRITICAL', status: 'PRIORITIZED' } : s));
+      const targetIndex = newList.findIndex((s) => s.id === shipmentId);
+      if (targetIndex > -1) {
+        const [target] = newList.splice(targetIndex, 1);
+        newList.unshift(target);
+      }
+      return newList;
+    });
     if (selectedShipment?.id === shipmentId) {
       setSelectedShipment((prev) => ({ ...prev, priority: 'CRITICAL', status: 'PRIORITIZED' }));
     }
@@ -229,7 +244,7 @@ export const WarehouseDeck = () => {
             </span>
           </div>
           <div className="hidden sm:flex items-center gap-1.5 bg-[#0d1321] px-3 py-1.5 border border-slate-800/60 rounded-lg">
-            <span className="font-mono text-[10px] text-slate-400">YARD OCCUPANCY: 78%</span>
+            <span className="font-mono text-[10px] text-slate-400">YARD OCCUPANCY: {yardOccupancy}%</span>
           </div>
         </div>
       </div>
@@ -245,7 +260,7 @@ export const WarehouseDeck = () => {
           </div>
           <div>
             <p className="font-mono text-2xl font-black text-slate-100">{inboundList.length} UNITS</p>
-            <p className="font-mono text-[10px] text-emerald-400 mt-0.5">2 Critical Offload Requests</p>
+            <p className="font-mono text-[10px] text-emerald-400 mt-0.5">{criticalCount} Critical Offload Requests</p>
           </div>
         </div>
 
@@ -270,7 +285,7 @@ export const WarehouseDeck = () => {
             <Clock className="h-4 w-4 text-amber-400" />
           </div>
           <div>
-            <p className="font-mono text-2xl font-black text-slate-100">42m 15s</p>
+            <p className="font-mono text-2xl font-black text-slate-100">{avgWaitMin}m {avgWaitSecRem}s</p>
             <p className="font-mono text-[10px] text-amber-400 mt-0.5">-8% vs baseline target</p>
           </div>
         </div>
@@ -494,7 +509,6 @@ export const WarehouseDeck = () => {
                 {selectedShipment.checklist.map((item) => (
                   <label
                     key={item.id}
-                    onClick={() => toggleChecklistItem(item.label)}
                     className={`flex items-center gap-3 p-3 rounded-lg border transition-all cursor-pointer select-none ${
                       item.done
                         ? 'bg-emerald-950/20 border-emerald-900/40 text-slate-200'
@@ -504,7 +518,7 @@ export const WarehouseDeck = () => {
                     <input
                       type="checkbox"
                       checked={item.done}
-                      onChange={() => {}}
+                      onChange={() => toggleChecklistItem(item.label)}
                       className="h-4 w-4 rounded border-slate-700 bg-slate-900 text-emerald-500 focus:ring-0 cursor-pointer"
                     />
                     <span className={`text-xs font-sans ${item.done ? 'line-through text-slate-400' : 'text-slate-200'}`}>

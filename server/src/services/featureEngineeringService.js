@@ -77,7 +77,7 @@ export function getNetworkCascadeMetrics() {
       id: facId,
       name: facId === 'HUB-CHENNAI' ? 'Chennai Central Hub' :
             facId === 'HUB-COIMBATORE' ? 'Coimbatore Depot' :
-            facId === 'HUB-FRANKFURT' ? 'Frankfurt Hub' :
+            facId === 'HUB-MADURAI' ? 'Madurai Hub' :
             facId === 'HUB-SALEM' ? 'Salem South Yard' : `${facId} Terminal`,
       queueCount: cleansed.queueCount || 10,
       capacity: cleansed.maxCapacity || 15,

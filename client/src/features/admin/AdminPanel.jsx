@@ -26,17 +26,7 @@ const roleBadgeConfig = {
 export const AdminPanel = () => {
   const { apiClient } = useApi();
   const { socket } = useSocket();
-  const terminalEndRef = useRef(null);
 
-
-
-  const [auditLogs, setAuditLogs] = useState([
-    { timestamp: new Date().toLocaleTimeString(), action: 'SYSTEM_BOOT',       status: 'SUCCESS', operator: 'KERNEL'    },
-    { timestamp: new Date().toLocaleTimeString(), action: 'CONNECT_MONGO',     status: 'SUCCESS', operator: 'DB_POOL'   },
-    { timestamp: new Date().toLocaleTimeString(), action: 'CONNECT_REDIS',     status: 'SUCCESS', operator: 'REDIS_POOL'},
-    { timestamp: new Date().toLocaleTimeString(), action: 'AUTH_GATE_OPENED',  status: 'INFO',    operator: 'AUTH_SVC'  },
-    { timestamp: new Date().toLocaleTimeString(), action: 'ADMIN_SESSION_INIT',status: 'INFO',    operator: 'ADMIN_SVC' },
-  ]);
 
   const [successToast, setSuccessToast] = useState(null);
 
@@ -70,20 +60,6 @@ export const AdminPanel = () => {
     setTimeout(() => setSuccessToast(null), 4000);
   };
 
-
-
-  useEffect(() => {
-    if (!socket) return;
-    const handleAuditLog = (log) => {
-      setAuditLogs((prev) => [...prev, log].slice(-50));
-    };
-    socket.on('audit:log', handleAuditLog);
-    return () => socket.off('audit:log', handleAuditLog);
-  }, [socket]);
-
-  useEffect(() => {
-    terminalEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [auditLogs]);
 
   const TELEMETRY_CARDS = [
     {
@@ -187,69 +163,21 @@ export const AdminPanel = () => {
       </div>
 
       {/* Data Pre-Processing & Pipeline Quality Card */}
-      <DataPipelineHealthCard />
+      <DataPipelineHealthCard analyticsRes={summaryData} />
 
       {/* Facility Congestion & Yard Saturation Heatmap Grid */}
       <FacilityCongestionHeatmap heatmaps={summaryData?.facilityCongestionHeatmaps || []} />
 
       {/* Network Cascade Propagation & Operations Research KPIs Card */}
-      <CascadingKpiCard />
+      <CascadingKpiCard analyticsRes={summaryData} />
 
       {/* Data Science Model Accuracy & Telemetry Card */}
-      <ModelTelemetryCard />
+      <ModelTelemetryCard analyticsRes={summaryData} />
 
       {/* Role Assignment Management Grid */}
       <UserManagementTable />
 
-      {/* ── Row 2: User Access Matrix + Audit Terminal ─────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
-
-
-        {/* Real-time Audit Log Terminal */}
-        <div className="card-panel p-4 flex flex-col gap-3 h-[380px]">
-          <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 border-b border-slate-800/40 pb-2.5 shrink-0">
-            <Terminal className="h-4 w-4 text-slate-500" />
-            System Security Audit Tail
-            <span className="ml-auto data-label text-slate-600 normal-case font-mono">LIVE</span>
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-chip-blink" />
-          </h2>
-
-          <div className="flex-1 bg-[#090d16] rounded-xl p-3 font-mono text-[10px] leading-relaxed overflow-y-auto border border-slate-800/60 flex flex-col gap-0.5">
-            {auditLogs.map((log, index) => {
-              const statusColor =
-                log.status === 'SUCCESS' ? 'text-emerald-500' :
-                log.status === 'WARN'    ? 'text-amber-500'   :
-                log.status === 'INFO'    ? 'text-sky-500'     :
-                'text-red-500';
-              const operatorColor =
-                log.operator === 'KERNEL'     ? 'text-purple-400' :
-                log.operator === 'DB_POOL'    ? 'text-blue-400'   :
-                log.operator === 'REDIS_POOL' ? 'text-cyan-400'   :
-                log.operator === 'AUTH_SVC'   ? 'text-amber-400'  :
-                log.operator === 'ADMIN_SVC'  ? 'text-red-400'    :
-                'text-emerald-400';
-              return (
-                <div key={index} className="flex gap-2 items-start hover:bg-emerald-950/5 py-0.5 px-1 rounded transition-all">
-                  <span className="text-slate-700 shrink-0">[{log.timestamp}]</span>
-                  <span className={`font-semibold shrink-0 ${operatorColor}`}>{log.operator}:</span>
-                  <span className="text-slate-400 break-all">{log.action}</span>
-                  <span className={`ml-auto ${statusColor} px-1 rounded font-bold uppercase text-[8px] border border-current/20 shrink-0`}>
-                    {log.status}
-                  </span>
-                </div>
-              );
-            })}
-            {/* Blinking cursor */}
-            <div className="flex items-center gap-1 py-0.5 px-1 mt-0.5">
-              <span className="text-slate-700">&gt;</span>
-              <span className="terminal-cursor text-emerald-500" />
-            </div>
-            <div ref={terminalEndRef} />
-          </div>
-        </div>
-
-      </div>
     </div>
   );
 };

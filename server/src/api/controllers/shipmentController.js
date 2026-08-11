@@ -99,6 +99,23 @@ export async function getShipmentJourney(req, res, next) {
 }
 
 /**
+ * GET /api/v1/shipments/active
+ * Fetch all active shipments and their telemetry
+ */
+export async function getActiveShipments(req, res, next) {
+  try {
+    const shipments = await ShipmentJourney.find({});
+    return res.status(200).json({
+      status: 'success',
+      data: shipments,
+    });
+  } catch (error) {
+    logger.error(error, 'Error fetching active shipments');
+    next(error);
+  }
+}
+
+/**
  * GET /api/v1/health
  * Returns active database connection health, stream status, and system telemetry.
  */
@@ -238,4 +255,5 @@ export default {
   getSystemHealth,
   patchUserRole,
   getWarehouses,
+  getActiveShipments,
 };

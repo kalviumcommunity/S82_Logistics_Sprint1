@@ -263,17 +263,17 @@ def run_elt_pipeline():
     # Build Facility Congestion Summary Heatmap Data
     facility_summary = []
     fac_names = {
-        "HUB-CHICAGO": "Chicago Central Gateway Hub",
-        "HUB-DETROIT": "Detroit Intermodal Depot",
-        "HUB-HOUSTON": "Houston Logistics Yard",
-        "HUB-SEATTLE": "Seattle Freight Terminal",
-        "HUB-NEWYORK": "New York Metro Exchange",
-        "HUB-LOSANGELES": "Los Angeles Port Hub",
-        "HUB-ATLANTA": "Atlanta Distribution Node",
-        "HUB-MIAMI": "Miami International Yard",
-        "HUB-FRANKFURT": "Frankfurt Air-Cargo Hub",
-        "HUB-MEMPHIS": "Memphis Logistics Center",
-        "HUB-SINGAPORE": "Singapore Maritime Node"
+        "HUB-TRICHY": "Trichy Central Hub",
+        "HUB-ERODE": "Erode Distribution Node",
+        "HUB-VELLORE": "Vellore Logistics Yard",
+        "HUB-TIRUNELVELI": "Tirunelveli Freight Terminal",
+        "HUB-THOOTHUKUDI": "Thoothukudi Metro Exchange",
+        "HUB-NAGERCOIL": "Nagercoil Port Hub",
+        "HUB-DINDIGUL": "Dindigul Distribution Node",
+        "HUB-THANJAVUR": "Thanjavur Yard",
+        "HUB-MADURAI": "Madurai Air-Cargo Hub",
+        "HUB-TIRUPPUR": "Tiruppur Logistics Center",
+        "HUB-KANYAKUMARI": "Kanyakumari Maritime Node"
     }
 
     for fac_id, group in df_tel.groupby(fac_col):
@@ -282,6 +282,9 @@ def run_elt_pipeline():
         avg_dev = float(group['dwell_deviation'].mean())
         mean_risk = float(group['cascade_risk_score'].mean())
         max_risk = float(group['cascade_risk_score'].max())
+        
+        avg_queue = float(group['yard_queue_count'].mean()) if 'yard_queue_count' in group.columns else 0.0
+        avg_capacity = float(group['yard_max_capacity'].mean()) if 'yard_max_capacity' in group.columns else 0.0
 
         severity = "LOW"
         if avg_cap >= 80.0 or mean_risk >= 65.0:
@@ -297,6 +300,9 @@ def run_elt_pipeline():
             "capacityUtilization": round(avg_cap, 1),
             "avgDwellMins": round(avg_dwell, 1),
             "avgDwellDeviationMins": round(avg_dev, 1),
+            "avgDwellDeviationSec": round(avg_dev * 60.0, 1),
+            "yardQueueCount": round(avg_queue, 1),
+            "yardMaxCapacity": int(avg_capacity),
             "meanCascadeRiskScore": round(mean_risk, 1),
             "maxCascadeRiskScore": round(max_risk, 1),
             "severity": severity,

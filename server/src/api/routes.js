@@ -4,7 +4,8 @@ import {
   getShipmentJourney,
   getShipmentRiskAnalysis,
   getSystemHealth,
-  getWarehouses
+  getWarehouses,
+  getActiveShipments
 } from './controllers/shipmentController.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
@@ -27,6 +28,9 @@ router.post('/shipment-events', postShipmentEvent);
 
 // Endpoint for cache-aside journey retrieval
 router.get('/shipments/:id/journey', getShipmentJourney);
+
+// Endpoint for retrieving all active shipments
+router.get('/shipments/active', getActiveShipments);
 
 // Endpoint for predictive risk factor breakdown analysis (Protected: ADMIN, OPERATIONS_MANAGER)
 router.get(

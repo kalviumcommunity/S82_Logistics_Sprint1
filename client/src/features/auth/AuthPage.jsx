@@ -354,12 +354,7 @@ export const AuthPage = () => {
             </button>
           </form>
 
-          {/* Card Footer */}
-          <div className="border-t border-slate-800/40 pt-4 text-center">
-            <p className="text-[9px] text-slate-600 font-mono uppercase tracking-widest">
-              ZERO TRUST SECURITY PERIMETER · AUDIT LOGGED
-            </p>
-          </div>
+
         </div>
 
       </div>

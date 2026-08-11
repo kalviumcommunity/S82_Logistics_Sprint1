@@ -1,33 +1,23 @@
-import React, { useEffect } from 'react';
+import React from 'react';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 
 /**
  * ProtectedRoute — Dynamic route & role access guard.
- * Unauthenticated users -> Redirected to /auth (AUTH_GATE)
- * Unauthorized users -> Redirected to /track (tracking view)
+ * Unauthenticated users -> Redirected to /auth
+ * Unauthorized users -> Redirected to fallbackTab
  */
-export const ProtectedRoute = ({ allowedRoles = [], children, fallbackTab = 'tracking', onUnauthorized }) => {
-  const { user, appState, openAuthGate } = useAuth();
+export const ProtectedRoute = ({ allowedRoles = [], children, fallbackTab = 'track' }) => {
+  const { user } = useAuth();
 
-  const isAuthenticated = appState === 'WORKSPACE' && Boolean(user);
-  const isAuthorized = !allowedRoles.length || (user && allowedRoles.includes(user.role));
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      if (onUnauthorized) {
-        onUnauthorized('auth');
-      } else {
-        openAuthGate();
-      }
-    } else if (!isAuthorized) {
-      if (onUnauthorized) {
-        onUnauthorized(fallbackTab);
-      }
-    }
-  }, [isAuthenticated, isAuthorized, onUnauthorized, openAuthGate, fallbackTab]);
+  const isAuthorized = !allowedRoles.length || allowedRoles.includes(user.role);
 
-  if (!isAuthenticated || !isAuthorized) {
-    return null;
+  if (!isAuthorized) {
+    return <Navigate to={`/${fallbackTab}`} replace />;
   }
 
   return children;

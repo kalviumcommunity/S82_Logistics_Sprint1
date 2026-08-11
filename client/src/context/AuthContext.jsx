@@ -1,24 +1,25 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const API_BASE_URL = 'http://localhost:3005/api/v1';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [appState, setAppState] = useState('LANDING'); // 'LANDING' | 'AUTH_GATE' | 'WORKSPACE'
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [accessToken, setAccessToken] = useState(() => localStorage.getItem('accessToken') || null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Navigate to auth gate view
   const openAuthGate = () => {
-    setAppState('AUTH_GATE');
+    navigate('/auth');
   };
 
   // Return to landing hub
   const returnToLanding = () => {
-    setAppState('LANDING');
+    navigate('/');
   };
 
   // Helper to set auth state and setup token header
@@ -37,17 +38,17 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       localStorage.setItem('accessToken', token);
     }
-    setAppState('WORKSPACE');
+    
+    // Only redirect to /command if logging in from landing or auth page
+    if (window.location.pathname === '/' || window.location.pathname === '/auth') {
+      navigate('/command');
+    }
   };
 
   // Attempt login with backend API
   const login = async (email, password) => {
     const trimmedEmail = (email || '').trim();
     const trimmedPassword = (password || '').trim();
-
-    const isMasterAdminCreds =
-      trimmedEmail === 'adminlogistics@gmail.com' &&
-      trimmedPassword === 'zxcvbnm0987654321';
 
     try {
       const response = await axios.post(
@@ -60,12 +61,6 @@ export const AuthProvider = ({ children }) => {
       handleAuthSuccess(userData, token);
       return { success: true, user: userData };
     } catch (error) {
-      if (isMasterAdminCreds) {
-        // Fail-safe instant fallback for Master Admin credentials
-        handleAuthSuccess(defaultAdminUser, 'fallback-admin-token');
-        return { success: true, user: defaultAdminUser };
-      }
-
       const errorMsg =
         error.response?.data?.message || 'Authentication failed. Please verify credentials.';
       return { success: false, error: errorMsg };
@@ -107,27 +102,13 @@ export const AuthProvider = ({ children }) => {
       setUser(null);
       setAccessToken(null);
       localStorage.removeItem('accessToken');
-      window.history.pushState({}, '', '/');
-      setAppState('LANDING');
+      navigate('/');
     }
-  };
-
-  // Default Admin User fallback for direct path access (/command, /admin, /warehouse)
-  const defaultAdminUser = {
-    id: 'ADMIN-DEFAULT-01',
-    name: 'Master Admin',
-    fullName: 'Logistics System Admin',
-    email: 'adminlogistics@gmail.com',
-    role: 'ADMIN',
-    assignedFacility: 'HQ-MAIN',
-    status: 'ACTIVE',
   };
 
   // Silent token refresh and hydration routine on mount
   const refreshSession = useCallback(async () => {
     const storedToken = localStorage.getItem('accessToken');
-    const path = window.location.pathname;
-    const isDirectWorkspacePath = path.includes('/command') || path.includes('/admin') || path.includes('/warehouse') || path.includes('/track');
 
     // Safety timeout to prevent infinite spinner load
     const safetyTimer = setTimeout(() => {
@@ -173,22 +154,11 @@ export const AuthProvider = ({ children }) => {
         // Refresh cookie missing or expired
       }
 
-      // 3. If direct workspace URL (/command, /admin, /warehouse) and unauthenticated, auto-bootstrap default Admin session
-      if (isDirectWorkspacePath) {
-        setUser(defaultAdminUser);
-        setAppState('WORKSPACE');
-      } else {
-        setUser(null);
-        setAccessToken(null);
-      }
+      setUser(null);
+      setAccessToken(null);
     } catch (error) {
-      if (isDirectWorkspacePath) {
-        setUser(defaultAdminUser);
-        setAppState('WORKSPACE');
-      } else {
-        setUser(null);
-        setAccessToken(null);
-      }
+      setUser(null);
+      setAccessToken(null);
     } finally {
       clearTimeout(safetyTimer);
       setIsLoading(false);
@@ -209,8 +179,6 @@ export const AuthProvider = ({ children }) => {
   return (
     <AuthContext.Provider
       value={{
-        appState,
-        setAppState,
         user,
         setUser,
         accessToken,

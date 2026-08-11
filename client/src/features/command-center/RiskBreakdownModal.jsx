@@ -63,17 +63,17 @@ export const RiskBreakdownModal = ({ shipmentId, isOpen, onClose }) => {
   const delayMins = data.predictedDelayMinutes ?? 0;
 
   const chartData = [
-    { name: 'S_dwell', label: 'Waiting Time', score: factors.dwellScore, weight: '25%' },
-    { name: 'S_queue', label: 'Queue Congestion', score: factors.queueScore, weight: '35%' },
-    { name: 'S_env', label: 'Environmental', score: factors.envScore, weight: '20%' },
-    { name: 'S_sla', label: 'SLA Margin Breach', score: factors.slaScore, weight: '20%' },
+    { name: 'Wait Time', label: 'Waiting Time', score: factors.dwellScore, weight: '25%' },
+    { name: 'Queue', label: 'Queue Congestion', score: factors.queueScore, weight: '35%' },
+    { name: 'Env', label: 'Environmental', score: factors.envScore, weight: '20%' },
+    { name: 'SLA', label: 'SLA Margin Breach', score: factors.slaScore, weight: '20%' },
   ];
 
   const radarData = [
     { subject: 'Wait Time', A: factors.dwellScore, fullMark: 100 },
-    { subject: 'S_queue (Queue)', A: factors.queueScore, fullMark: 100 },
-    { subject: 'S_env (Environment)', A: factors.envScore, fullMark: 100 },
-    { subject: 'S_sla (SLA Margin)', A: factors.slaScore, fullMark: 100 },
+    { subject: 'Queue', A: factors.queueScore, fullMark: 100 },
+    { subject: 'Environment', A: factors.envScore, fullMark: 100 },
+    { subject: 'SLA Margin', A: factors.slaScore, fullMark: 100 },
   ];
 
   const getStatusBadge = (st) => {

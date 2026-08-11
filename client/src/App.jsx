@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext.jsx';
 import LandingHub from './components/LandingHub.jsx';
 import AuthGate from './components/AuthGate.jsx';
@@ -10,75 +11,8 @@ import AdminPanel from './features/admin/AdminPanel.jsx';
 import ProtectedRoute from './routes/ProtectedRoute.jsx';
 import { RefreshCw } from 'lucide-react';
 
-// Workspace view components
-const WORKSPACE_VIEWS = {
-  tracking: JourneyTracker,
-  command: CommandCenter,
-  warehouse: WarehouseDeck, // Facility / Warehouse Deck view
-  admin: AdminPanel,
-};
-
-// Default tab per role
-const ROLE_DEFAULT_TAB = {
-  ADMIN: 'admin',
-  OPERATIONS_MANAGER: 'command',
-  WAREHOUSE_MANAGER: 'tracking',
-  VIEWER: 'tracking',
-};
-
-// Role access matrix per route/tab specification
-const TAB_ROLES = {
-  tracking: ['ADMIN', 'OPERATIONS_MANAGER', 'WAREHOUSE_MANAGER', 'VIEWER'], // /track
-  command: ['ADMIN', 'OPERATIONS_MANAGER'],                                // /command
-  warehouse: ['ADMIN', 'WAREHOUSE_MANAGER'],                               // /warehouse
-  admin: ['ADMIN'],                                                       // /admin
-};
-
-const getTabFromPath = () => {
-  const path = window.location.pathname;
-  if (path.includes('/command')) return 'command';
-  if (path.includes('/admin')) return 'admin';
-  if (path.includes('/warehouse')) return 'warehouse';
-  if (path.includes('/track')) return 'tracking';
-  return null;
-};
-
-function WorkspaceContainer() {
-  const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState(() => getTabFromPath() || ROLE_DEFAULT_TAB[user?.role] || 'command');
-
-  // Sync activeTab with URL path or authorized role defaults
-  useEffect(() => {
-    const pathTab = getTabFromPath();
-    if (pathTab && pathTab !== activeTab) {
-      setActiveTab(pathTab);
-    }
-  }, [activeTab]);
-
-  const CurrentView = WORKSPACE_VIEWS[activeTab] || CommandCenter;
-  const allowedRolesForCurrentTab = TAB_ROLES[activeTab] || [];
-
-  return (
-    <CommandDeckLayout activeTab={activeTab} setActiveTab={setActiveTab}>
-      <ProtectedRoute
-        allowedRoles={allowedRolesForCurrentTab}
-        fallbackTab="command"
-        onUnauthorized={(target) => {
-          if (target === 'auth') {
-            // Handled by AuthContext openAuthGate
-          } else {
-            setActiveTab('command');
-          }
-        }}
-      >
-        <CurrentView />
-      </ProtectedRoute>
-    </CommandDeckLayout>
-  );
-}
-
 function App() {
-  const { appState, isLoading } = useAuth();
+  const { user, isLoading } = useAuth();
 
   if (isLoading) {
     return (
@@ -89,11 +23,37 @@ function App() {
     );
   }
 
-  if (appState === 'LANDING') return <LandingHub />;
-  if (appState === 'AUTH_GATE') return <AuthGate />;
-  if (appState === 'WORKSPACE') return <WorkspaceContainer />;
+  return (
+    <Routes>
+      <Route path="/" element={user ? <Navigate to="/command" replace /> : <LandingHub />} />
+      <Route path="/auth" element={user ? <Navigate to="/command" replace /> : <AuthGate />} />
+      
+      <Route element={user ? <CommandDeckLayout /> : <Navigate to="/auth" replace />}>
+        <Route path="/track" element={
+          <ProtectedRoute allowedRoles={['ADMIN', 'OPERATIONS_MANAGER', 'WAREHOUSE_MANAGER', 'VIEWER']} fallbackTab="command">
+            <JourneyTracker />
+          </ProtectedRoute>
+        } />
+        <Route path="/command" element={
+          <ProtectedRoute allowedRoles={['ADMIN', 'OPERATIONS_MANAGER']} fallbackTab="track">
+            <CommandCenter />
+          </ProtectedRoute>
+        } />
+        <Route path="/warehouse" element={
+          <ProtectedRoute allowedRoles={['ADMIN', 'WAREHOUSE_MANAGER']} fallbackTab="command">
+            <WarehouseDeck />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin" element={
+          <ProtectedRoute allowedRoles={['ADMIN']} fallbackTab="command">
+            <AdminPanel />
+          </ProtectedRoute>
+        } />
+      </Route>
 
-  return <LandingHub />;
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
 }
 
 export default App;

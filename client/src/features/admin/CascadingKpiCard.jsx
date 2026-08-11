@@ -1,24 +1,10 @@
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+
 import { useApi } from '../../context/ApiContext.jsx';
 import { TrendingUp, ShieldAlert, DollarSign, AlertCircle, Building2, ChevronRight } from 'lucide-react';
 
-export const CascadingKpiCard = () => {
+export const CascadingKpiCard = ({ analyticsRes }) => {
   const { apiClient } = useApi();
-
-  const { data: analyticsRes } = useQuery({
-    queryKey: ['analytics-admin-dashboard-kpis'],
-    queryFn: async () => {
-      try {
-        const res = await apiClient.get('/analytics/admin-dashboard');
-        return res.data;
-      } catch (err) {
-        const res = await apiClient.get('/analytics/dashboard-summary');
-        return res.data;
-      }
-    },
-    refetchInterval: 10000,
-  });
 
   const problemKpis = analyticsRes?.problemKpis || {};
   const topBottlenecks = problemKpis?.top5Bottlenecks || analyticsRes?.facilityCongestionHeatmaps || [

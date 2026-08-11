@@ -1,29 +1,10 @@
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+
 import { useApi } from '../../context/ApiContext.jsx';
 import { CheckCircle2, Filter, Cpu, Sparkles } from 'lucide-react';
 
-export const DataPipelineHealthCard = () => {
+export const DataPipelineHealthCard = ({ analyticsRes }) => {
   const { apiClient } = useApi();
-
-  const { data: analyticsRes } = useQuery({
-    queryKey: ['analytics-admin-dashboard-health'],
-    queryFn: async () => {
-      try {
-        const res = await apiClient.get('/analytics/admin-dashboard');
-        return res.data;
-      } catch (err) {
-        try {
-          const res = await apiClient.get('/analytics/dashboard-summary');
-          return res.data;
-        } catch (e) {
-          const fallback = await apiClient.get('/analytics/pipeline-quality');
-          return fallback.data;
-        }
-      }
-    },
-    refetchInterval: 10000,
-  });
 
   const report = analyticsRes?.qualityReport || {
     rawLogsIngested: 10300,

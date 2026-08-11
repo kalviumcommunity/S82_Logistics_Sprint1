@@ -1,11 +1,12 @@
 import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Search, Map, Settings, Warehouse } from 'lucide-react';
 
 // Master tab registry with role access lists
 const NAVIGATION_TABS = [
   {
-    id: 'tracking',
+    id: 'track',
     label: 'Shipment Tracker',
     icon: Search,
     roles: ['ADMIN', 'OPERATIONS_MANAGER', 'WAREHOUSE_MANAGER', 'VIEWER'],
@@ -30,8 +31,10 @@ const NAVIGATION_TABS = [
   },
 ];
 
-export const NavigationDock = ({ activeTab, setActiveTab }) => {
+export const NavigationDock = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const currentRole = user?.role || 'VIEWER';
 
   // Filter visible tabs dynamically based on user role claim
@@ -42,13 +45,13 @@ export const NavigationDock = ({ activeTab, setActiveTab }) => {
       <div className="bottom-pill-nav flex items-center gap-1.5 px-3 py-2 bg-slate-900/80 backdrop-blur-md border border-slate-800/80 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all duration-300">
         {visibleTabs.map((tab) => {
           const Icon = tab.icon;
-          const isActive = activeTab === tab.id;
+          const isActive = location.pathname.includes(`/${tab.id}`);
 
           return (
             <button
               key={tab.id}
               id={`nav-dock-${tab.id}`}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => navigate(`/${tab.id}`)}
               className={`pill-nav-btn relative flex items-center gap-2 px-4 py-2 rounded-full text-xs font-mono font-bold cursor-pointer transition-all duration-200 select-none ${
                 isActive
                   ? 'bg-slate-800/90 text-emerald-400 border border-slate-700/80'
