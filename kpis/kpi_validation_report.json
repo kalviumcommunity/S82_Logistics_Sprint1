@@ -1,0 +1,80 @@
+{
+  "timestamp": "2026-08-11T11:17:25.630330",
+  "summary": {
+    "total_kpis": 5,
+    "passed": 5,
+    "alerts": 0
+  },
+  "kpis": {
+    "monthly_active_users": {
+      "key": "monthly_active_users",
+      "name": "Monthly Active Users (MAU)",
+      "raw_value": 5420,
+      "formatted_value": "5,420",
+      "target_min": 5000,
+      "target_max": 6000,
+      "target_range": "5000 \u2013 6000",
+      "unit": "count",
+      "status": "PASS",
+      "owner": "Product Manager",
+      "frequency": "Daily",
+      "notes": "Measures active engagement; filters unverified email leads."
+    },
+    "revenue_per_customer": {
+      "key": "revenue_per_customer",
+      "name": "Average Revenue Per Customer (ARPC)",
+      "raw_value": 108.37,
+      "formatted_value": "$108.37",
+      "target_min": 90.0,
+      "target_max": 110.0,
+      "target_range": "$90.00 \u2013 $110.00",
+      "unit": "USD",
+      "status": "PASS",
+      "owner": "Finance Lead",
+      "frequency": "Weekly",
+      "notes": "Key indicator of customer monetization depth."
+    },
+    "churn_rate": {
+      "key": "churn_rate",
+      "name": "Monthly Churn Rate",
+      "raw_value": 0.034,
+      "formatted_value": "3.4%",
+      "target_min": 0.0,
+      "target_max": 0.05,
+      "target_range": "0.0% \u2013 5.0%",
+      "unit": "ratio",
+      "status": "PASS",
+      "owner": "Customer Success Lead",
+      "frequency": "Monthly",
+      "notes": "Tracks account attrition and customer retention risk."
+    },
+    "payment_success_rate": {
+      "key": "payment_success_rate",
+      "name": "Payment Success Rate (PSR)",
+      "raw_value": 0.966,
+      "formatted_value": "96.6%",
+      "target_min": 0.95,
+      "target_max": 1.0,
+      "target_range": "95.0% \u2013 100.0%",
+      "unit": "ratio",
+      "status": "PASS",
+      "owner": "Infrastructure Lead",
+      "frequency": "Real-Time / Hourly",
+      "notes": "Technical health metric for checkout authorization efficiency."
+    },
+    "customer_acquisition_cost": {
+      "key": "customer_acquisition_cost",
+      "name": "Customer Acquisition Cost (CAC)",
+      "raw_value": 41.99,
+      "formatted_value": "$41.99",
+      "target_min": 0.0,
+      "target_max": 50.0,
+      "target_range": "$0.00 \u2013 $50.00",
+      "unit": "USD",
+      "status": "PASS",
+      "owner": "Growth Marketing Lead",
+      "frequency": "Monthly",
+      "notes": "Unit economics metric measuring growth efficiency."
+    }
+  }
+}
