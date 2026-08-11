@@ -62,9 +62,9 @@ export const SimulationDrawer = ({ shipmentId, isOpen, onClose, onRerouteApplied
             </div>
             <div>
               <h2 className="text-sm font-extrabold text-slate-100 uppercase tracking-wide flex items-center gap-2">
-                What-If Reroute &amp; Simulation Engine
+                Smart Reroute Planner
                 <span className="px-2 py-0.5 bg-emerald-950 border border-emerald-800/40 text-emerald-400 text-[9px] font-mono rounded">
-                  PRESCRIPTIVE ML
+                  AI ASSISTANT
                 </span>
               </h2>
               <p className="text-[11px] text-slate-400 font-mono mt-0.5">
@@ -86,23 +86,42 @@ export const SimulationDrawer = ({ shipmentId, isOpen, onClose, onRerouteApplied
           {isLoading ? (
             <div className="flex-1 flex flex-col items-center justify-center gap-3 py-16 text-slate-400 font-mono text-xs">
               <RefreshCw className="h-6 w-6 text-emerald-400 animate-spin" />
-              <span>Simulating multi-objective trade-off curves...</span>
-              <span className="text-[10px] text-slate-600">min Z = α·ΔC + β·ΔP - γ·ΔR</span>
+              <span>Finding the best alternative routes...</span>
+              <span className="text-[10px] text-slate-600">Balancing Extra Cost, Punctuality, and Risk</span>
             </div>
           ) : (
             <>
+              {/* Route Context Banner */}
+              <div className="bg-slate-900/60 border border-slate-800/60 rounded-xl p-3.5 flex items-center gap-4 mb-2">
+                <div className="flex-1">
+                  <span className="text-[9px] text-slate-500 uppercase tracking-widest font-mono font-bold block mb-1">
+                    Current Location
+                  </span>
+                  <div className="text-xs font-bold text-slate-200">{simData?.currentLocation || 'Unknown'}</div>
+                </div>
+                <div className="flex-shrink-0 flex items-center justify-center text-slate-600">
+                  <ArrowRight className="h-4 w-4" />
+                </div>
+                <div className="flex-1 text-right">
+                  <span className="text-[9px] text-slate-500 uppercase tracking-widest font-mono font-bold block mb-1">
+                    Final Destination
+                  </span>
+                  <div className="text-xs font-bold text-slate-200">{simData?.finalDestination || 'Unknown'}</div>
+                </div>
+              </div>
+
               {/* Objective Formula Header */}
               <div className="bg-[#06090f] border border-slate-800/60 rounded-xl p-3.5 flex items-center justify-between">
                 <div>
                   <span className="text-[10px] text-slate-500 uppercase tracking-widest font-mono font-bold block">
-                    Optimization Objective Model
+                    How We Choose the Best Route
                   </span>
                   <p className="text-xs font-mono text-emerald-400 font-semibold mt-1">
-                    min Z = 0.40·ΔC<sub>transit</sub> + 0.45·ΔP<sub>SLA</sub> - 0.15·ΔR<sub>risk</sub>
+                    40% Cost | 45% Time Saved | 15% Lower Risk
                   </p>
                 </div>
                 <div className="text-right font-mono">
-                  <span className="text-[9px] text-slate-500 block">CONFIDENCE INTERVAL</span>
+                  <span className="text-[9px] text-slate-500 block">AI CONFIDENCE</span>
                   <span className="text-xs text-slate-300 font-bold">
                     [{selectedRoute.confidenceInterval?.[0] ?? 0.89}, {selectedRoute.confidenceInterval?.[1] ?? 0.96}]
                   </span>
@@ -113,7 +132,7 @@ export const SimulationDrawer = ({ shipmentId, isOpen, onClose, onRerouteApplied
               <div>
                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
                   <Sliders className="h-3.5 w-3.5 text-slate-500" />
-                  Candidate Reroute Choices
+                  Available Detour Options
                 </h3>
                 <div className="grid grid-cols-1 gap-2.5">
                   {candidates.map((route) => {
@@ -148,7 +167,7 @@ export const SimulationDrawer = ({ shipmentId, isOpen, onClose, onRerouteApplied
                         </div>
 
                         <div className="text-right font-mono">
-                          <span className="text-xs font-bold text-emerald-400 block">+${route.netSavings}</span>
+                          <span className="text-xs font-bold text-emerald-400 block">+₹{route.netSavings}</span>
                           <span className="text-[9px] text-slate-500 block">+{route.netRoiPercent}% ROI</span>
                         </div>
                       </div>
@@ -161,48 +180,48 @@ export const SimulationDrawer = ({ shipmentId, isOpen, onClose, onRerouteApplied
               <div className="bg-[#06090f] border border-slate-800/60 rounded-xl p-4 flex flex-col gap-3">
                 <h3 className="text-xs font-bold text-slate-300 uppercase tracking-widest flex items-center gap-2 border-b border-slate-800/60 pb-2.5">
                   <DollarSign className="h-4 w-4 text-emerald-400" />
-                  Comparative Financial Trade-Off Matrix
+                  Financial Impact Breakdown
                 </h3>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
                   <div className="bg-slate-900/80 border border-slate-800/60 rounded-lg p-3">
                     <span className="text-[9px] text-slate-500 uppercase tracking-widest font-mono block">
-                      Extra Transit Cost
+                      Extra Travel Cost
                     </span>
                     <span className="text-base font-extrabold font-mono text-red-400 mt-1 block">
-                      +${selectedRoute.costDelta ?? 0}
+                      +₹{selectedRoute.costDelta ?? 0}
                     </span>
-                    <span className="text-[9px] text-slate-600 font-mono mt-0.5 block">Fuel/Transit Δ</span>
+                    <span className="text-[9px] text-slate-600 font-mono mt-0.5 block">Fuel & Distance</span>
                   </div>
 
                   <div className="bg-slate-900/80 border border-slate-800/60 rounded-lg p-3">
                     <span className="text-[9px] text-slate-500 uppercase tracking-widest font-mono block">
-                      Averted SLA Penalty
+                      Late Fees Saved
                     </span>
                     <span className="text-base font-extrabold font-mono text-emerald-400 mt-1 block">
-                      -${selectedRoute.slaPenaltiesSaved ?? 0}
+                      -₹{selectedRoute.slaPenaltiesSaved ?? 0}
                     </span>
-                    <span className="text-[9px] text-slate-600 font-mono mt-0.5 block">Penalties Saved</span>
+                    <span className="text-[9px] text-slate-600 font-mono mt-0.5 block">Money Saved</span>
                   </div>
 
                   <div className="bg-slate-900/80 border border-slate-800/60 rounded-lg p-3">
                     <span className="text-[9px] text-slate-500 uppercase tracking-widest font-mono block">
-                      Net ROI Score
+                      Overall Benefit
                     </span>
                     <span className="text-base font-extrabold font-mono text-emerald-300 mt-1 block">
                       +{selectedRoute.netRoiPercent ?? 0}%
                     </span>
-                    <span className="text-[9px] text-slate-600 font-mono mt-0.5 block">Financial Yield</span>
+                    <span className="text-[9px] text-slate-600 font-mono mt-0.5 block">Cost vs Savings</span>
                   </div>
 
                   <div className="bg-slate-900/80 border border-slate-800/60 rounded-lg p-3">
                     <span className="text-[9px] text-slate-500 uppercase tracking-widest font-mono block">
-                      Risk Score Δ
+                      Risk Reduction
                     </span>
                     <span className="text-base font-extrabold font-mono text-sky-400 mt-1 block">
                       -{selectedRoute.riskReductionPercentage ?? 0}%
                     </span>
-                    <span className="text-[9px] text-slate-600 font-mono mt-0.5 block">Risk Slashed</span>
+                    <span className="text-[9px] text-slate-600 font-mono mt-0.5 block">Safety Improved</span>
                   </div>
                 </div>
               </div>
@@ -211,14 +230,14 @@ export const SimulationDrawer = ({ shipmentId, isOpen, onClose, onRerouteApplied
               <div className="bg-[#06090f] border border-slate-800/60 rounded-xl p-4 flex flex-col gap-3">
                 <h3 className="text-xs font-bold text-slate-300 uppercase tracking-widest flex items-center gap-2 border-b border-slate-800/60 pb-2.5">
                   <Clock className="h-4 w-4 text-sky-400" />
-                  Projected Transit Time Curves Comparison
+                  Estimated Arrival Times
                 </h3>
 
                 <div className="flex flex-col gap-3 pt-2 font-mono text-xs">
                   {/* Baseline Delayed Route Curve */}
                   <div>
                     <div className="flex justify-between text-[10px] text-slate-400 mb-1">
-                      <span>Baseline Delayed Route (Bottlenecked)</span>
+                      <span>Current Route (Delayed)</span>
                       <span className="text-red-400 font-bold">+95 mins ETA delay</span>
                     </div>
                     <div className="w-full bg-slate-950 h-3 rounded-full overflow-hidden border border-slate-800/60 flex">

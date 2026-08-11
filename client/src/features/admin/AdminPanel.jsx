@@ -28,14 +28,7 @@ export const AdminPanel = () => {
   const { socket } = useSocket();
   const terminalEndRef = useRef(null);
 
-  const [users, setUsers] = useState([
-    { id: 'USR-001', name: 'Alexander Mercer', email: 'alex@logistics.com',  role: 'ADMIN',              status: 'ACTIVE' },
-    { id: 'USR-002', name: 'Sarah Jenkins',    email: 'sarah@logistics.com', role: 'OPERATIONS_MANAGER', status: 'ACTIVE' },
-    { id: 'USR-003', name: 'David Miller',     email: 'david@logistics.com', role: 'WAREHOUSE_MANAGER',  status: 'ACTIVE' },
-    { id: 'USR-004', name: 'Emily Watson',     email: 'emily@logistics.com', role: 'VIEWER',             status: 'ACTIVE' },
-    { id: 'USR-005', name: 'James Okafor',     email: 'james@logistics.com', role: 'OPERATIONS_MANAGER', status: 'ACTIVE' },
-    { id: 'USR-006', name: 'Priya Nair',       email: 'priya@logistics.com', role: 'WAREHOUSE_MANAGER',  status: 'ACTIVE' },
-  ]);
+
 
   const [auditLogs, setAuditLogs] = useState([
     { timestamp: new Date().toLocaleTimeString(), action: 'SYSTEM_BOOT',       status: 'SUCCESS', operator: 'KERNEL'    },
@@ -70,47 +63,14 @@ export const AdminPanel = () => {
     refetchInterval: 10000,
   });
 
-  const roleMutation = useMutation({
-    mutationFn: async ({ userId, role }) => {
-      const res = await apiClient.patch(`/users/${userId}/role`, { role });
-      return res.data;
-    },
-    onSuccess: (data) => {
-      setUsers((prev) => prev.map((u) => (u.id === data.userId ? { ...u, role: data.role } : u)));
-      showToast(`Permissions patched: ${data.userId} → ${data.role}`);
-    },
-    onError: (_err, { userId, role }) => {
-      setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, role } : u)));
-      showToast(`Local role update: ${userId} → ${role}`);
-    },
-  });
+
 
   const showToast = (msg) => {
     setSuccessToast(msg);
     setTimeout(() => setSuccessToast(null), 4000);
   };
 
-  const handleRoleChange = (userId, newRole) => {
-    roleMutation.mutate({ userId, role: newRole });
-    const log = {
-      timestamp: new Date().toLocaleTimeString(),
-      action: `ROLE_PATCH → ${newRole}`,
-      status: 'INFO',
-      operator: userId,
-    };
-    setAuditLogs((prev) => [...prev, log].slice(-50));
-  };
 
-  const handleRevokeAccess = (userId) => {
-    handleRoleChange(userId, 'VIEWER');
-    const log = {
-      timestamp: new Date().toLocaleTimeString(),
-      action: `REVOKE_ACCESS → VIEWER`,
-      status: 'WARN',
-      operator: userId,
-    };
-    setAuditLogs((prev) => [...prev, log].slice(-50));
-  };
 
   useEffect(() => {
     if (!socket) return;
@@ -127,34 +87,34 @@ export const AdminPanel = () => {
 
   const TELEMETRY_CARDS = [
     {
-      label: 'Core Pipeline Status',
+      label: 'Database Connection',
       icon: Database,
       value: healthData?.database === 'healthy' ? 'OPTIMAL' : healthData?.database || '—',
-      sub: 'Analytical Connection Pools',
+      sub: 'Main Data Storage',
       accent: healthData?.database === 'healthy' ? 'text-emerald-400' : 'text-red-500',
       borderAccent: healthData?.database === 'healthy' ? 'stat-accent-safe' : 'stat-accent-delayed',
     },
     {
-      label: 'Real-Time Telemetry Stream',
+      label: 'Live Data Stream',
       icon: Terminal,
       value: healthData?.redisStreamLength ?? '—',
-      sub: 'Active stream telemetry buffer',
+      sub: 'Live GPS & Status Feed',
       accent: 'text-slate-200',
       borderAccent: 'stat-accent-neutral',
     },
     {
-      label: 'Analytics Engine Load',
+      label: 'System CPU Usage',
       icon: Cpu,
       value: healthData?.cpuUsage || '—',
-      sub: 'Model execution slice allocation',
+      sub: 'How hard the server is working',
       accent: 'text-slate-200',
       borderAccent: 'stat-accent-neutral',
     },
     {
-      label: 'Predictive API Capacity',
+      label: 'Daily API Limit',
       icon: ShieldAlert,
       value: healthData?.apiQuota || '9,845',
-      sub: '/ 10,000 hourly telemetry limit',
+      sub: '/ 10,000 hourly data limit',
       accent: 'text-amber-400',
       borderAccent: 'stat-accent-risk',
     },
@@ -181,10 +141,10 @@ export const AdminPanel = () => {
         <div>
           <h1 className="text-lg font-black tracking-tight text-slate-100 flex items-center gap-2.5">
             <Activity className="h-5 w-5 text-slate-500" />
-            System Core Operations &amp; Audit Trace
+            Admin Dashboard &amp; Activity Log
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Configure role claims, monitor node telemetry, and track real-time audit streams.
+            Manage users, monitor system health, and view live activity.
           </p>
         </div>
         <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-900 border border-slate-800/60 rounded-lg">
@@ -244,43 +204,7 @@ export const AdminPanel = () => {
       {/* ── Row 2: User Access Matrix + Audit Terminal ─────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
-        {/* Dynamic User Access Matrix */}
-        <div className="card-panel p-4 flex flex-col gap-3">
-          <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 border-b border-slate-800/40 pb-2.5">
-            <Users className="h-4 w-4 text-slate-500" />
-            Dynamic User Access Matrix
-          </h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-[11px] border-collapse">
-              <thead>
-                <tr className="border-b border-slate-800 text-slate-600 font-bold uppercase tracking-widest text-[9px]">
-                  <th className="py-2 px-2">Identity</th>
-                  <th className="py-2 px-2">Email</th>
-                  <th className="py-2 px-2 text-right">Role Claim</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((item) => {
-                  const badge = roleBadgeConfig[item.role] || roleBadgeConfig.VIEWER;
-                  return (
-                    <tr key={item.id} className="border-b border-slate-800/30 hover:bg-slate-800/10">
-                      <td className="py-2.5 px-2">
-                        <p className="font-semibold text-slate-200 text-[11px]">{item.name}</p>
-                        <p className="text-[9px] text-slate-600 font-mono mt-0.5">{item.id}</p>
-                      </td>
-                      <td className="py-2.5 px-2 text-slate-500 font-mono text-[10px]">{item.email}</td>
-                      <td className="py-2.5 px-2 text-right">
-                        <span className={`inline-flex px-2 py-0.5 border rounded text-[9px] font-bold font-mono tracking-wider ${badge.bg} ${badge.border} ${badge.color}`}>
-                          {badge.label}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
+
 
         {/* Real-time Audit Log Terminal */}
         <div className="card-panel p-4 flex flex-col gap-3 h-[380px]">

@@ -76,6 +76,21 @@ class MemoryRedisClient {
     if (blockIdx !== -1) {
       await new Promise(resolve => setTimeout(resolve, Number(args[blockIdx + 1]) || 2000));
     }
+    
+    // Naive implementation for streamConsumer.js: return all items and clear stream
+    const streamsIdx = args.indexOf('STREAMS');
+    if (streamsIdx !== -1 && args.length > streamsIdx + 1) {
+      const streamKey = args[streamsIdx + 1];
+      if (this.streams.has(streamKey)) {
+        const stream = this.streams.get(streamKey);
+        if (stream && stream.length > 0) {
+          const result = stream.map(item => [item.id, item.fields]);
+          this.streams.set(streamKey, []); // clear it
+          return [[streamKey, result]];
+        }
+      }
+    }
+    
     return null;
   }
 

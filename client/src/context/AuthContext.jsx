@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }) => {
       const response = await axios.post(
         `${API_BASE_URL}/auth/login`,
         { email: trimmedEmail, password: trimmedPassword },
-        { withCredentials: true, timeout: 3000 }
+        { withCredentials: true, timeout: 10000 }
       );
 
       const { user: userData, accessToken: token } = response.data;
@@ -107,6 +107,7 @@ export const AuthProvider = ({ children }) => {
       setUser(null);
       setAccessToken(null);
       localStorage.removeItem('accessToken');
+      window.history.pushState({}, '', '/');
       setAppState('LANDING');
     }
   };
@@ -142,7 +143,7 @@ export const AuthProvider = ({ children }) => {
           const meRes = await axios.get(`${API_BASE_URL}/auth/me`, {
             headers: { Authorization: `Bearer ${storedToken}` },
             withCredentials: true,
-            timeout: 3000,
+            timeout: 10000,
           });
           if (meRes.data?.user) {
             handleAuthSuccess(meRes.data.user, storedToken);
@@ -160,7 +161,7 @@ export const AuthProvider = ({ children }) => {
         const response = await axios.post(
           `${API_BASE_URL}/auth/refresh`,
           {},
-          { withCredentials: true, timeout: 3000 }
+          { withCredentials: true, timeout: 10000 }
         );
 
         const { user: userData, accessToken: token } = response.data;

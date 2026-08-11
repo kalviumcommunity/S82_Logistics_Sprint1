@@ -26,14 +26,14 @@ export const JourneyStepper = ({ journeyData, riskAnalysis }) => {
   const lastLeg = legs[legs.length - 1] || {};
   const projectedDownstreamNodes = [
     {
-      locationId: 'HUB-DETROIT',
-      name: 'Detroit Transfer Hub',
+      locationId: 'HUB-COIMBATORE',
+      name: 'Coimbatore Transfer Hub',
       predictedStatus: currentRiskScore >= 70 ? 'CRITICAL' : currentRiskScore >= 40 ? 'AT_RISK' : 'SAFE',
       estimatedArrival: new Date(Date.now() + 3600000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
     {
-      locationId: 'HUB-NEWYORK',
-      name: 'NY East Terminal',
+      locationId: 'HUB-MADURAI',
+      name: 'Madurai East Terminal',
       predictedStatus: currentRiskScore >= 70 ? 'CRITICAL' : 'SAFE',
       estimatedArrival: new Date(Date.now() + 7200000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
@@ -45,10 +45,10 @@ export const JourneyStepper = ({ journeyData, riskAnalysis }) => {
       <div className="flex items-center justify-between border-b border-slate-800/40 pb-2">
         <h2 className="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono flex items-center gap-2">
           <GitCommit className="h-4.5 w-4.5 text-slate-400" />
-          Chronological Path &amp; Downstream Predictive Stepper
+          Step-by-Step Path &amp; Future Warnings
         </h2>
         <span className="text-[9px] font-mono text-slate-500 font-bold uppercase tracking-wider">
-          LIVE TELEMETRY SYNC
+          LIVE UPDATES
         </span>
       </div>
 
@@ -109,7 +109,7 @@ export const JourneyStepper = ({ journeyData, riskAnalysis }) => {
                   {index < legs.length - 1 && (
                     <div className="flex items-center gap-1 text-slate-400 bg-slate-900/60 border border-slate-800 px-2 py-0.5 rounded">
                       <Clock className="h-3 w-3 text-slate-500 font-mono" />
-                      <span className="text-[9px]">Dwell: {formatDwellTime(leg.dwellDuration)}</span>
+                      <span className="text-[9px]">Wait Time: {formatDwellTime(leg.dwellDuration)}</span>
                     </div>
                   )}
                 </div>
@@ -136,7 +136,7 @@ export const JourneyStepper = ({ journeyData, riskAnalysis }) => {
         <div className="border-t border-dashed border-slate-800 pt-4 flex flex-col gap-4">
           <div className="flex items-center gap-2 text-[10px] font-mono font-bold text-amber-500 uppercase tracking-widest">
             <ArrowRight className="h-3.5 w-3.5" />
-            Predictive Downstream Route Nodes (Cascading Bottleneck Warning)
+            Future Stops (Warning: Expected Delays)
           </div>
 
           {projectedDownstreamNodes.map((pNode, pIdx) => {
@@ -185,20 +185,20 @@ export const JourneyStepper = ({ journeyData, riskAnalysis }) => {
                     <div className="flex items-center justify-between mt-1 px-2.5 py-1.5 bg-red-950/40 border border-red-900/50 rounded text-[10px] font-mono text-red-400">
                       <div className="flex items-center gap-1.5">
                         <ShieldAlert className="h-3.5 w-3.5 text-red-500 animate-pulse" />
-                        <span className="font-extrabold uppercase">CASCADING BOTTLENECK PREDICTED</span>
+                        <span className="font-extrabold uppercase">SEVERE DELAY EXPECTED HERE</span>
                       </div>
                       <span className="text-[9px] bg-red-950 px-1.5 py-0.5 border border-red-800 rounded font-bold">
-                        HIGH QUEUE CONGESTION
+                        VERY CROWDED
                       </span>
                     </div>
                   ) : isAtRisk ? (
                     <div className="flex items-center justify-between mt-1 px-2.5 py-1.5 bg-amber-950/40 border border-amber-900/50 rounded text-[10px] font-mono text-amber-400">
                       <div className="flex items-center gap-1.5">
                         <AlertTriangle className="h-3.5 w-3.5 text-amber-500 animate-pulse" />
-                        <span className="font-extrabold uppercase font-mono">DOWNSTREAM IMPACT POTENTIAL</span>
+                        <span className="font-extrabold uppercase font-mono">POSSIBLE DELAY AHEAD</span>
                       </div>
                       <span className="text-[9px] bg-amber-950 px-1.5 py-0.5 border border-amber-800 rounded font-bold">
-                        AMBER BUFFER RING
+                        MODERATE WARNING
                       </span>
                     </div>
                   ) : (

@@ -109,7 +109,7 @@ export function cleanseLogisticsEvent(rawEvent, statsAcc = null) {
   ) {
     if (statsAcc) statsAcc.gpsAnomaliesPurged += 1;
     isGpsAnomaly = true;
-    coordinates = [-87.6298, 41.8781]; // Default Chicago hub
+    coordinates = [80.2707, 13.0827]; // Default Chennai hub
   }
 
   let dwellDuration = Number(rawEvent.dwellDuration ?? 0);

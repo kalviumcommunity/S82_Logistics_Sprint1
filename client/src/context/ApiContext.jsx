@@ -70,7 +70,7 @@ export const ApiProvider = ({ children }) => {
           originalRequest._retry = true;
           try {
             const refreshRes = await axios.post(
-              'http://localhost:3000/api/v1/auth/refresh',
+              'http://localhost:3005/api/v1/auth/refresh',
               {},
               { withCredentials: true }
             );

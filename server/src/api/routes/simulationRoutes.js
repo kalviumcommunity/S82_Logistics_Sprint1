@@ -4,11 +4,11 @@ import { authenticateToken, authorizeRoles } from '../../middleware/auth.js';
 
 const router = Router();
 
-// Protected simulation endpoints (ADMIN and OPERATIONS_MANAGER only)
+// Protected simulation endpoints (ADMIN and OPERATIONS_MANAGER generally, but run allows VIEWER for map display)
 router.post(
   '/run',
   authenticateToken,
-  authorizeRoles('ADMIN', 'OPERATIONS_MANAGER'),
+  authorizeRoles('ADMIN', 'OPERATIONS_MANAGER', 'WAREHOUSE_MANAGER', 'VIEWER'),
   runSimulationController
 );
 

@@ -10,33 +10,33 @@ import logger from '../config/logger.js';
 const CANDIDATE_ROUTES_CATALOG = [
   {
     id: 'ROUTE-ALT-01',
-    name: 'Northern Highway Bypass (I-90 Direct)',
+    name: 'NH44 Trichy Highway Bypass',
     type: 'HIGHWAY_BYPASS',
     baseExtraCost: 180, // USD distance/fuel cost delta
     transitTimeSavedMins: 45,
     costPerMinPenaltySla: 15, // USD/min averted penalty rate
-    targetLocationId: 'HUB-NORTH-BYPASS',
-    targetCoordinates: [-87.8000, 41.9500],
+    targetLocationId: 'HUB-TRICHY-BYPASS',
+    targetCoordinates: [78.6912, 10.7905],
   },
   {
     id: 'ROUTE-ALT-02',
-    name: 'Rail Intermodal Express Relay',
+    name: 'Salem Rail Intermodal Relay',
     type: 'RAIL_INTERMODAL',
     baseExtraCost: 320,
     transitTimeSavedMins: 75,
     costPerMinPenaltySla: 16,
-    targetLocationId: 'HUB-RAIL-TERMINAL',
-    targetCoordinates: [-87.7500, 41.8200],
+    targetLocationId: 'HUB-SALEM-RAIL',
+    targetCoordinates: [78.1396, 11.6643],
   },
   {
     id: 'ROUTE-ALT-03',
-    name: 'Regional Air Freight Fast-Track',
+    name: 'Coimbatore Air Freight Fast-Track',
     type: 'AIR_EXPRESS',
     baseExtraCost: 480,
     transitTimeSavedMins: 110,
     costPerMinPenaltySla: 18,
-    targetLocationId: 'HUB-AIR-CARGO',
-    targetCoordinates: [-87.9000, 41.9700],
+    targetLocationId: 'HUB-COIMBATORE-AIR',
+    targetCoordinates: [77.0427, 11.0315],
   },
 ];
 
@@ -67,8 +67,8 @@ export async function runRerouteSimulation(shipmentId, candidateRouteIds = []) {
         legs: [
           {
             sequenceIndex: 0,
-            locationId: 'HUB-CHICAGO',
-            coordinates: { type: 'Point', coordinates: [-87.6298, 41.8781] },
+            locationId: 'HUB-CHENNAI',
+            coordinates: { type: 'Point', coordinates: [80.2707, 13.0827] },
             dwellDuration: 5400,
             weatherException: true,
           },
@@ -77,7 +77,7 @@ export async function runRerouteSimulation(shipmentId, candidateRouteIds = []) {
     }
 
     const currentLeg = journey.legs?.[journey.legs.length - 1] || {};
-    const currentLocationId = currentLeg.locationId || 'HUB-CHICAGO';
+    const currentLocationId = currentLeg.locationId || 'HUB-CHENNAI';
     const currentRiskScore = journey.riskScore ?? 78;
 
     // 2. Select routes to simulate
@@ -141,6 +141,7 @@ export async function runRerouteSimulation(shipmentId, candidateRouteIds = []) {
         routeId: routeSpec.id,
         routeName: routeSpec.name,
         routeType: routeSpec.type,
+        targetCoordinates: routeSpec.targetCoordinates,
         costDelta: distanceCostDelta,                 // Delta_C_transit ($)
         slaPenaltiesSaved: slaPenaltiesSaved,          // Delta_P_sla ($)
         netSavings: netSavings,                       // Net financial gain ($)
@@ -162,6 +163,8 @@ export async function runRerouteSimulation(shipmentId, candidateRouteIds = []) {
 
     return {
       shipmentId,
+      currentLocation: currentLocationId || 'HUB-CHENNAI',
+      finalDestination: journey.destinationId || 'HUB-BANGALORE',
       optimalRouteId: optimalRoute.routeId,
       costDelta: optimalRoute.costDelta,
       slaPenaltiesSaved: optimalRoute.slaPenaltiesSaved,

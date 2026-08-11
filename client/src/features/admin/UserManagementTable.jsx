@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 
 const SYSTEM_ROLES = ['ADMIN', 'OPERATIONS_MANAGER', 'WAREHOUSE_MANAGER', 'VIEWER'];
-const FACILITIES = ['HQ-GLOBAL-COMMAND', 'WH-CHICAGO-01', 'WH-FRANKFURT-02', 'WH-SINGAPORE-03', 'WH-DALLAS-04', 'UNASSIGNED'];
+const FACILITIES = ['HQ-GLOBAL-COMMAND', 'WH-CHENNAI-01', 'WH-COIMBATORE-02', 'WH-TRICHY-03', 'WH-TIRUNELVELI-04', 'UNASSIGNED'];
 
 const roleBadgeConfig = {
   ADMIN:             { label: 'ADMIN',  color: 'text-red-400',   bg: 'bg-red-950/30',   border: 'border-red-900/40',   rowAccent: 'row-accent-admin'   },
@@ -125,7 +125,7 @@ export const UserManagementTable = ({ onRoleUpdated }) => {
         <div className="fixed top-16 right-6 z-[9999] max-w-md w-full bg-slate-900 border border-slate-700/80 rounded-2xl p-4 shadow-2xl flex items-start gap-3 animate-toast-slide">
           <ShieldCheck className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
           <div className="flex-1">
-            <span className="data-label text-emerald-400">REDIS SESSION CACHE PURGED</span>
+            <span className="data-label text-emerald-400">ACCESS UPDATED</span>
             <p className="text-xs text-slate-200 mt-1 font-mono leading-relaxed">{toast}</p>
           </div>
         </div>
@@ -136,7 +136,7 @@ export const UserManagementTable = ({ onRoleUpdated }) => {
         <div className="flex items-center gap-2">
           <Shield className="h-4 w-4 text-slate-400" />
           <h2 className="text-xs font-black text-slate-200 uppercase tracking-widest">
-            Administrative Role &amp; Access Control Management Grid
+            Team Management
           </h2>
         </div>
         <div className="flex items-center gap-3">
@@ -148,13 +148,13 @@ export const UserManagementTable = ({ onRoleUpdated }) => {
             <RefreshCw className="h-3.5 w-3.5" />
           </button>
           <span className="data-label bg-slate-950 border border-slate-800/60 px-2 py-0.5 rounded text-slate-300">
-            {users.length} REGISTERED PERSONNEL
+            {users.length} USERS
           </span>
         </div>
       </div>
 
       <p className="text-[9px] text-slate-500 font-mono">
-        · Mutating role or assigned facility fires <code className="text-amber-400">PATCH /api/v1/users/:id/role</code> and instantly purges active Redis refresh session tokens.
+        · Change a user's role or warehouse to instantly update their access.
       </p>
 
       {/* Loading state */}
@@ -179,7 +179,7 @@ export const UserManagementTable = ({ onRoleUpdated }) => {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-slate-800/60">
-                {['Personnel Identity', 'Email', 'Assigned Facility', 'Status', 'Current Role Claim', 'Actions'].map((h) => (
+                {['Name', 'Email', 'Assigned Warehouse', 'Status', 'Role', 'Actions'].map((h) => (
                   <th key={h} className="py-2.5 px-3 data-label text-slate-400">{h}</th>
                 ))}
               </tr>

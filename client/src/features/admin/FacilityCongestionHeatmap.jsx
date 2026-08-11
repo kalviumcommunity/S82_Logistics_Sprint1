@@ -1,5 +1,5 @@
 import React from 'react';
-import { Building2, Activity, ShieldAlert, ArrowUpRight, Flame } from 'lucide-react';
+import { Building2, Activity, ShieldAlert, ArrowUpRight, Flame, Map as MapIcon } from 'lucide-react';
 
 export const FacilityCongestionHeatmap = ({ heatmaps = [] }) => {
   const getSeverityBadge = (severity) => {
@@ -44,11 +44,11 @@ export const FacilityCongestionHeatmap = ({ heatmaps = [] }) => {
       {/* Card Header */}
       <div className="flex items-center justify-between border-b border-slate-800/60 pb-3">
         <h2 className="text-xs font-bold text-slate-300 uppercase tracking-widest flex items-center gap-2 font-sans">
-          <Flame className="h-4 w-4 text-amber-500" />
-          Facility Congestion Heatmap &amp; Yard Saturation Analysis
+          <MapIcon className="h-4 w-4 text-amber-400" />
+          Warehouse Crowding Map
         </h2>
-        <div className="flex items-center gap-2 px-2.5 py-1 bg-[#06090f] border border-slate-800/60 rounded text-[9px] font-mono font-bold text-slate-400">
-          NODES ANALYZED: {heatmaps.length}
+        <div className="flex items-center gap-2 px-2.5 py-1 bg-[#06090f] border border-slate-800/60 rounded text-[9px] font-mono font-bold text-amber-400">
+          WAREHOUSES CHECKED: {heatmaps.length}
         </div>
       </div>
 
@@ -89,7 +89,7 @@ export const FacilityCongestionHeatmap = ({ heatmaps = [] }) => {
                   </p>
                 </div>
                 <div>
-                  <span className="data-label text-[8px]">Dwell Deviation</span>
+                  <span className="data-label text-[8px]">Waiting Time Delay</span>
                   <p className={`font-bold text-[11px] mt-0.5 ${Number(dwellDevMin) > 0 ? 'text-amber-400' : 'text-emerald-400'}`}>
                     {Number(dwellDevMin) > 0 ? `+${dwellDevMin}` : dwellDevMin} m
                   </p>

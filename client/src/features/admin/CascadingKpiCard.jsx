@@ -22,11 +22,11 @@ export const CascadingKpiCard = () => {
 
   const problemKpis = analyticsRes?.problemKpis || {};
   const topBottlenecks = problemKpis?.top5Bottlenecks || analyticsRes?.facilityCongestionHeatmaps || [
-    { facilityId: 'HUB-CHICAGO', facilityName: 'Chicago Central Gateway Hub', capacityUtilization: 82.5, yardQueueCount: 14, yardMaxCapacity: 15, severity: 'CRITICAL' },
-    { facilityId: 'HUB-DETROIT', facilityName: 'Detroit Intermodal Depot', capacityUtilization: 78.4, yardQueueCount: 12, yardMaxCapacity: 15, severity: 'CRITICAL' },
-    { facilityId: 'HUB-HOUSTON', facilityName: 'Houston Logistics Yard', capacityUtilization: 71.2, yardQueueCount: 11, yardMaxCapacity: 15, severity: 'HIGH' },
-    { facilityId: 'HUB-SEATTLE', facilityName: 'Seattle Freight Terminal', capacityUtilization: 68.0, yardQueueCount: 10, yardMaxCapacity: 15, severity: 'HIGH' },
-    { facilityId: 'HUB-NEWYORK', facilityName: 'New York Metro Exchange', capacityUtilization: 64.1, yardQueueCount: 9, yardMaxCapacity: 15, severity: 'MODERATE' },
+    { facilityId: 'HUB-CHENNAI', facilityName: 'Chennai Central Gateway Hub', capacityUtilization: 82.5, yardQueueCount: 14, yardMaxCapacity: 15, severity: 'CRITICAL' },
+    { facilityId: 'HUB-COIMBATORE', facilityName: 'Coimbatore Intermodal Depot', capacityUtilization: 78.4, yardQueueCount: 12, yardMaxCapacity: 15, severity: 'CRITICAL' },
+    { facilityId: 'HUB-SALEM', facilityName: 'Salem Logistics Yard', capacityUtilization: 71.2, yardQueueCount: 11, yardMaxCapacity: 15, severity: 'HIGH' },
+    { facilityId: 'HUB-VELLORE', facilityName: 'Vellore Freight Terminal', capacityUtilization: 68.0, yardQueueCount: 10, yardMaxCapacity: 15, severity: 'HIGH' },
+    { facilityId: 'HUB-MADURAI', facilityName: 'Madurai Metro Exchange', capacityUtilization: 64.1, yardQueueCount: 9, yardMaxCapacity: 15, severity: 'MODERATE' },
   ];
 
   const metrics = {
@@ -42,7 +42,7 @@ export const CascadingKpiCard = () => {
       <div className="flex items-center justify-between border-b border-slate-800/60 pb-3">
         <h2 className="text-xs font-bold text-slate-300 uppercase tracking-widest flex items-center gap-2 font-sans">
           <TrendingUp className="h-4 w-4 text-emerald-400" />
-          Network Cascade Propagation &amp; Operations Research KPIs
+          Overall Delay Stats
         </h2>
         <div className="flex items-center gap-2 px-2.5 py-1 bg-[#06090f] border border-slate-800/60 rounded text-[9px] font-mono font-bold text-sky-400">
           MONITORED ROUTES: {metrics.activeMonitoredRoutes}
@@ -53,39 +53,39 @@ export const CascadingKpiCard = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* KPI 1: Cascade Propagation Index */}
         <div className="bg-[#06090f] border border-slate-800/60 rounded-xl p-4 flex flex-col justify-between stat-accent-risk">
-          <span className="data-label text-[9px]">Downstream Cascade Risk Index</span>
+          <span className="data-label text-[9px]">Chance of Cascading Delays</span>
           <div className="mt-2">
             <span className="text-3xl font-extrabold font-mono text-amber-400">
               {metrics.networkCascadePropagationIndex}%
             </span>
             <span className="text-[9px] text-slate-500 font-mono block mt-1">
-              Propagation probability across hub nodes
+              How likely delays will spread
             </span>
           </div>
         </div>
 
         {/* KPI 2: Averted Financial SLA Penalties */}
         <div className="bg-[#06090f] border border-slate-800/60 rounded-xl p-4 flex flex-col justify-between stat-accent-safe">
-          <span className="data-label text-[9px]">Averted SLA Financial Penalties</span>
+          <span className="data-label text-[9px]">Money Saved from Fines</span>
           <div className="mt-2">
             <span className="text-3xl font-extrabold font-mono text-emerald-400">
-              +${metrics.avertedSlaFinancialPenaltiesUsd.toLocaleString()}
+              +₹{metrics.avertedSlaFinancialPenaltiesUsd.toLocaleString()}
             </span>
             <span className="text-[9px] text-slate-500 font-mono block mt-1">
-              Prescriptive What-If savings (MTD)
+              Savings from smart rerouting
             </span>
           </div>
         </div>
 
         {/* KPI 3: Monitored Capacity Saturation */}
         <div className="bg-[#06090f] border border-slate-800/60 rounded-xl p-4 flex flex-col justify-between stat-accent-neutral">
-          <span className="data-label text-[9px]">Network Yard Saturation</span>
+          <span className="data-label text-[9px]">Average Warehouse Crowding</span>
           <div className="mt-2">
             <span className="text-3xl font-extrabold font-mono text-slate-100">
               73.4%
             </span>
             <span className="text-[9px] text-slate-500 font-mono block mt-1">
-              Mean yard queue utilization
+              How full the warehouses are
             </span>
           </div>
         </div>
@@ -95,7 +95,7 @@ export const CascadingKpiCard = () => {
       <div className="bg-[#06090f] border border-slate-800/60 rounded-xl p-4 flex flex-col gap-2">
         <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
           <Building2 className="h-3.5 w-3.5 text-amber-400" />
-          Primary Bottleneck Logistics Nodes
+          Most Crowded Warehouses
         </span>
 
         <div className="overflow-x-auto pt-1">

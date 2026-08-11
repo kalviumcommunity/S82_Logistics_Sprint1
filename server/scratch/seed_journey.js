@@ -2,49 +2,39 @@ import 'dotenv/config';
 import mongoose from 'mongoose';
 import ShipmentJourney from '../src/models/ShipmentJourney.js';
 
-const MONGODB_URI = process.env.MONGODB_URI;
-
 async function seed() {
-  await mongoose.connect(MONGODB_URI);
-  console.log('Connected to DB');
-
+  await mongoose.connect(process.env.MONGODB_URI);
   await ShipmentJourney.deleteMany({ shipmentId: 'SH-7777' });
-
-  await ShipmentJourney.create({
+  
+  const journey = new ShipmentJourney({
     shipmentId: 'SH-7777',
+    origin: 'WH-001',
+    destination: 'WH-003',
     status: 'AT_RISK',
-    riskScore: 45,
-    currentEta: new Date(Date.now() + 86400000), // +24 hours
+    riskScore: 65,
+    currentEta: new Date(Date.now() + 7200000),
     legs: [
       {
         sequenceIndex: 0,
-        locationId: 'WH-001',
-        coordinates: { type: 'Point', coordinates: [-74.006, 40.7128] },
-        timestamp: new Date('2026-07-13T10:00:00.000Z'),
-        dwellDuration: 14400,
-        weatherException: false
+        locationId: 'HUB-MADURAI',
+        timestamp: new Date(Date.now() - 3600000),
+        coordinates: { type: 'Point', coordinates: [78.1198, 9.9252] }, // Madurai
+        dwellDuration: 3600,
+        weatherException: false,
       },
       {
         sequenceIndex: 1,
-        locationId: 'WH-002',
-        coordinates: { type: 'Point', coordinates: [-87.6298, 41.8781] },
-        timestamp: new Date('2026-07-13T14:00:00.000Z'),
-        dwellDuration: 21600,
-        weatherException: true
-      },
-      {
-        sequenceIndex: 2,
-        locationId: 'WH-003',
-        coordinates: { type: 'Point', coordinates: [-118.2437, 34.0522] },
-        timestamp: new Date('2026-07-13T20:00:00.000Z'),
-        dwellDuration: 0,
-        weatherException: false
+        locationId: 'HUB-CHENNAI',
+        timestamp: new Date(),
+        coordinates: { type: 'Point', coordinates: [80.2707, 13.0827] }, // Chennai
+        dwellDuration: 7200,
+        weatherException: true,
       }
-    ]
+    ],
   });
-
-  console.log('Seeded ShipmentJourney SH-7777');
+  
+  await journey.save();
+  console.log("Successfully seeded SH-7777 journey into DB.");
   process.exit(0);
 }
-
 seed().catch(console.error);

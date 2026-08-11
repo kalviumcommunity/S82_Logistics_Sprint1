@@ -7,17 +7,12 @@ import L from 'leaflet';
 import {
   ShieldAlert, Activity, BarChart3, AlertCircle, Truck, RefreshCw, Clock, Zap
 } from 'lucide-react';
+import { RiskBreakdownModal } from './RiskBreakdownModal.jsx';
+import { SimulationDrawer } from './SimulationDrawer.jsx';
 
 // Static, pre-rendered non-glowing dot icons for the map
 const MAP_ICONS = {
   red: L.divIcon({
-import { RiskBreakdownModal } from './RiskBreakdownModal.jsx';
-import { SimulationDrawer } from './SimulationDrawer.jsx';
-
-// Sharp non-glowing dot icons for the map
-const createDotIcon = (color) => {
-  const colorHex = color === 'red' ? '#ef4444' : color === 'amber' ? '#f59e0b' : '#10b981';
-  return L.divIcon({
     html: `
       <div style="position:relative;width:16px;height:16px;display:flex;align-items:center;justify-content:center;">
         <span style="display:block;width:8px;height:8px;border-radius:50%;background:#ef4444;border:2px solid #090d16;box-shadow:0 0 4px #ef444480;"></span>
@@ -51,24 +46,24 @@ const createDotIcon = (color) => {
 
 // High-fidelity mock datasets
 const inboundShipments = [
-  { id: 'LGS-8842-XT9', origin: 'Chicago Central Hub',      eta: '14:32:10', delay: '42m', status: 'DELAYED'  },
-  { id: 'LGS-1024-CH4', origin: 'Detroit Depot',            eta: '15:45:00', delay: '0m',  status: 'SAFE'     },
-  { id: 'LGS-7777-NY1', origin: 'New York East Terminal',   eta: '16:15:32', delay: '12m', status: 'AT_RISK'  },
-  { id: 'LGS-9051-LA3', origin: 'Los Angeles Port',         eta: '17:00:15', delay: '0m',  status: 'SAFE'     },
-  { id: 'LGS-4112-TX7', origin: 'Houston South Yard',       eta: '18:30:00', delay: '55m', status: 'DELAYED'  },
+  { id: 'LGS-8842-XT9', origin: 'Chennai Central Hub',      eta: '14:32:10', delay: '42m', status: 'DELAYED'  },
+  { id: 'LGS-1024-CH4', origin: 'Coimbatore Depot',            eta: '15:45:00', delay: '0m',  status: 'SAFE'     },
+  { id: 'LGS-7777-NY1', origin: 'Madurai East Terminal',   eta: '16:15:32', delay: '12m', status: 'AT_RISK'  },
+  { id: 'LGS-9051-LA3', origin: 'Trichy Gateway Port',         eta: '17:00:15', delay: '0m',  status: 'SAFE'     },
+  { id: 'LGS-4112-TX7', origin: 'Salem South Yard',       eta: '18:30:00', delay: '55m', status: 'DELAYED'  },
 ];
 
 const outboundShipments = [
-  { id: 'LGS-2041-TR5', destination: 'Dallas Central Terminal', departure: '14:50:00', carrier: 'FedEx Freight', status: 'SAFE'    },
-  { id: 'LGS-3392-PL1', destination: 'Seattle North Depot',     departure: '15:30:00', carrier: 'DHL Express',   status: 'SAFE'    },
-  { id: 'LGS-5582-QW9', destination: 'Miami South Hub',         departure: '16:45:00', carrier: 'UPS Ground',    status: 'AT_RISK' },
-  { id: 'LGS-8810-AZ2', destination: 'Phoenix West Yard',       departure: '18:10:00', carrier: 'Swift Transit',  status: 'DELAYED' },
+  { id: 'LGS-2041-TR5', destination: 'Tirunelveli Central Terminal', departure: '14:50:00', carrier: 'FedEx Freight', status: 'SAFE'    },
+  { id: 'LGS-3392-PL1', destination: 'Vellore North Depot',     departure: '15:30:00', carrier: 'DHL Express',   status: 'SAFE'    },
+  { id: 'LGS-5582-QW9', destination: 'Erode South Hub',         departure: '16:45:00', carrier: 'UPS Ground',    status: 'AT_RISK' },
+  { id: 'LGS-8810-AZ2', destination: 'Hosur West Yard',       departure: '18:10:00', carrier: 'Swift Transit',  status: 'DELAYED' },
 ];
 
 const interventions = [
-  { id: 'INT-402', shipmentId: 'SH-8842', route: 'CHI-DET (Direct Rail Link)',    cost: '+$450', avertedPenalties: '-$1,200', netSaving: '+$750', action: 'REROUTE'  },
-  { id: 'INT-709', shipmentId: 'SH-1024', route: 'DET-NY (Air Express Cargo)',    cost: '+$650', avertedPenalties: '-$1,200', netSaving: '+$550', action: 'UPGRADE'  },
-  { id: 'INT-311', shipmentId: 'SH-7777', route: 'NY-BOS (Local Courier Relay)', cost: '+$180', avertedPenalties: '-$800',   netSaving: '+$620', action: 'DISPATCH' },
+  { id: 'INT-402', shipmentId: 'SH-8842', route: 'MAA-CJB (Direct Rail Link)',    cost: '+₹450', avertedPenalties: '-₹1,200', netSaving: '+₹750', action: 'REROUTE'  },
+  { id: 'INT-709', shipmentId: 'SH-1024', route: 'CJB-IXM (Air Express Cargo)',    cost: '+₹650', avertedPenalties: '-₹1,200', netSaving: '+₹550', action: 'UPGRADE'  },
+  { id: 'INT-311', shipmentId: 'SH-7777', route: 'IXM-TRZ (Local Courier Relay)', cost: '+₹180', avertedPenalties: '-₹800',   netSaving: '+₹620', action: 'DISPATCH' },
 ];
 
 const renderStatusTag = (status, onClick) => {
@@ -123,16 +118,14 @@ export const CommandCenter = () => {
       shipmentId: 'SH-1024',
       riskScore: 78,
       status: 'DELAYED',
-      timestamp: '16:15:32',
-      message: 'Chicago Transit congestion compounding delay thresholds.',
+      message: 'Warehouse is too crowded, causing delays.',
     },
     {
       id: 2,
       shipmentId: 'SH-8842',
       riskScore: 82,
       status: 'DELAYED',
-      timestamp: '16:30:11',
-      message: 'Severe weather exception registered at Chicago Hub.',
+      message: 'Bad weather reported. Expecting delays.',
     },
   ]);
   const [activeToast, setActiveToast] = useState(null);
@@ -159,8 +152,8 @@ export const CommandCenter = () => {
   });
 
   const journeyLegs = journeyRes?.data?.legs || [];
-  const mapCenter   = [39.8283, -98.5795];
-  const mapZoom     = 4;
+  const mapCenter   = [11.1271, 78.6569];
+  const mapZoom     = 7;
 
   // Socket telemetry alerts and route updates
   useEffect(() => {
@@ -229,7 +222,7 @@ export const CommandCenter = () => {
           <ShieldAlert className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
           <div className="flex-1">
             <div className="flex justify-between items-center">
-              <span className="data-label text-red-500">CASCADE EXCEPTION ALERT</span>
+              <span className="data-label text-red-500">SEVERE DELAY ALERT</span>
               <span className="text-[9px] font-mono text-red-400">{activeToast.timestamp}</span>
             </div>
             <p className="text-xs font-bold text-slate-100 mt-1">
@@ -257,10 +250,10 @@ export const CommandCenter = () => {
         <div>
           <h1 className="text-lg font-black tracking-tight text-slate-100 flex items-center gap-2.5">
             <Activity className="h-5 w-5 text-slate-400" />
-            Operations Central Command Monitor
+            Live Logistics Dashboard
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Live geospatial fleet coordinates telemetry and terminal queue capacities.
+            Real-time map of trucks and warehouse crowding.
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -273,7 +266,7 @@ export const CommandCenter = () => {
             className="flex items-center gap-2 px-3.5 py-1.5 border border-emerald-800/60 bg-emerald-950/40 text-xs text-emerald-400 font-mono rounded-lg hover:bg-emerald-900/50 hover:border-emerald-700/80 transition-all cursor-pointer font-bold shadow-md"
           >
             <Zap className="h-3.5 w-3.5 fill-current" />
-            What-If Reroute Engine
+            Smart Reroute Planner
           </button>
           <button
             onClick={() => { refetchWarehouses(); }}
@@ -293,7 +286,7 @@ export const CommandCenter = () => {
           <div className="flex items-center justify-between border-b border-slate-800/60 pb-2.5">
             <h2 className="text-xs font-bold text-slate-300 uppercase tracking-widest flex items-center gap-2 font-mono">
               <Truck className="h-4 w-4 text-slate-400" />
-              GEOSPATIAL FLEET COORDINATES TRACKER (70% PANEL)
+              LIVE FLEET MAP
             </h2>
             {/* Live badge */}
             <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#06090f] border border-slate-800/60 rounded text-[9px] font-mono font-bold text-emerald-400">
@@ -324,7 +317,7 @@ export const CommandCenter = () => {
                       <p className="font-bold text-slate-100 text-xs">{wh.name}</p>
                       <p className="text-slate-400 mt-1">ID: <span className="font-mono">{wh.warehouseId}</span></p>
                       <p className="text-slate-400">Queue: <span className="font-mono font-bold text-slate-200">{wh.currentQueueLength} units</span></p>
-                      <p className="text-slate-400">Avg Dwell: <span className="font-mono font-semibold text-slate-200">{Math.round(wh.dwellTimeAvg / 60)} mins</span></p>
+                      <p className="text-slate-400">Avg Wait: <span className="font-mono font-semibold text-slate-200">{Math.round(wh.dwellTimeAvg / 60)} mins</span></p>
                     </div>
                   </Popup>
                 </Marker>
@@ -348,7 +341,7 @@ export const CommandCenter = () => {
                       <Popup>
                         <div className="text-[11px]">
                           <p className="font-bold text-emerald-500">Leg {idx}: {leg.locationId}</p>
-                          <p className="text-slate-400 mt-0.5">Dwell: <span className="font-mono">{leg.dwellDuration ? `${Math.round(leg.dwellDuration / 3600)}h` : 'In Transit'}</span></p>
+                          <p className="text-slate-400 mt-0.5">Wait Time: <span className="font-mono">{leg.dwellDuration ? `${Math.round(leg.dwellDuration / 3600)}h` : 'In Transit'}</span></p>
                           {leg.weatherException && <p className="text-red-500 font-semibold mt-1">⚠ Weather exception logged.</p>}
                         </div>
                       </Popup>
@@ -367,7 +360,7 @@ export const CommandCenter = () => {
           <div className="flex-1 card-panel p-4 flex flex-col gap-3 overflow-hidden">
             <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 border-b border-slate-800/40 pb-2.5 shrink-0">
               <ShieldAlert className="h-4 w-4 text-red-500" />
-              Live Delay Anomaly Feeds
+              Live Delay Alerts
               <span className="ml-auto h-1.5 w-1.5 rounded-full bg-red-500 animate-chip-blink" />
             </h2>
 
@@ -376,7 +369,7 @@ export const CommandCenter = () => {
                 <div className="flex-1 flex flex-col items-center justify-center text-center p-4 border border-dashed border-slate-800 rounded-xl">
                   <AlertCircle className="h-6 w-6 text-slate-700 mb-2" />
                   <p className="text-[10px] text-slate-600 font-bold uppercase font-mono">No delay anomalies</p>
-                  <p className="text-[9px] text-slate-700 font-mono mt-0.5">Telemetry buffer synced</p>
+                  <p className="text-[9px] text-slate-700 font-mono mt-0.5">All systems normal</p>
                 </div>
               ) : (
                 alerts.map((alert) => (
@@ -415,7 +408,7 @@ export const CommandCenter = () => {
           <div className="flex-1 card-panel p-4 flex flex-col gap-3 overflow-hidden">
             <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 border-b border-slate-800/40 pb-2.5 shrink-0">
               <BarChart3 className="h-4 w-4 text-slate-400" />
-              Yard Capacity Bottlenecks
+              Warehouse Crowding
             </h2>
 
             <div className="flex-grow overflow-y-auto flex flex-col pr-0.5 divide-y divide-slate-800/40">
@@ -464,7 +457,7 @@ export const CommandCenter = () => {
         <div className="card-panel p-4 flex flex-col gap-3">
           <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-800/40 pb-2.5 flex items-center gap-2">
             <Clock className="h-3.5 w-3.5 text-slate-500" />
-            Inbound Deliveries Queue
+            Incoming Deliveries
           </h2>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-[11px] border-collapse font-sans">
@@ -501,7 +494,7 @@ export const CommandCenter = () => {
         <div className="card-panel p-4 flex flex-col gap-3">
           <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-800/40 pb-2.5 flex items-center gap-2">
             <Truck className="h-3.5 w-3.5 text-slate-500" />
-            Outbound Dispatch Checklist
+            Outgoing Deliveries
           </h2>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-[11px] border-collapse font-sans">
@@ -539,7 +532,7 @@ export const CommandCenter = () => {
       {/* ── Cost-Aware Intervention Matrix ─────────────────────────── */}
       <div className="card-panel p-4 flex flex-col gap-3">
         <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-800/40 pb-2.5">
-          Cost-Aware Intervention Matrix
+          Money-Saving Detour Options
         </h2>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-[11px] border-collapse font-sans">

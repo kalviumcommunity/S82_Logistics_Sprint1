@@ -31,30 +31,30 @@ export const ModelTelemetryCard = () => {
 
   const MODEL_METRICS = [
     {
-      label: 'Model Precision',
+      label: 'Prediction Accuracy',
       value: `${modelTelemetry.precision}%`,
-      sub: 'True Positive / (TP + FP)',
+      sub: 'When it says delayed, is it actually delayed?',
       accent: 'text-emerald-400',
       border: 'stat-accent-safe',
     },
     {
-      label: 'Model Recall',
+      label: 'Delay Detection Rate',
       value: `${modelTelemetry.recall}%`,
-      sub: 'True Positive / (TP + FN)',
+      sub: 'Did it catch all the delays?',
       accent: 'text-sky-400',
       border: 'stat-accent-neutral',
     },
     {
-      label: 'F1-Score',
+      label: 'Overall AI Score',
       value: `${modelTelemetry.f1Score}%`,
-      sub: 'Harmonic Mean P & R',
+      sub: 'Combined performance',
       accent: 'text-amber-400',
       border: 'stat-accent-risk',
     },
     {
-      label: 'ETA Prediction MAE',
+      label: 'ETA Error Margin',
       value: `± ${modelTelemetry.maeMinutes} min`,
-      sub: 'Mean Absolute Error',
+      sub: 'How far off the ETA is',
       accent: 'text-purple-400',
       border: 'stat-accent-neutral',
     },
@@ -66,11 +66,11 @@ export const ModelTelemetryCard = () => {
       <div className="flex items-center justify-between border-b border-slate-800/60 pb-3">
         <h2 className="text-xs font-bold text-slate-300 uppercase tracking-widest flex items-center gap-2 font-sans">
           <Cpu className="h-4 w-4 text-emerald-400" />
-          Data Science &amp; Predictive Model Performance Telemetry
+          AI Accuracy Report
         </h2>
         <div className="flex items-center gap-2 px-2.5 py-1 bg-[#06090f] border border-slate-800/60 rounded text-[9px] font-mono font-bold text-emerald-400">
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-chip-blink" />
-          {modelTelemetry.modelName || 'XGBOOST + RISK_ENGINE v2.4'}
+          {modelTelemetry.modelName || 'Delay Prediction AI'}
         </div>
       </div>
 
@@ -94,44 +94,44 @@ export const ModelTelemetryCard = () => {
         {/* Monospace Confusion Matrix */}
         <div className="bg-[#06090f] border border-slate-800/60 rounded-xl p-3.5 flex flex-col gap-2 font-mono text-xs">
           <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-            Confusion Matrix Telemetry (N = {modelTelemetry.validationSampleCount || 11} Validation Scans)
+            Prediction Results
           </span>
           <div className="grid grid-cols-3 gap-1.5 text-center text-[10px] pt-1">
-            <div className="bg-slate-900/40 p-1.5 rounded text-slate-500 font-bold">ACT \ PRED</div>
-            <div className="bg-slate-900/40 p-1.5 rounded text-slate-400">PRED DELAY</div>
-            <div className="bg-slate-900/40 p-1.5 rounded text-slate-400">PRED SAFE</div>
+            <div className="bg-slate-900/40 p-1.5 rounded text-slate-500 font-bold">Actual vs Predicted</div>
+            <div className="bg-slate-900/40 p-1.5 rounded text-slate-400">Guessed Delayed</div>
+            <div className="bg-slate-900/40 p-1.5 rounded text-slate-400">Guessed On Time</div>
             
-            <div className="bg-slate-900/40 p-1.5 rounded text-slate-400 text-left px-2">ACT DELAY</div>
-            <div className="bg-emerald-950/40 border border-emerald-800/40 p-1.5 rounded text-emerald-400 font-bold">TP: 4,120</div>
-            <div className="bg-red-950/20 border border-red-900/30 p-1.5 rounded text-red-400">FN: 368</div>
+            <div className="bg-slate-900/40 p-1.5 rounded text-slate-400 text-left px-2">Actually Delayed</div>
+            <div className="bg-emerald-950/40 border border-emerald-800/40 p-1.5 rounded text-emerald-400 font-bold">Correct: 4,120</div>
+            <div className="bg-red-950/20 border border-red-900/30 p-1.5 rounded text-red-400">Missed: 368</div>
             
-            <div className="bg-slate-900/40 p-1.5 rounded text-slate-400 text-left px-2">ACT SAFE</div>
-            <div className="bg-red-950/20 border border-red-900/30 p-1.5 rounded text-red-400">FP: 254</div>
-            <div className="bg-emerald-950/40 border border-emerald-800/40 p-1.5 rounded text-emerald-400 font-bold">TN: 10,078</div>
+            <div className="bg-slate-900/40 p-1.5 rounded text-slate-400 text-left px-2">Actually On Time</div>
+            <div className="bg-red-950/20 border border-red-900/30 p-1.5 rounded text-red-400">False Alarm: 254</div>
+            <div className="bg-emerald-950/40 border border-emerald-800/40 p-1.5 rounded text-emerald-400 font-bold">Correct: 10,078</div>
           </div>
         </div>
 
         {/* Hyperparameters & Confidence Bounds */}
         <div className="bg-[#06090f] border border-slate-800/60 rounded-xl p-3.5 flex flex-col gap-2 font-mono text-xs justify-between">
           <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-            Model Parameters &amp; Prescriptive Weights
+            AI Settings
           </span>
           <div className="flex flex-col gap-1.5 text-[10px] text-slate-300">
             <div className="flex justify-between border-b border-slate-800/40 pb-1">
-              <span className="text-slate-500">OPTIMIZATION OBJECTIVE WEIGHTS:</span>
-              <span className="text-emerald-400 font-bold">α = 0.40, β = 0.45, γ = 0.15</span>
+              <span className="text-slate-500">REROUTE PRIORITIES:</span>
+              <span className="text-emerald-400 font-bold">Cost 40%, Time 45%, Risk 15%</span>
             </div>
             <div className="flex justify-between border-b border-slate-800/40 pb-1">
-              <span className="text-slate-500">CLASSIFICATION THRESHOLDS:</span>
-              <span className="text-amber-400 font-bold">AT_RISK ≥ 40.0, DELAYED ≥ 70.0</span>
+              <span className="text-slate-500">WARNING LEVELS:</span>
+              <span className="text-amber-400 font-bold">Warning at 40, Delayed at 70</span>
             </div>
             <div className="flex justify-between border-b border-slate-800/40 pb-1">
-              <span className="text-slate-500">CONFIDENCE BOUNDS:</span>
-              <span className="text-purple-400 font-bold">95% CI [0.918, 0.942]</span>
+              <span className="text-slate-500">CONFIDENCE:</span>
+              <span className="text-purple-400 font-bold">92-94% Certainty</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-500">INFERENCE LATENCY:</span>
-              <span className="text-sky-400 font-bold">1.42 ms / record (Python / Redis RAM)</span>
+              <span className="text-slate-500">AI SPEED:</span>
+              <span className="text-sky-400 font-bold">Lightning Fast</span>
             </div>
           </div>
         </div>

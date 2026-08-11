@@ -35,14 +35,14 @@ export const RiskBreakdownModal = ({ shipmentId, isOpen, onClose }) => {
           predictedDelayMinutes: 45,
           impactedDownstreamNodes: [
             {
-              nodeId: 'WH-DETROIT',
-              name: 'Detroit Transfer Hub',
+              nodeId: 'WH-COIMBATORE',
+              name: 'Coimbatore Transfer Hub',
               predictedBottleneckSeverity: 'CRITICAL',
               queueCongestion: '93%',
             },
             {
-              nodeId: 'WH-NEWYORK',
-              name: 'NY East Terminal',
+              nodeId: 'WH-MADURAI',
+              name: 'Madurai East Terminal',
               predictedBottleneckSeverity: 'MODERATE',
               queueCongestion: '78%',
             },
@@ -63,14 +63,14 @@ export const RiskBreakdownModal = ({ shipmentId, isOpen, onClose }) => {
   const delayMins = data.predictedDelayMinutes ?? 0;
 
   const chartData = [
-    { name: 'S_dwell', label: 'Dwell Deviation', score: factors.dwellScore, weight: '25%' },
+    { name: 'S_dwell', label: 'Waiting Time', score: factors.dwellScore, weight: '25%' },
     { name: 'S_queue', label: 'Queue Congestion', score: factors.queueScore, weight: '35%' },
     { name: 'S_env', label: 'Environmental', score: factors.envScore, weight: '20%' },
     { name: 'S_sla', label: 'SLA Margin Breach', score: factors.slaScore, weight: '20%' },
   ];
 
   const radarData = [
-    { subject: 'S_dwell (Dwell)', A: factors.dwellScore, fullMark: 100 },
+    { subject: 'Wait Time', A: factors.dwellScore, fullMark: 100 },
     { subject: 'S_queue (Queue)', A: factors.queueScore, fullMark: 100 },
     { subject: 'S_env (Environment)', A: factors.envScore, fullMark: 100 },
     { subject: 'S_sla (SLA Margin)', A: factors.slaScore, fullMark: 100 },
@@ -116,14 +116,14 @@ export const RiskBreakdownModal = ({ shipmentId, isOpen, onClose }) => {
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-sm font-bold tracking-tight text-slate-100 uppercase font-mono">
-                  PREDICTIVE RISK ENGINE ANALYTICS
+                  SHIPMENT HEALTH CHECK
                 </h2>
                 <span className="text-[10px] font-mono px-2 py-0.5 bg-slate-900 border border-slate-800 text-slate-300 rounded font-semibold">
                   {shipmentId}
                 </span>
               </div>
               <p className="text-[11px] text-slate-500 mt-0.5">
-                Deterministic multi-factor score breakdown & downstream bottleneck projections.
+                A simple breakdown of why this shipment might be delayed.
               </p>
             </div>
           </div>
@@ -140,7 +140,7 @@ export const RiskBreakdownModal = ({ shipmentId, isOpen, onClose }) => {
         {isLoading ? (
           <div className="flex-1 flex flex-col items-center justify-center p-12 gap-3 text-slate-500 font-mono">
             <div className="animate-spin rounded-full h-7 w-7 border-t-2 border-amber-500"></div>
-            <span className="text-xs uppercase tracking-widest">Evaluating RAM Telemetry...</span>
+            <span className="text-xs uppercase tracking-widest">Checking live shipment status...</span>
           </div>
         ) : (
           <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
@@ -156,7 +156,7 @@ export const RiskBreakdownModal = ({ shipmentId, isOpen, onClose }) => {
                 </div>
                 <div>
                   <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest font-bold">
-                    Risk Classification
+                    Current Status
                   </span>
                   <div className="mt-1">{getStatusBadge(status)}</div>
                 </div>
@@ -174,7 +174,7 @@ export const RiskBreakdownModal = ({ shipmentId, isOpen, onClose }) => {
                 <div className="h-8 w-px bg-slate-800"></div>
                 <div>
                   <span className="text-[9px] text-slate-500 uppercase tracking-wider block font-bold">
-                    Formula Cap
+                    Maximum Risk
                   </span>
                   <span className="text-xs font-semibold text-slate-300">100 Max</span>
                 </div>
@@ -188,7 +188,7 @@ export const RiskBreakdownModal = ({ shipmentId, isOpen, onClose }) => {
               <div className="bg-[#0d1321] border border-slate-800/80 rounded-xl p-4 flex flex-col gap-3">
                 <h3 className="text-xs font-bold text-slate-300 uppercase tracking-widest font-mono flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-amber-500" />
-                  Factor Breakdown (0-100)
+                  Health Score Breakdown (0-100)
                 </h3>
                 <div className="h-44 w-full font-mono text-[10px]">
                   <ResponsiveContainer width="100%" height="100%">
@@ -213,7 +213,7 @@ export const RiskBreakdownModal = ({ shipmentId, isOpen, onClose }) => {
               <div className="bg-[#0d1321] border border-slate-800/80 rounded-xl p-4 flex flex-col gap-3">
                 <h3 className="text-xs font-bold text-slate-300 uppercase tracking-widest font-mono flex items-center gap-2">
                   <Activity className="h-4 w-4 text-sky-400" />
-                  Risk Profile Radar
+                  Risk Radar
                 </h3>
                 <div className="h-44 w-full font-mono text-[9px]">
                   <ResponsiveContainer width="100%" height="100%">
@@ -232,19 +232,19 @@ export const RiskBreakdownModal = ({ shipmentId, isOpen, onClose }) => {
             {/* Detailed Monospace Factor Numerics */}
             <div className="bg-[#0d1321] border border-slate-800/80 rounded-xl p-4 flex flex-col gap-3">
               <h3 className="text-xs font-bold text-slate-300 uppercase tracking-widest font-mono flex items-center justify-between border-b border-slate-800/60 pb-2">
-                <span>MATHEMATICAL FACTOR NUMERICS</span>
-                <span className="text-[10px] text-slate-500 font-normal">Formula Weights (w_d, w_q, w_e, w_s)</span>
+                <span>DETAILED HEALTH SCORES</span>
+                <span className="text-[10px] text-slate-500 font-normal">Importance of each factor</span>
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono text-xs">
                 
                 <div className="p-3 bg-[#06090f] border border-slate-800/60 rounded-lg flex flex-col gap-1">
                   <div className="flex justify-between items-center text-[11px]">
-                    <span className="text-slate-400 font-bold">Dwell Deviation (S_dwell)</span>
-                    <span className="text-slate-500 text-[9px]">w_d = 0.25</span>
+                    <span className="text-slate-400 font-bold">Waiting Time</span>
+                    <span className="text-slate-500 text-[9px]">25% Importance</span>
                   </div>
                   <div className="flex justify-between items-end mt-1">
-                    <span className="text-xs text-slate-500">Node stay exceed &gt;25%</span>
+                    <span className="text-xs text-slate-500">Time spent waiting at warehouse</span>
                     <span className={`font-extrabold text-sm ${factors.dwellScore >= 70 ? 'text-red-400' : 'text-slate-200'}`}>
                       {factors.dwellScore} / 100
                     </span>
@@ -253,11 +253,11 @@ export const RiskBreakdownModal = ({ shipmentId, isOpen, onClose }) => {
 
                 <div className="p-3 bg-[#06090f] border border-slate-800/60 rounded-lg flex flex-col gap-1">
                   <div className="flex justify-between items-center text-[11px]">
-                    <span className="text-slate-400 font-bold">Queue Congestion (S_queue)</span>
-                    <span className="text-slate-500 text-[9px]">w_q = 0.35</span>
+                    <span className="text-slate-400 font-bold">Next Warehouse Crowding</span>
+                    <span className="text-slate-500 text-[9px]">35% Importance</span>
                   </div>
                   <div className="flex justify-between items-end mt-1">
-                    <span className="text-xs text-slate-500">Queue capacity &gt;80%/95%</span>
+                    <span className="text-xs text-slate-500">How full the destination is</span>
                     <span className={`font-extrabold text-sm ${factors.queueScore >= 70 ? 'text-red-400' : 'text-slate-200'}`}>
                       {factors.queueScore} / 100
                     </span>
@@ -266,11 +266,11 @@ export const RiskBreakdownModal = ({ shipmentId, isOpen, onClose }) => {
 
                 <div className="p-3 bg-[#06090f] border border-slate-800/60 rounded-lg flex flex-col gap-1">
                   <div className="flex justify-between items-center text-[11px]">
-                    <span className="text-slate-400 font-bold">Environmental (S_env)</span>
-                    <span className="text-slate-500 text-[9px]">w_e = 0.20</span>
+                    <span className="text-slate-400 font-bold">Weather &amp; Traffic</span>
+                    <span className="text-slate-500 text-[9px]">20% Importance</span>
                   </div>
                   <div className="flex justify-between items-end mt-1">
-                    <span className="text-xs text-slate-500">Weather +30, Heavy +20</span>
+                    <span className="text-xs text-slate-500">Bad weather or traffic jams</span>
                     <span className={`font-extrabold text-sm ${factors.envScore >= 70 ? 'text-red-400' : 'text-slate-200'}`}>
                       {factors.envScore} / 100
                     </span>
@@ -279,11 +279,11 @@ export const RiskBreakdownModal = ({ shipmentId, isOpen, onClose }) => {
 
                 <div className="p-3 bg-[#06090f] border border-slate-800/60 rounded-lg flex flex-col gap-1">
                   <div className="flex justify-between items-center text-[11px]">
-                    <span className="text-slate-400 font-bold">SLA Buffer Margin (S_sla)</span>
-                    <span className="text-slate-500 text-[9px]">w_s = 0.20</span>
+                    <span className="text-slate-400 font-bold">Time Running Out</span>
+                    <span className="text-slate-500 text-[9px]">20% Importance</span>
                   </div>
                   <div className="flex justify-between items-end mt-1">
-                    <span className="text-xs text-slate-500">Exponential breach scale</span>
+                    <span className="text-xs text-slate-500">How close we are to being late</span>
                     <span className={`font-extrabold text-sm ${factors.slaScore >= 70 ? 'text-red-400' : 'text-slate-200'}`}>
                       {factors.slaScore} / 100
                     </span>
@@ -297,7 +297,7 @@ export const RiskBreakdownModal = ({ shipmentId, isOpen, onClose }) => {
             <div className="bg-[#0d1321] border border-slate-800/80 rounded-xl p-4 flex flex-col gap-3">
               <h3 className="text-xs font-bold text-slate-300 uppercase tracking-widest font-mono flex items-center gap-2">
                 <ArrowRight className="h-4 w-4 text-red-400" />
-                Impacted Downstream Nodes Projection
+                Future Delays Caused
               </h3>
 
               {!data.impactedDownstreamNodes || data.impactedDownstreamNodes.length === 0 ? (

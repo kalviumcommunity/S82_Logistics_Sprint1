@@ -10,6 +10,7 @@ import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import simulationRoutes from './routes/simulationRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
+import telemetryRoutes from './routes/telemetryRoutes.js';
 import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
 
 const router = Router();
@@ -19,6 +20,7 @@ router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/simulations', simulationRoutes);
 router.use('/analytics', analyticsRoutes);
+router.use('/telemetry', telemetryRoutes);
 
 // Endpoint for high-throughput ingestion of events
 router.post('/shipment-events', postShipmentEvent);

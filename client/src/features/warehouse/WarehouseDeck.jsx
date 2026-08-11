@@ -9,7 +9,7 @@ import {
 const MOCK_INBOUND = [
   {
     id: 'LGS-8842-XT9',
-    origin: 'Chicago Central Hub (CHI-01)',
+    origin: 'Chennai Central Hub (MAA-01)',
     eta: '14:32:10 UTC',
     dwellTime: '42m',
     units: 140,
@@ -26,7 +26,7 @@ const MOCK_INBOUND = [
   },
   {
     id: 'LGS-1024-CH4',
-    origin: 'Detroit Distribution Depot (DET-02)',
+    origin: 'Coimbatore Distribution Depot (CJB-02)',
     eta: '15:45:00 UTC',
     dwellTime: '12m',
     units: 85,
@@ -42,7 +42,7 @@ const MOCK_INBOUND = [
   },
   {
     id: 'LGS-7777-NY1',
-    origin: 'New York East Port Terminal (NY-05)',
+    origin: 'Madurai East Port Terminal (IXM-05)',
     eta: '16:15:32 UTC',
     dwellTime: '1h 15m',
     units: 220,
@@ -59,7 +59,7 @@ const MOCK_INBOUND = [
   },
   {
     id: 'LGS-9051-LA3',
-    origin: 'Los Angeles Gateway Yard (LAX-03)',
+    origin: 'Trichy Gateway Yard (TRZ-03)',
     eta: '17:00:15 UTC',
     dwellTime: '0m',
     units: 310,
@@ -75,7 +75,7 @@ const MOCK_INBOUND = [
   },
   {
     id: 'LGS-4112-TX7',
-    origin: 'Houston South Logistics Yard (HOU-01)',
+    origin: 'Salem South Logistics Yard (SXV-01)',
     eta: '18:30:00 UTC',
     dwellTime: '55m',
     units: 175,
@@ -94,7 +94,7 @@ const MOCK_INBOUND = [
 const MOCK_OUTBOUND = [
   {
     id: 'LGS-2041-TR5',
-    destination: 'Dallas Central Logistics Terminal (DAL-01)',
+    destination: 'Tirunelveli Central Logistics Terminal (TNV-01)',
     departure: '14:50:00 UTC',
     carrier: 'FedEx Freight Direct',
     trailer: 'TR-9041',
@@ -104,7 +104,7 @@ const MOCK_OUTBOUND = [
   },
   {
     id: 'LGS-3392-PL1',
-    destination: 'Seattle North Distribution Yard (SEA-04)',
+    destination: 'Vellore North Distribution Yard (VEL-04)',
     departure: '15:30:00 UTC',
     carrier: 'DHL Express Air Express',
     trailer: 'TR-1182',
@@ -114,7 +114,7 @@ const MOCK_OUTBOUND = [
   },
   {
     id: 'LGS-5582-QW9',
-    destination: 'Miami South Hub Terminal (MIA-02)',
+    destination: 'Erode South Hub Terminal (ERD-02)',
     departure: '16:45:00 UTC',
     carrier: 'UPS Ground Regional',
     trailer: 'TR-4402',
@@ -124,7 +124,7 @@ const MOCK_OUTBOUND = [
   },
   {
     id: 'LGS-8810-AZ2',
-    destination: 'Phoenix West Hub Facility (PHX-01)',
+    destination: 'Hosur West Hub Facility (HSR-01)',
     departure: '18:10:00 UTC',
     carrier: 'Swift Transport Logistics',
     trailer: 'TR-7719',
@@ -225,7 +225,7 @@ export const WarehouseDeck = () => {
           <div className="flex items-center gap-1.5 bg-[#0d1321] px-3 py-1.5 border border-slate-800/60 rounded-lg">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-chip-blink" />
             <span className="font-mono text-[10px] text-emerald-400 font-bold tracking-wider">
-              FACILITY: WH-CHICAGO-01
+              FACILITY: WH-CHENNAI-01
             </span>
           </div>
           <div className="hidden sm:flex items-center gap-1.5 bg-[#0d1321] px-3 py-1.5 border border-slate-800/60 rounded-lg">
@@ -265,7 +265,7 @@ export const WarehouseDeck = () => {
         <div className="bg-[#0d1321] border border-slate-800/60 rounded-lg p-4 flex flex-col justify-between gap-3">
           <div className="flex items-center justify-between">
             <span className="font-mono text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-              AVG DWELL TIME
+              AVG WAITING TIME
             </span>
             <Clock className="h-4 w-4 text-amber-400" />
           </div>

@@ -6,7 +6,7 @@ import ShipmentJourney from '../src/models/ShipmentJourney.js';
 import logger from '../src/config/logger.js';
 
 const MONGODB_URI = process.env.MONGODB_URI;
-const GATEWAY_URL = 'http://localhost:3000/api/v1';
+const GATEWAY_URL = 'http://localhost:3005/api/v1';
 
 async function seedData() {
   logger.info('Connecting to MongoDB for seeding...');
@@ -22,22 +22,22 @@ async function seedData() {
   const warehouses = [
     {
       warehouseId: 'WH-001',
-      name: 'New York Logistics Hub',
-      coordinates: { type: 'Point', coordinates: [-74.006, 40.7128] },
+      name: 'Madurai Logistics Hub',
+      coordinates: { type: 'Point', coordinates: [78.1198, 9.9252] },
       currentQueueLength: 2,
       dwellTimeAvg: 1800, // 30 mins
     },
     {
       warehouseId: 'WH-002',
-      name: 'Chicago Transit Center (Congested)',
-      coordinates: { type: 'Point', coordinates: [-87.6298, 41.8781] },
+      name: 'Chennai Transit Center (Congested)',
+      coordinates: { type: 'Point', coordinates: [80.2707, 13.0827] },
       currentQueueLength: 12, // High queue length
       dwellTimeAvg: 7200, // High dwell time average (2 hours)
     },
     {
       warehouseId: 'WH-003',
-      name: 'Los Angeles Distribution Port',
-      coordinates: { type: 'Point', coordinates: [-118.2437, 34.0522] },
+      name: 'Trichy Distribution Port',
+      coordinates: { type: 'Point', coordinates: [78.7047, 10.7905] },
       currentQueueLength: 1,
       dwellTimeAvg: 900, // 15 mins
     },
@@ -85,8 +85,8 @@ async function runTests() {
     shipmentId: 'SH-7777',
     eventType: 'PICKUP',
     locationId: 'WH-001',
-    latitude: 40.7128,
-    longitude: -74.006,
+    latitude: 9.9252,
+    longitude: 78.1198,
     timestamp: '2026-07-13T10:00:00.000Z',
     metadata: { slaHours: 24 }
   };
@@ -95,8 +95,8 @@ async function runTests() {
     shipmentId: 'SH-7777',
     eventType: 'DELIVERED',
     locationId: 'WH-003',
-    latitude: 34.0522,
-    longitude: -118.2437,
+    latitude: 10.7905,
+    longitude: 78.7047,
     timestamp: '2026-07-13T20:00:00.000Z',
     metadata: { slaHours: 24 }
   };
@@ -105,8 +105,8 @@ async function runTests() {
     shipmentId: 'SH-7777',
     eventType: 'IN_TRANSIT',
     locationId: 'WH-002',
-    latitude: 41.8781,
-    longitude: -87.6298,
+    latitude: 13.0827,
+    longitude: 80.2707,
     timestamp: '2026-07-13T14:00:00.000Z',
     metadata: { weatherException: true, slaHours: 24 } // Has weatherException tag!
   };

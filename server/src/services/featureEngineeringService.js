@@ -75,10 +75,10 @@ export function getNetworkCascadeMetrics() {
     const facId = cleansed.locationId || 'HUB-CENTRAL';
     const existing = facilityMap.get(facId) || {
       id: facId,
-      name: facId === 'HUB-CHICAGO' ? 'Chicago Central Hub' :
-            facId === 'HUB-DETROIT' ? 'Detroit Depot' :
+      name: facId === 'HUB-CHENNAI' ? 'Chennai Central Hub' :
+            facId === 'HUB-COIMBATORE' ? 'Coimbatore Depot' :
             facId === 'HUB-FRANKFURT' ? 'Frankfurt Hub' :
-            facId === 'HUB-[#0d1321]' ? 'Houston South Yard' : `${facId} Terminal`,
+            facId === 'HUB-SALEM' ? 'Salem South Yard' : `${facId} Terminal`,
       queueCount: cleansed.queueCount || 10,
       capacity: cleansed.maxCapacity || 15,
     };

@@ -155,8 +155,8 @@ export async function getShipmentRiskAnalysis(req, res, next) {
     
     const legs = journey?.legs || [];
     const currentLeg = legs[legs.length - 1] || {};
-    const locationId = currentLeg.locationId || 'HUB-CHICAGO';
-    const nextLocationId = 'HUB-DETROIT';
+    const locationId = currentLeg.locationId || 'HUB-MADURAI';
+    const nextLocationId = 'HUB-CHENNAI';
 
     // Query Redis for live warehouse topology and telemetry
     const redisWarehouse = await redisClient.hgetall('graph:warehouse:' + locationId).catch(() => ({}));
@@ -164,7 +164,7 @@ export async function getShipmentRiskAnalysis(req, res, next) {
 
     const currentFacility = {
       warehouseId: locationId,
-      name: redisWarehouse.name || whDoc?.name || 'Chicago Central Hub',
+      name: redisWarehouse.name || whDoc?.name || 'Madurai Regional Hub',
       currentQueueLength: parseInt(redisWarehouse.currentQueueLength || whDoc?.currentQueueLength || '12', 10),
       dwellTimeAvg: parseInt(redisWarehouse.dwellTimeAvg || whDoc?.dwellTimeAvg || '3600', 10),
       actualDwell: currentLeg.dwellDuration || 5400,
@@ -174,7 +174,7 @@ export async function getShipmentRiskAnalysis(req, res, next) {
     const redisNextWarehouse = await redisClient.hgetall('graph:warehouse:' + nextLocationId).catch(() => ({}));
     const nextFacility = {
       warehouseId: nextLocationId,
-      name: redisNextWarehouse.name || 'Detroit Transfer Hub',
+      name: redisNextWarehouse.name || 'Chennai Transfer Hub',
       currentQueueLength: parseInt(redisNextWarehouse.currentQueueLength || '14', 10),
       dwellTimeAvg: parseInt(redisNextWarehouse.dwellTimeAvg || '3000', 10),
       capacity: 15,
