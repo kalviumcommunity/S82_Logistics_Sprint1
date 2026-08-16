@@ -1,0 +1,11 @@
+
+TREND ANALYSIS:
+
+Rolling Average Trend: DOWN
+Change over last 30 days: -10.0%
+Month-over-month growth (last month): -6.6%
+
+Business Implications:
+- Declining momentum - investigate causes
+- Revenue volatility (standard deviation): $2380 (measure of noise)
+- The raw daily data shows extreme volatility, but the 30-day moving average clearly reveals a sustained upward momentum through the end of the year.
