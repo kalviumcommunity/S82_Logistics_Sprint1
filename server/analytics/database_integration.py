@@ -1,5 +1,6 @@
 import pandas as pd
 from sqlalchemy import create_engine, inspect
+from sqlalchemy.types import Integer, String, Date
 from datetime import date
 
 def generate_mock_data():
@@ -20,10 +21,15 @@ def load_cleaned_data_to_database(df, table_name, database_path='analytics.db'):
     
     # Test connection
     with engine.connect() as conn:
-        print("✓ Database connection successful")
+        print("OK Database connection successful")
     
     # Task 2 & 5: Load Cleaned DataFrame as Table
-    df.to_sql(table_name, engine, if_exists='replace', index=False)
+    dtypes = {
+        'customer_id': Integer(),
+        'email': String(),
+        'signup_date': Date()
+    }
+    df.to_sql(table_name, engine, if_exists='replace', index=False, dtype=dtypes)
     
     # Verify table created
     print("Tables in database:", inspect(engine).get_table_names())
@@ -31,7 +37,7 @@ def load_cleaned_data_to_database(df, table_name, database_path='analytics.db'):
     # Validate rows loaded
     count = pd.read_sql(f"SELECT COUNT(*) as ct FROM {table_name}", engine)
     rows_loaded = count.iloc[0]['ct']
-    print(f"✓ Loaded {rows_loaded} rows to {table_name}")
+    print(f"OK Loaded {rows_loaded} rows to {table_name}")
     
     return engine
 
@@ -54,7 +60,7 @@ def validate_schema(engine, table_name):
     
     for col_name, expected_type in expected_types.items():
         actual = [c['type'] for c in columns if c['name'] == col_name][0]
-        status = '✓' if expected_type in str(actual) else '✗'
+        status = 'OK' if expected_type in str(actual) else 'FAIL'
         print(f"{status} {col_name}: {actual}")
 
 def run_queries(engine):
