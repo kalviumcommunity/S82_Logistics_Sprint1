@@ -1,0 +1,4 @@
+Metric,SQL_Result,Python_Result,Difference,Pct_Difference,Tolerance,Status,Timestamp
+active_routes_30d,3.0,3.0,0.0,0.0,0.0,PASS,2026-08-17 01:53:42
+average_delay_minutes,37.5,37.5,0.0,0.0,0.1,PASS,2026-08-17 01:53:42
+dormant_routes,1.0,1.0,0.0,0.0,0.0,PASS,2026-08-17 01:53:42
