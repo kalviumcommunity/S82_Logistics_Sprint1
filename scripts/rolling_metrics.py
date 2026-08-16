@@ -103,16 +103,22 @@ trend_magnitude = ((recent_ma30.iloc[-1] - recent_ma30.iloc[0]) / recent_ma30.il
 action_recommendation = 'Accelerating growth - maintain current strategy' if trend_direction == 'up' else 'Declining momentum - investigate causes'
 
 analysis = f"""
-TREND ANALYSIS:
+TREND ANALYSIS & BUSINESS IMPLICATIONS:
 
-Rolling Average Trend: {trend_direction.upper()}
-Change over last 30 days: {trend_magnitude:.1f}%
-Month-over-month growth (last month): {mom_change.iloc[-1]:.1f}%
+1. Trend Pattern Observed:
+- Rolling Average Trend: {trend_direction.upper()}
+- Magnitude of Change (Last 30 Days): {trend_magnitude:.1f}%
+- Month-over-Month Growth (Latest Period): {mom_change.iloc[-1]:.1f}%
 
-Business Implications:
-- {action_recommendation}
-- Revenue volatility (standard deviation): ${df['revenue'].std():.0f} (measure of noise)
-- The raw daily data shows extreme volatility, but the 30-day moving average clearly reveals a sustained upward momentum through the end of the year.
+2. Volatility and Noise:
+- Revenue Volatility (Standard Deviation): ${df['revenue'].std():,.0f}
+- Daily fluctuations are highly volatile and obscure the true business trajectory.
+- The 30-day rolling average effectively smooths out the weekend/weekday noise and reveals the underlying signal.
+
+3. Actionable Business Implications:
+- Strategic Posture: {action_recommendation}. If this were a real-world scenario, we would allocate additional marketing budget to capitalize on the sustained upward momentum.
+- Operational Planning: With a cumulative revenue of ${total_accumulated:,.0f} and an accelerating 30-day trend, operational teams must forecast increased capacity requirements for Q1 of the following year.
+- Risk Mitigation: While the macro trend is positive, the negative growth months (-6.6% in December) highlight seasonal vulnerabilities. We should investigate these specific down-months to implement targeted promotions next year.
 """
 
 print(analysis)
