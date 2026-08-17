@@ -1,0 +1,7 @@
+customer_name,product_category,customer_segment,city
+" John Doe "," Electronics ","b2b","São Paulo"
+"Jane Smith","electronics","B 2 B","Montréal"
+"JOHN DOE","ELECTRONICS","B2B","Sao Paulo"
+" Alice ","electro nics","sme","New York"
+"Bob "," Home ","small medium enterprise","London"
+" Charlie","home","enterprise","Paris"
