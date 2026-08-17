@@ -3,12 +3,15 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import io
+from datetime import datetime
+from report_generator import generate_report
+from email_sender import send_report_email
 
 # Page configuration
 st.set_page_config(page_title="Analytics Dashboard", layout="wide")
 
 # ==============================================================================
-# THRESHOLD CONFIGURATION (Task 1 & Task 3)
+# THRESHOLD CONFIGURATION
 # ==============================================================================
 ALERT_THRESHOLDS = {
     "churn_rate": {
@@ -234,7 +237,43 @@ if len(filtered_df) == 0:
 
 
 # ==============================================================================
-# REACTIVE METRICS & THRESHOLD ALERT EVALUATION (Task 2, 4, 5)
+# REPORT ACTIONS & EMAIL DISPATCH IN SIDEBAR
+# ==============================================================================
+
+st.sidebar.divider()
+st.sidebar.header("Report Actions")
+recipient = st.sidebar.text_input("Recipient Email", key="report_recipient_input")
+
+col_mail, col_csv = st.sidebar.columns(2)
+with col_mail:
+    if st.button("Send Report"):
+        if not recipient:
+            st.sidebar.error("Enter a recipient email.")
+        else:
+            report_text = generate_report(filtered_df, datetime.now().date())
+            success = send_report_email(report_text, recipient)
+            if success:
+                st.sidebar.success("Report sent to " + recipient)
+            else:
+                st.sidebar.error("Failed to send. Check email config.")
+
+with col_csv:
+    csv_bytes = filtered_df.to_csv(index=False).encode("utf-8")
+    st.download_button(
+        label="Download CSV",
+        data=csv_bytes,
+        file_name="analytics_report.csv",
+        mime="text/csv",
+        key="download_csv_btn"
+    )
+
+with st.sidebar.expander("Report Preview"):
+    current_report_preview = generate_report(filtered_df, datetime.now().date())
+    st.text(current_report_preview)
+
+
+# ==============================================================================
+# REACTIVE METRICS & THRESHOLD ALERT EVALUATION
 # ==============================================================================
 
 total_revenue = filtered_df[rev_col].sum() if has_revenue else 0.0
@@ -245,7 +284,6 @@ unique_customers = filtered_df[cust_col].nunique() if cust_col and cust_col in f
 total_cells = filtered_df.shape[0] * filtered_df.shape[1]
 null_pct = (filtered_df.isnull().sum().sum() / total_cells * 100) if total_cells > 0 else 0.0
 
-# Evaluate churn rate dynamically based on filtered cohort
 if "churn_rate" in filtered_df.columns:
     current_churn = float(filtered_df["churn_rate"].mean())
 elif has_segment and len(filtered_df) > 0:
@@ -294,7 +332,7 @@ def display_visual_alerts(metrics):
 if page == "Overview":
     st.title("Business Overview")
 
-    # Display visual alerts directly at top of overview (Task 2 & 4)
+    # Display visual alerts
     display_visual_alerts(current_metrics)
 
     # Five Reactive KPI Metrics directly at top (above the fold)
@@ -352,7 +390,7 @@ if page == "Overview":
 elif page == "Trends":
     st.title("Trend Analysis")
 
-    # Display visual alerts at top of trends as well
+    # Display visual alerts
     display_visual_alerts(current_metrics)
 
     # Multi-Step Workflow
