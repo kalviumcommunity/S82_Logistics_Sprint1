@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 
 # Page configuration
 st.set_page_config(page_title="Analytics Dashboard", layout="wide")
@@ -89,34 +90,93 @@ elif page == "Trends":
 elif page == "Data Explorer":
     st.title("Data Explorer")
 
-    st.header("Dataset Filters & Parameters")
-    st.subheader("Filter Configurations")
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.write("Date range filter placeholder")
-    with col2:
-        st.write("Category filter placeholder")
-    with col3:
-        st.write("Route / Region filter placeholder")
+    uploaded_file = st.file_uploader("Upload your dataset", type=["csv", "json"])
 
-    with st.expander("Filter Criteria Guide"):
-        st.write(
-            "Apply multi-dimensional filters across date intervals, shipment types, "
-            "origin hubs, and destination distribution centers."
+    if uploaded_file is not None:
+        try:
+            if uploaded_file.name.endswith(".csv"):
+                df = pd.read_csv(uploaded_file)
+            elif uploaded_file.name.endswith(".json"):
+                df = pd.read_json(uploaded_file)
+            else:
+                st.error("Unsupported file type.")
+                st.stop()
+
+            if len(df) == 0:
+                st.warning("Uploaded file is empty.")
+                st.stop()
+        except Exception:
+            st.error("Could not read this file. Check the format and try again.")
+            st.stop()
+
+        st.success(
+            "Loaded: " + uploaded_file.name
+            + " (" + str(len(df)) + " rows, "
+            + str(len(df.columns)) + " columns)"
         )
 
-    st.divider()
+        # Store in session state for downstream use
+        st.session_state["df"] = df
+        st.session_state["uploaded_file_name"] = uploaded_file.name
 
-    st.header("Data Table & Export")
-    st.subheader("Export Options & Preview")
-    col4, col5 = st.columns(2)
-    with col4:
-        st.write("Filters, data tables, and export options will appear here.")
-    with col5:
-        st.write("Export formats: CSV, JSON, Parquet, Excel")
+        # Dataset Preview
+        st.header("Dataset Preview")
 
-    with st.expander("Data Schema & Export Settings"):
-        st.write(
-            "Export operations stream sanitized tracking rows with complete column schemas, "
-            "including scan timestamps, hub IDs, and delay classifications."
-        )
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Rows", f"{len(df):,}")
+        with col2:
+            st.metric("Columns", str(len(df.columns)))
+        with col3:
+            total_cells = df.shape[0] * df.shape[1]
+            null_pct = (df.isnull().sum().sum() / total_cells * 100) if total_cells > 0 else 0.0
+            st.metric("Null %", f"{null_pct:.1f}%")
+
+        st.subheader("First 10 Rows")
+        st.dataframe(df.head(10), use_container_width=True)
+
+        st.subheader("Column Summary")
+        summary = pd.DataFrame({
+            "Column": df.columns,
+            "Type": df.dtypes.astype(str).values,
+            "Non-Null": df.notnull().sum().values,
+            "Null Count": df.isnull().sum().values,
+            "Null %": (df.isnull().sum() / len(df) * 100).round(1).values if len(df) > 0 else 0
+        })
+        st.dataframe(summary, use_container_width=True)
+
+        with st.expander("About Dataset Preview"):
+            st.write(
+                "Dataset preview shows summary dimensions, overall missing rate, "
+                "the first 10 sample records, and column-by-column schema breakdown."
+            )
+
+        # Descriptive Statistics
+        st.divider()
+        st.header("Descriptive Statistics")
+        st.dataframe(df.describe(), use_container_width=True)
+
+        with st.expander("About Descriptive Statistics"):
+            st.write(
+                "Descriptive statistics summarize count, mean, standard deviation, "
+                "min/max, and quartile distributions for numeric columns."
+            )
+
+        # Quick Exploration (Downstream Demonstration)
+        st.divider()
+        st.subheader("Quick Exploration")
+        numeric_cols = df.select_dtypes(include="number").columns.tolist()
+        if numeric_cols:
+            selected_col = st.selectbox("Select a column to visualise", numeric_cols)
+            st.bar_chart(df[selected_col].value_counts().head(20))
+        else:
+            st.info("No numeric columns available in the uploaded dataset for visualization.")
+
+        with st.expander("About Quick Exploration"):
+            st.write(
+                "Allows immediate frequency analysis of the top 20 distinct values "
+                "for any selected numeric feature."
+            )
+
+    else:
+        st.info("Upload a CSV or JSON file to begin.")
