@@ -1,0 +1,190 @@
+{
+  "dataset": "data/raw/quality_test.csv",
+  "record_count": 10,
+  "column_count": 5,
+  "columns": [
+    "customer_id",
+    "name",
+    "email",
+    "amount",
+    "status"
+  ],
+  "nulls_and_duplicates": {
+    "null_counts": {
+      "customer_id": 0,
+      "name": 2,
+      "email": 6,
+      "amount": 1,
+      "status": 0
+    },
+    "null_percentages": {
+      "customer_id": 0.0,
+      "name": 20.0,
+      "email": 60.0,
+      "amount": 10.0,
+      "status": 0.0
+    },
+    "exact_duplicate_count": 1,
+    "duplicate_percentage": 10.0
+  },
+  "numerical_stats": {
+    "min": {
+      "customer_id": 1.0,
+      "amount": -50.0
+    },
+    "max": {
+      "customer_id": 10.0,
+      "amount": 500.0
+    },
+    "mean": {
+      "customer_id": 5.3,
+      "amount": 214.0
+    },
+    "median": {
+      "customer_id": 5.5,
+      "amount": 200.0
+    },
+    "std": {
+      "customer_id": 3.27,
+      "amount": 180.68
+    },
+    "null_count": {
+      "customer_id": 0.0,
+      "amount": 1.0
+    },
+    "negative_count": {
+      "customer_id": 0.0,
+      "amount": 1.0
+    }
+  },
+  "categorical_stats": {
+    "name": {
+      "unique_count": 7,
+      "null_count": 2,
+      "null_percentage": 20.0,
+      "top_values": {
+        "Alice": 2,
+        "Bob": 1,
+        "Diana": 1,
+        "Frank": 1,
+        "Grace": 1
+      },
+      "top_value_percentages": {
+        "Alice": 20.0,
+        "Bob": 10.0,
+        "Diana": 10.0,
+        "Frank": 10.0,
+        "Grace": 10.0
+      },
+      "value_frequency_distribution": {
+        "Alice": {
+          "count": 2,
+          "percentage": 20.0
+        },
+        "Bob": {
+          "count": 1,
+          "percentage": 10.0
+        },
+        "Diana": {
+          "count": 1,
+          "percentage": 10.0
+        },
+        "Frank": {
+          "count": 1,
+          "percentage": 10.0
+        },
+        "Grace": {
+          "count": 1,
+          "percentage": 10.0
+        }
+      }
+    },
+    "email": {
+      "unique_count": 3,
+      "null_count": 6,
+      "null_percentage": 60.0,
+      "top_values": {
+        "alice@example.com": 2,
+        "charlie@example.com": 1,
+        "iris@example.com": 1
+      },
+      "top_value_percentages": {
+        "alice@example.com": 20.0,
+        "charlie@example.com": 10.0,
+        "iris@example.com": 10.0
+      },
+      "value_frequency_distribution": {
+        "alice@example.com": {
+          "count": 2,
+          "percentage": 20.0
+        },
+        "charlie@example.com": {
+          "count": 1,
+          "percentage": 10.0
+        },
+        "iris@example.com": {
+          "count": 1,
+          "percentage": 10.0
+        }
+      }
+    },
+    "status": {
+      "unique_count": 3,
+      "null_count": 0,
+      "null_percentage": 0.0,
+      "top_values": {
+        "active": 7,
+        "inactive": 2,
+        "pending": 1
+      },
+      "top_value_percentages": {
+        "active": 70.0,
+        "inactive": 20.0,
+        "pending": 10.0
+      },
+      "value_frequency_distribution": {
+        "active": {
+          "count": 7,
+          "percentage": 70.0
+        },
+        "inactive": {
+          "count": 2,
+          "percentage": 20.0
+        },
+        "pending": {
+          "count": 1,
+          "percentage": 10.0
+        }
+      }
+    }
+  },
+  "quality_issues": [
+    {
+      "type": "High nulls",
+      "column": "email",
+      "severity": "HIGH",
+      "value": "60.0% missing",
+      "recommendation": "Consider imputation or column exclusion"
+    },
+    {
+      "type": "High duplicates",
+      "column": "Full row",
+      "severity": "HIGH",
+      "value": "10.0% duplicated (1 rows)",
+      "recommendation": "Deduplication required before analysis"
+    },
+    {
+      "type": "Invalid range",
+      "column": "amount",
+      "severity": "MEDIUM",
+      "value": "1 negative value(s) found",
+      "recommendation": "Investigate negative entries; likely data entry errors or refunds"
+    }
+  ],
+  "quality_summary": {
+    "total_issues": 3,
+    "high_severity": 2,
+    "medium_severity": 1,
+    "low_severity": 0
+  }
+}
