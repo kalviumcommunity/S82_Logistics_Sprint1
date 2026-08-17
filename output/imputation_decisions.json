@@ -1,50 +1,54 @@
 {
-  "amount": {
-    "column_type": "numerical",
-    "null_count_before": 497,
-    "strategy": "median_imputation",
-    "value_used": 2539.733704062523,
-    "business_reasoning": "Median purchase amount is representative of typical transaction. Mean would be skewed by high-value outliers. Maintains distribution integrity.",
-    "risk_assessment": "Low - median is stable metric resistant to outliers"
-  },
-  "email": {
-    "column_type": "categorical_identifier",
-    "null_count_before": 266,
+  "shipment_id": {
+    "column_type": "critical_identifier",
+    "null_count_before": 1,
+    "null_count_after": 0,
     "strategy": "drop_rows",
-    "rows_affected": 266,
-    "business_reasoning": "Email is critical for customer contact and marketing campaigns. Rows without email cannot be used for outreach. Data is incomplete.",
-    "risk_assessment": "Low - only affects small percentage of data"
+    "business_reasoning": "shipment_id is the primary tracking key that links scan events, delay reports, and warehouse transfer records. A row without a shipment_id cannot be attributed to any operational route and is untraceable. Imputing an identifier would create phantom shipments that corrupt route-level delay analysis.",
+    "risk_assessment": "Low - dropped rows cannot be linked to any shipment"
   },
-  "status_date": {
-    "column_type": "datetime_series",
-    "null_count_before": 388,
-    "strategy": "forward_fill",
-    "interpretation": "Assumes last known status date is still valid until changed",
-    "business_reasoning": "For time-series analysis, forward fill preserves temporal continuity. Status typically does not change frequently.",
-    "risk_assessment": "Medium - assumes no change between observations"
-  },
-  "quantity": {
-    "column_type": "numerical",
-    "null_count_before": 403,
-    "strategy": "median_imputation",
-    "value_used": 50.0,
-    "business_reasoning": "Order quantity uses median value to represent standard shipment volume.",
-    "risk_assessment": "Low - maintains integer distribution integrity"
-  },
-  "category": {
+  "carrier_id": {
     "column_type": "categorical",
-    "null_count_before": 488,
+    "null_count_before": 2,
+    "null_count_after": 0,
     "strategy": "mode_imputation",
-    "value_used": "Freight Express",
-    "business_reasoning": "Fills missing category with most frequent classification tier.",
-    "risk_assessment": "Low - aligns with predominant category distribution"
+    "value_used": "CAR-DTDC-01",
+    "business_reasoning": "The most frequent carrier handles the majority of volume on any given route. Filling with mode preserves the categorical distribution without distorting carrier scorecard metrics. Alternative (dropping rows) would remove valid scan records from delay analysis.",
+    "risk_assessment": "Medium - imputed carrier may not be correct; affects carrier-level attribution accuracy"
   },
-  "dwell_duration_min": {
+  "delay_minutes": {
     "column_type": "numerical",
-    "null_count_before": 839,
+    "null_count_before": 1,
+    "null_count_after": 0,
     "strategy": "median_imputation",
-    "value_used": 60.25746444531155,
-    "business_reasoning": "Replaces missing warehouse transfer dwell time with median duration to avoid skewing route delay prediction.",
-    "risk_assessment": "Low - median preserves operational route baseline"
+    "value_used": 30.0,
+    "business_reasoning": "Median delay is resistant to high-value outliers such as storm events or major breakdowns that skew the mean. A shipment with an unknown delay was most likely experiencing a typical scenario. Median preserves the distribution shape for route risk scoring without inflating the average.",
+    "risk_assessment": "Low - median is stable; imputed values are central estimates and do not introduce extreme values"
+  },
+  "route_id": {
+    "column_type": "categorical",
+    "null_count_before": 1,
+    "null_count_after": 0,
+    "strategy": "mode_imputation",
+    "value_used": "RT-MUM-DEL-04",
+    "business_reasoning": "The highest-volume route carries the most shipments and is statistically the most likely assignment when route data is missing. This preserves route-level aggregations without removing scan events from the delay propagation analysis.",
+    "risk_assessment": "Medium - misattributed route distorts per-route delay metrics; flag imputed rows in downstream reporting"
+  },
+  "scan_timestamp": {
+    "column_type": "datetime_time_series",
+    "null_count_before": 2,
+    "null_count_after": 0,
+    "strategy": "forward_fill",
+    "business_reasoning": "Scan timestamps are time-ordered within a route leg. A missing timestamp means the scan system failed momentarily but the shipment continued moving. Forward filling the previous checkpoint time is the safest approximation as it assumes the shipment passed through in sequential order.",
+    "risk_assessment": "Medium - assumes no time gap; dwell time calculations for forward-filled rows will be underestimated"
+  },
+  "trnx_amt": {
+    "column_type": "numerical",
+    "null_count_before": 1,
+    "null_count_after": 0,
+    "strategy": "median_imputation",
+    "value_used": 200.0,
+    "business_reasoning": "Transaction amount is needed for route profitability calculations. Median transaction value represents a typical shipment and is not skewed by high-value enterprise orders. Dropping rows with missing revenue would undercount total route revenue.",
+    "risk_assessment": "Low - median is a conservative estimate; affects revenue totals by a small margin only"
   }
 }
