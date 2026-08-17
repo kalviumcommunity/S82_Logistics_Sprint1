@@ -6,23 +6,37 @@ import numpy as np
 st.set_page_config(page_title="Analytics Dashboard", layout="wide")
 
 # ==============================================================================
-# SESSION STATE INITIALISATION & DOCUMENTATION
+# TASK 1 & 2: SESSION STATE INITIALISATION
+# We use the pattern: `if key not in st.session_state` to initialise safely.
+# This ensures the value is set only on the very first run of the script.
+# On every subsequent rerun (e.g. when a widget changes), Streamlit skips
+# this block because the key already exists, so the value is PERSISTED.
+# Without session_state, every rerun would reset these values to defaults.
 # ==============================================================================
 
-# "selected_segment" - stores the user's segment choice from Step 1
-# so it survives reruns when the user interacts with Step 2 widgets.
+# KEY 1: "selected_segment"
+# Purpose: Stores which segment the user confirmed in Step 1 of the workflow.
+# Why needed: When the user interacts with any sidebar widget, Streamlit reruns
+# the entire script. Without persisting this in session_state, the confirmed
+# segment would be lost and Step 2 would never render correctly.
 if "selected_segment" not in st.session_state:
-    st.session_state["selected_segment"] = "All"
+    st.session_state["selected_segment"] = "All"  # Default: show all segments
 
-# "workflow_step" - tracks which step the user has completed.
-# Prevents Step 2 from displaying before Step 1 is confirmed.
+# KEY 2: "workflow_step"
+# Purpose: Acts as a gate that controls which steps are visible.
+# Why needed: Step 2 must ONLY appear after Step 1 is explicitly confirmed.
+# Storing step progress in session_state means the gate (workflow_step >= 2)
+# stays open across reruns once the user has confirmed their segment choice.
 if "workflow_step" not in st.session_state:
-    st.session_state["workflow_step"] = 1
+    st.session_state["workflow_step"] = 1  # Default: start at Step 1
 
-# "analysis_result" - caches the computation from Step 2 so
-# it does not recompute when unrelated widgets are changed.
+# KEY 3: "analysis_result"
+# Purpose: Caches the computed metrics (record count, total revenue, avg revenue)
+# that were calculated when the user clicked "Confirm Segment" in Step 1.
+# Why needed: Without caching, any unrelated widget interaction (e.g. changing
+# the date filter) would recompute or lose the Step 2 analysis data.
 if "analysis_result" not in st.session_state:
-    st.session_state["analysis_result"] = None
+    st.session_state["analysis_result"] = None  # Default: no analysis yet
 
 # "filter_date_start" - caches initial date range lower bound for filter persistence
 if "filter_date_start" not in st.session_state:
@@ -240,23 +254,36 @@ if page == "Overview":
 elif page == "Trends":
     st.title("Trend Analysis")
 
-    # Multi-Step Workflow
-    # Task 3: Step 1
+    # ===========================================================
+    # TASK 3: MULTI-STEP WORKFLOW — STEP 1
+    # The user must explicitly confirm their segment choice here.
+    # On confirmation:
+    #   1. We save the chosen segment to session_state["selected_segment"]
+    #   2. We advance the gate: session_state["workflow_step"] = 2
+    #   3. We pre-compute and cache metrics into session_state["analysis_result"]
+    # This means Step 2 DEPENDS ON Step 1 being completed — it will not
+    # render until workflow_step reaches 2, enforcing the sequential flow.
+    # ===========================================================
     st.header("Step 1: Select Segment")
     segment_options = ["All", "Enterprise", "Mid-Market", "SMB"]
+    # Read current value from session_state so the selectbox shows the
+    # previously confirmed choice even after a rerun.
     curr_seg = st.session_state["selected_segment"]
     curr_index = segment_options.index(curr_seg) if curr_seg in segment_options else 0
     segment = st.selectbox("Segment", segment_options, index=curr_index)
 
     if st.button("Confirm Segment"):
+        # Persist the confirmed segment so Step 2 can read it after rerun
         st.session_state["selected_segment"] = segment
+        # Advance the workflow gate — Step 2 checks this value
         st.session_state["workflow_step"] = 2
-        # Compute and cache analysis result in session state
+        # Pre-compute and cache the analysis result for the chosen segment
         if segment == "All":
             step_data = filtered_df
         else:
             step_data = filtered_df[filtered_df["segment"] == segment] if "segment" in filtered_df.columns else filtered_df
         
+        # Cache computed metrics so they survive future reruns unchanged
         st.session_state["analysis_result"] = {
             "record_count": len(step_data),
             "total_revenue": float(step_data["revenue"].sum()) if "revenue" in step_data.columns else 0.0,
@@ -265,9 +292,17 @@ elif page == "Trends":
         }
         st.rerun()
 
-    # Task 3: Step 2 (only if step 1 complete)
+    # ===========================================================
+    # TASK 3: MULTI-STEP WORKFLOW — STEP 2
+    # This section is GATED by workflow_step >= 2.
+    # It will NOT render on the first load (workflow_step starts at 1).
+    # It only becomes visible AFTER the user completes Step 1 by clicking
+    # "Confirm Segment", which sets workflow_step = 2 in session_state.
+    # This is the core dependency: Step 2 depends entirely on Step 1.
+    # ===========================================================
     if st.session_state["workflow_step"] >= 2:
         st.header("Step 2: Analysis")
+        # Read the confirmed segment from session_state (set in Step 1)
         chosen = st.session_state["selected_segment"]
         st.write("Analysing: " + chosen)
         
