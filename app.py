@@ -94,9 +94,11 @@ with col_btn1:
 with col_btn2:
     # Task 4: Session state workflow reset
     if st.button("Reset Workflow"):
-        for key in ["selected_segment", "workflow_step", "analysis_result"]:
-            if key in st.session_state:
-                del st.session_state[key]
+        # Explicitly reset session state variables to their initial default values
+        # This provides a clear, detailed reset mechanism as intended.
+        st.session_state["selected_segment"] = "All"
+        st.session_state["workflow_step"] = 1
+        st.session_state["analysis_result"] = None
         st.rerun()
 
 # Ensure required columns exist for filtering
