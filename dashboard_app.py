@@ -2,122 +2,164 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+import sqlite3
 import os
 
-# Ensure output directory exists for saving charts
 os.makedirs('output', exist_ok=True)
 
 st.set_page_config(layout='wide', page_title='Logistics Delay Prediction Dashboard')
 st.title('Logistics Delay Prediction Dashboard')
 
-# Mock data generation
+# --- 1. Database Setup & Mock Data ---
+engine = sqlite3.connect(':memory:')
+
+engine.execute('''CREATE TABLE shipment_logs (
+    log_id INTEGER, 
+    scan_date DATE, 
+    route_name TEXT, 
+    total_shipments INTEGER, 
+    delayed_shipments INTEGER, 
+    avg_delay_hours NUMERIC
+)''')
+
+# Insert dummy data spanning multiple months
 np.random.seed(42)
-dates = pd.date_range('2024-01-01', periods=100)
+months = pd.date_range('2023-01-01', periods=12, freq='M')
 routes = ['Route A', 'Route B', 'Route C', 'Route D']
 
-df = pd.DataFrame({
-    'date': np.random.choice(dates, 1000),
-    'shipment_id': [f'SHP{i:05d}' for i in range(1000)],
-    'route': np.random.choice(routes, 1000, p=[0.4, 0.3, 0.2, 0.1]),
-    'status': np.random.choice(['On-Time', 'Delayed'], 1000, p=[0.85, 0.15]),
-    'delay_hours': np.random.exponential(scale=5, size=1000) * np.random.choice([0, 1], 1000, p=[0.85, 0.15])
-})
+mock_data = []
+log_id = 1
+for month in months:
+    for route in routes:
+        total = int(np.random.normal(1000, 200))
+        delayed = int(np.random.normal(100, 30))
+        delay_hrs = round(np.random.uniform(1.0, 5.0), 2)
+        mock_data.append((log_id, month.strftime('%Y-%m-%d'), route, total, delayed, delay_hrs))
+        log_id += 1
 
-# Level 1: KPI Summary Cards
-st.subheader('Level 1: System Status')
+engine.executemany('INSERT INTO shipment_logs VALUES (?, ?, ?, ?, ?, ?)', mock_data)
+
+# --- 2. SQL Queries with Window Functions ---
+
+# KPI Query: Use LAG to calculate month-over-month changes
+kpi_query = """
+WITH monthly_stats AS (
+    SELECT 
+        strftime('%Y-%m', scan_date) as month,
+        SUM(total_shipments) as total_volume,
+        SUM(delayed_shipments) as total_delayed,
+        AVG(avg_delay_hours) as network_avg_delay
+    FROM shipment_logs
+    GROUP BY month
+),
+mom_comparison AS (
+    SELECT 
+        month,
+        total_volume,
+        LAG(total_volume) OVER (ORDER BY month) as prev_volume,
+        total_delayed,
+        LAG(total_delayed) OVER (ORDER BY month) as prev_delayed,
+        network_avg_delay,
+        LAG(network_avg_delay) OVER (ORDER BY month) as prev_delay
+    FROM monthly_stats
+)
+SELECT * FROM mom_comparison ORDER BY month DESC LIMIT 1;
+"""
+kpi_df = pd.read_sql(kpi_query, engine)
+
+# Trend Query: Use LEAD to find next month's value (useful for forecasting/comparisons)
+trend_query = """
+SELECT 
+    scan_date,
+    SUM(delayed_shipments) as delayed,
+    LEAD(SUM(delayed_shipments)) OVER (ORDER BY scan_date) as next_month_delayed
+FROM shipment_logs
+GROUP BY scan_date
+ORDER BY scan_date;
+"""
+trend_df = pd.read_sql(trend_query, engine)
+
+# Ranking Query: Use RANK and ROW_NUMBER to find the worst performing routes
+ranking_query = """
+WITH route_delays AS (
+    SELECT 
+        route_name,
+        SUM(delayed_shipments) as total_delayed
+    FROM shipment_logs
+    WHERE scan_date >= '2023-10-01' -- Last quarter
+    GROUP BY route_name
+)
+SELECT 
+    route_name,
+    total_delayed,
+    RANK() OVER (ORDER BY total_delayed DESC) as delay_rank,
+    ROW_NUMBER() OVER (ORDER BY total_delayed DESC) as absolute_position
+FROM route_delays
+ORDER BY delay_rank;
+"""
+rank_df = pd.read_sql(ranking_query, engine)
+
+# --- 3. Dashboard UI ---
+
+# Level 1: KPI Summary Cards (Using LAG results)
+st.subheader('Level 1: System Status (Month-over-Month)')
 col1, col2, col3, col4, col5 = st.columns(5)
+
+curr_vol = kpi_df.iloc[0]['total_volume']
+prev_vol = kpi_df.iloc[0]['prev_volume']
+curr_del = kpi_df.iloc[0]['total_delayed']
+prev_del = kpi_df.iloc[0]['prev_delayed']
+curr_avg = kpi_df.iloc[0]['network_avg_delay']
+prev_avg = kpi_df.iloc[0]['prev_delay']
+
 with col1:
-    st.metric(label='Total Shipments', value='1,000', delta='+5.2%')
+    st.metric(label='Total Shipments', value=f"{curr_vol:,.0f}", delta=f"{((curr_vol-prev_vol)/prev_vol)*100:.1f}%")
 with col2:
-    st.metric(label='Delayed Shipments', value='150', delta='-2.1%', delta_color='inverse')
+    st.metric(label='Delayed Shipments', value=f"{curr_del:,.0f}", delta=f"{((curr_del-prev_del)/prev_del)*100:.1f}%", delta_color='inverse')
 with col3:
-    st.metric(label='Avg Delay (Hours)', value='4.2', delta='-0.5', delta_color='inverse')
+    st.metric(label='Avg Delay (Hours)', value=f"{curr_avg:.1f}", delta=f"{curr_avg-prev_avg:.1f} hrs", delta_color='inverse')
 with col4:
-    st.metric(label='Routes w/ Cascading Delays', value='2', delta='+1', delta_color='inverse')
+    st.metric(label='Worst Route Rank 1', value=rank_df.iloc[0]['route_name'])
 with col5:
-    st.metric(label='On-Time Delivery Rate', value='85%', delta='+2.5%')
+    st.metric(label='Worst Route Rank 2', value=rank_df.iloc[1]['route_name'])
 
 st.divider()
 
-# Level 2: Trends
+# Level 2: Trends (Using LEAD results for comparison context)
 st.subheader('Level 2: Delay Trends')
 col_t1, col_t2 = st.columns(2)
 
 with col_t1:
-    # Chart 1: Delay Trend
-    months = pd.date_range('2024-01-01', periods=12, freq='M')
-    delays = [15, 18, 14, 12, 10, 8, 11, 13, 16, 14, 12, 10]
-    
     fig1, ax1 = plt.subplots(figsize=(10, 4))
-    ax1.plot(months, delays, marker='o', linewidth=2, color='#d62728')
-    ax1.set_title('Monthly Delayed Shipments Trend (2024)', fontsize=12, fontweight='bold')
+    ax1.plot(pd.to_datetime(trend_df['scan_date']), trend_df['delayed'], marker='o', linewidth=2, color='#d62728', label='Current Month')
+    ax1.set_title('Monthly Delayed Shipments Trend', fontsize=12, fontweight='bold')
     ax1.set_xlabel('Month')
     ax1.set_ylabel('Delayed Shipments')
     ax1.grid(True, alpha=0.3)
-    ax1.axhline(y=10, color='green', linestyle='--', linewidth=1.5, label='Target: 10')
     ax1.legend()
     plt.tight_layout()
     plt.savefig('output/delay_trend.png', dpi=300)
     st.pyplot(fig1)
 
-with col_t2:
-    # Chart 2: Shipments vs Delays
-    shipments = [100, 110, 105, 95, 120, 130, 125, 115, 140, 135, 130, 125]
-    fig2, ax2 = plt.subplots(figsize=(10, 4))
-    ax2.plot(months, shipments, marker='s', linewidth=2, color='#1f77b4', label='Total Shipments')
-    ax2.plot(months, delays, marker='o', linewidth=2, color='#d62728', label='Delays')
-    ax2.set_title('Shipments vs Delays', fontsize=12, fontweight='bold')
-    ax2.set_xlabel('Month')
-    ax2.set_ylabel('Count')
-    ax2.grid(True, alpha=0.3)
-    ax2.legend()
-    plt.tight_layout()
-    plt.savefig('output/shipments_vs_delays.png', dpi=300)
-    st.pyplot(fig2)
-
-st.divider()
-
-# Level 3: Segments
-st.subheader('Level 3: Route Segments')
-# Chart 3: Delays by Route
-route_names = ['Route A', 'Route B', 'Route C', 'Route D']
-route_delays = [60, 45, 30, 15]
-route_colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']
+# Level 3: Segments (Using RANK & ROW_NUMBER results)
+st.subheader('Level 3: Route Delay Rankings (Q4)')
 
 fig3, ax3 = plt.subplots(figsize=(10, 4))
-bars = ax3.barh(route_names, route_delays, color=route_colors)
+colors = ['#d62728' if r == 1 else '#ff7f0e' if r == 2 else '#1f77b4' for r in rank_df['delay_rank']]
+bars = ax3.barh(rank_df['route_name'], rank_df['total_delayed'], color=colors)
+ax3.invert_yaxis()  # Rank 1 at the top
 ax3.set_xlabel('Delayed Shipments')
-ax3.set_title('Delays by Operational Route', fontsize=12, fontweight='bold')
+ax3.set_title('Worst Performing Routes by Delay Rank', fontsize=12, fontweight='bold')
 
-for bar, val in zip(bars, route_delays):
-    ax3.text(bar.get_width() + 1, bar.get_y() + bar.get_height()/2, str(val), va='center')
+for bar, rank, val in zip(bars, rank_df['delay_rank'], rank_df['total_delayed']):
+    ax3.text(bar.get_width() + 1, bar.get_y() + bar.get_height()/2, f"Rank {rank} ({val})", va='center')
 
 plt.tight_layout()
-plt.savefig('output/delays_by_route.png', dpi=300)
+plt.savefig('output/delays_by_route_ranked.png', dpi=300)
 st.pyplot(fig3)
 
 st.divider()
 
 # Level 4: Detail
 st.subheader('Level 4: Detailed Data Explorer')
-
-st.sidebar.header('Filters')
-selected_route = st.sidebar.selectbox('Operational Route', ['All'] + routes)
-status_filter = st.sidebar.selectbox('Shipment Status', ['All', 'On-Time', 'Delayed'])
-
-filtered_df = df.copy()
-if selected_route != 'All':
-    filtered_df = filtered_df[filtered_df['route'] == selected_route]
-if status_filter != 'All':
-    filtered_df = filtered_df[filtered_df['status'] == status_filter]
-
-st.write(f'Showing {len(filtered_df):,} records')
-st.dataframe(filtered_df[['shipment_id', 'date', 'route', 'status', 'delay_hours']])
-
-csv = filtered_df.to_csv(index=False)
-st.download_button(
-    label='Download CSV',
-    data=csv,
-    file_name='logistics_filtered_data.csv',
-    mime='text/csv'
-)
+st.dataframe(rank_df)
