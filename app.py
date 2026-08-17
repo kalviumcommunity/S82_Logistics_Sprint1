@@ -32,7 +32,8 @@ st.sidebar.header("Filters")
 # Widget 1: Date range picker
 date_range = st.sidebar.date_input(
     "Date Range", 
-    value=(df["date"].min(), df["date"].max())
+    value=(df["date"].min(), df["date"].max()),
+    key="date_range_filter"
 )
 
 # Widget 2: Multi-select for segments
@@ -40,7 +41,8 @@ all_segments = df["segment"].unique().tolist()
 selected_segments = st.sidebar.multiselect(
     "Segments", 
     options=all_segments, 
-    default=all_segments
+    default=all_segments,
+    key="segments_filter"
 )
 
 # Widget 3: Revenue slider
@@ -48,11 +50,15 @@ min_rev, max_rev = st.sidebar.slider(
     "Revenue Range", 
     min_value=int(df["revenue"].min()), 
     max_value=int(df["revenue"].max()), 
-    value=(int(df["revenue"].min()), int(df["revenue"].max()))
+    value=(int(df["revenue"].min()), int(df["revenue"].max())),
+    key="revenue_filter"
 )
 
-# Task 5: Implement Filter Reset
+# Task 5: Implement Filter Reset (explicit state reset)
 if st.sidebar.button("Reset Filters"):
+    for key in ["date_range_filter", "segments_filter", "revenue_filter"]:
+        if key in st.session_state:
+            del st.session_state[key]
     st.rerun()
 
 # Check if date range is valid (has both start and end)
