@@ -1,0 +1,9 @@
+column,dtype_before,dtype_after,changed
+scan_date,object,datetime64[ns],True
+transfer_date,object,datetime64[ns],True
+trnx_amt,object,float64,True
+delay_cost,object,float64,True
+flag_cascading_delay,int64,bool,True
+is_priority_shipment,int64,bool,True
+route_id,object,object,False
+carrier_id,object,object,False
