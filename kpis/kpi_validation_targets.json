@@ -1,0 +1,47 @@
+{
+  "monthly_active_users": {
+    "name": "Monthly Active Users (MAU)",
+    "min": 5000,
+    "max": 6000,
+    "unit": "count",
+    "owner": "Product Manager",
+    "frequency": "Daily",
+    "notes": "Measures active engagement; filters unverified email leads."
+  },
+  "revenue_per_customer": {
+    "name": "Average Revenue Per Customer (ARPC)",
+    "min": 90.0,
+    "max": 110.0,
+    "unit": "USD",
+    "owner": "Finance Lead",
+    "frequency": "Weekly",
+    "notes": "Key indicator of customer monetization depth."
+  },
+  "churn_rate": {
+    "name": "Monthly Churn Rate",
+    "min": 0.0,
+    "max": 0.05,
+    "unit": "ratio",
+    "owner": "Customer Success Lead",
+    "frequency": "Monthly",
+    "notes": "Tracks account attrition and customer retention risk."
+  },
+  "payment_success_rate": {
+    "name": "Payment Success Rate (PSR)",
+    "min": 0.95,
+    "max": 1.00,
+    "unit": "ratio",
+    "owner": "Infrastructure Lead",
+    "frequency": "Real-Time / Hourly",
+    "notes": "Technical health metric for checkout authorization efficiency."
+  },
+  "customer_acquisition_cost": {
+    "name": "Customer Acquisition Cost (CAC)",
+    "min": 0.0,
+    "max": 50.0,
+    "unit": "USD",
+    "owner": "Growth Marketing Lead",
+    "frequency": "Monthly",
+    "notes": "Unit economics metric measuring growth efficiency."
+  }
+}
