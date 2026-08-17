@@ -3,6 +3,8 @@ import {
   getPipelineQualityController,
   getDashboardSummaryController,
   getAdminDashboardController,
+  getKpiValidationController,
+  getRootCauseInvestigationController,
 } from '../controllers/analyticsController.js';
 import { authenticateToken, authorizeRoles } from '../../middleware/auth.js';
 
@@ -32,4 +34,22 @@ router.get(
   getAdminDashboardController
 );
 
+// Protected KPI governance and validation endpoint (ADMIN and OPERATIONS_MANAGER)
+router.get(
+  '/kpi-validation',
+  authenticateToken,
+  authorizeRoles('ADMIN', 'OPERATIONS_MANAGER'),
+  getKpiValidationController
+);
+
+// Protected root cause investigation & diagnostic endpoint (ADMIN only)
+router.get(
+  '/root-cause-investigation',
+  authenticateToken,
+  authorizeRoles('ADMIN'),
+  getRootCauseInvestigationController
+);
+
 export default router;
+
+

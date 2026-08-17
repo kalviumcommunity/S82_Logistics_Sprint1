@@ -1,0 +1,781 @@
+{
+  "status": "success",
+  "investigation_id": "INC-20260805-LOG-01",
+  "isolated_window": {
+    "anomaly_date": "2026-08-05",
+    "problem_hour": 14,
+    "time_window_utc": "2026-08-05 14:00:00 - 14:59:59 UTC",
+    "statistical_thresholds": {
+      "mean_success_rate": 0.9823,
+      "std_dev_success_rate": 0.0116,
+      "anomaly_threshold_rate": 0.9649
+    },
+    "isolated_window_metrics": {
+      "total_transactions": 50,
+      "failed_transactions": 35,
+      "completed_transactions": 15,
+      "success_rate": 0.3,
+      "formatted_success_rate": "30.0%",
+      "revenue": 2982.26,
+      "formatted_revenue": "$2,982.26",
+      "estimated_revenue_loss": 6004.27,
+      "formatted_revenue_loss": "$6,004.27"
+    },
+    "baseline_comparison": {
+      "before_window": {
+        "hours": "11:00 - 13:59 UTC",
+        "success_rate": 0.9733,
+        "formatted_success_rate": "97.3%",
+        "total_volume": 150,
+        "revenue": 26959.6,
+        "formatted_revenue": "$26,959.60"
+      },
+      "problem_window": {
+        "hours": "14:00 - 14:59 UTC",
+        "success_rate": 0.3,
+        "formatted_success_rate": "30.0%",
+        "total_volume": 50,
+        "revenue": 2982.26,
+        "formatted_revenue": "$2,982.26"
+      },
+      "after_window": {
+        "hours": "15:00 - 17:59 UTC",
+        "success_rate": 0.9733,
+        "formatted_success_rate": "97.3%",
+        "total_volume": 150,
+        "revenue": 26540.2,
+        "formatted_revenue": "$26,540.20"
+      }
+    },
+    "hourly_breakdown": [
+      {
+        "hour": 0,
+        "time_label": "00:00",
+        "total_tx": 20,
+        "completed_tx": 20,
+        "failed_tx": 0,
+        "success_rate": 1.0,
+        "formatted_success_rate": "100.0%"
+      },
+      {
+        "hour": 1,
+        "time_label": "01:00",
+        "total_tx": 20,
+        "completed_tx": 20,
+        "failed_tx": 0,
+        "success_rate": 1.0,
+        "formatted_success_rate": "100.0%"
+      },
+      {
+        "hour": 2,
+        "time_label": "02:00",
+        "total_tx": 20,
+        "completed_tx": 19,
+        "failed_tx": 1,
+        "success_rate": 0.95,
+        "formatted_success_rate": "95.0%"
+      },
+      {
+        "hour": 3,
+        "time_label": "03:00",
+        "total_tx": 20,
+        "completed_tx": 20,
+        "failed_tx": 0,
+        "success_rate": 1.0,
+        "formatted_success_rate": "100.0%"
+      },
+      {
+        "hour": 4,
+        "time_label": "04:00",
+        "total_tx": 20,
+        "completed_tx": 20,
+        "failed_tx": 0,
+        "success_rate": 1.0,
+        "formatted_success_rate": "100.0%"
+      },
+      {
+        "hour": 5,
+        "time_label": "05:00",
+        "total_tx": 20,
+        "completed_tx": 20,
+        "failed_tx": 0,
+        "success_rate": 1.0,
+        "formatted_success_rate": "100.0%"
+      },
+      {
+        "hour": 6,
+        "time_label": "06:00",
+        "total_tx": 20,
+        "completed_tx": 20,
+        "failed_tx": 0,
+        "success_rate": 1.0,
+        "formatted_success_rate": "100.0%"
+      },
+      {
+        "hour": 7,
+        "time_label": "07:00",
+        "total_tx": 20,
+        "completed_tx": 20,
+        "failed_tx": 0,
+        "success_rate": 1.0,
+        "formatted_success_rate": "100.0%"
+      },
+      {
+        "hour": 8,
+        "time_label": "08:00",
+        "total_tx": 50,
+        "completed_tx": 50,
+        "failed_tx": 0,
+        "success_rate": 1.0,
+        "formatted_success_rate": "100.0%"
+      },
+      {
+        "hour": 9,
+        "time_label": "09:00",
+        "total_tx": 50,
+        "completed_tx": 48,
+        "failed_tx": 2,
+        "success_rate": 0.96,
+        "formatted_success_rate": "96.0%"
+      },
+      {
+        "hour": 10,
+        "time_label": "10:00",
+        "total_tx": 50,
+        "completed_tx": 50,
+        "failed_tx": 0,
+        "success_rate": 1.0,
+        "formatted_success_rate": "100.0%"
+      },
+      {
+        "hour": 11,
+        "time_label": "11:00",
+        "total_tx": 50,
+        "completed_tx": 48,
+        "failed_tx": 2,
+        "success_rate": 0.96,
+        "formatted_success_rate": "96.0%"
+      },
+      {
+        "hour": 12,
+        "time_label": "12:00",
+        "total_tx": 50,
+        "completed_tx": 49,
+        "failed_tx": 1,
+        "success_rate": 0.98,
+        "formatted_success_rate": "98.0%"
+      },
+      {
+        "hour": 13,
+        "time_label": "13:00",
+        "total_tx": 50,
+        "completed_tx": 49,
+        "failed_tx": 1,
+        "success_rate": 0.98,
+        "formatted_success_rate": "98.0%"
+      },
+      {
+        "hour": 14,
+        "time_label": "14:00",
+        "total_tx": 50,
+        "completed_tx": 15,
+        "failed_tx": 35,
+        "success_rate": 0.3,
+        "formatted_success_rate": "30.0%"
+      },
+      {
+        "hour": 15,
+        "time_label": "15:00",
+        "total_tx": 50,
+        "completed_tx": 49,
+        "failed_tx": 1,
+        "success_rate": 0.98,
+        "formatted_success_rate": "98.0%"
+      },
+      {
+        "hour": 16,
+        "time_label": "16:00",
+        "total_tx": 50,
+        "completed_tx": 48,
+        "failed_tx": 2,
+        "success_rate": 0.96,
+        "formatted_success_rate": "96.0%"
+      },
+      {
+        "hour": 17,
+        "time_label": "17:00",
+        "total_tx": 50,
+        "completed_tx": 49,
+        "failed_tx": 1,
+        "success_rate": 0.98,
+        "formatted_success_rate": "98.0%"
+      },
+      {
+        "hour": 18,
+        "time_label": "18:00",
+        "total_tx": 50,
+        "completed_tx": 50,
+        "failed_tx": 0,
+        "success_rate": 1.0,
+        "formatted_success_rate": "100.0%"
+      },
+      {
+        "hour": 19,
+        "time_label": "19:00",
+        "total_tx": 50,
+        "completed_tx": 48,
+        "failed_tx": 2,
+        "success_rate": 0.96,
+        "formatted_success_rate": "96.0%"
+      },
+      {
+        "hour": 20,
+        "time_label": "20:00",
+        "total_tx": 50,
+        "completed_tx": 50,
+        "failed_tx": 0,
+        "success_rate": 1.0,
+        "formatted_success_rate": "100.0%"
+      },
+      {
+        "hour": 21,
+        "time_label": "21:00",
+        "total_tx": 20,
+        "completed_tx": 20,
+        "failed_tx": 0,
+        "success_rate": 1.0,
+        "formatted_success_rate": "100.0%"
+      },
+      {
+        "hour": 22,
+        "time_label": "22:00",
+        "total_tx": 20,
+        "completed_tx": 20,
+        "failed_tx": 0,
+        "success_rate": 1.0,
+        "formatted_success_rate": "100.0%"
+      },
+      {
+        "hour": 23,
+        "time_label": "23:00",
+        "total_tx": 20,
+        "completed_tx": 20,
+        "failed_tx": 0,
+        "success_rate": 1.0,
+        "formatted_success_rate": "100.0%"
+      }
+    ]
+  },
+  "segment_analysis": {
+    "dimensions": {
+      "payment_method": {
+        "dimension_label": "Payment Method / Gateway",
+        "categories": [
+          {
+            "category": "Credit Card (Stripe)",
+            "total_volume": 38,
+            "completed_volume": 3,
+            "failed_volume": 35,
+            "success_rate": 0.0789,
+            "formatted_success_rate": "7.9%",
+            "failure_rate": 0.9211,
+            "formatted_failure_rate": "92.1%",
+            "failed_revenue": 6946.55,
+            "formatted_failed_revenue": "$6,946.55",
+            "status_flag": "ALERT"
+          },
+          {
+            "category": "Bank Wire",
+            "total_volume": 4,
+            "completed_volume": 4,
+            "failed_volume": 0,
+            "success_rate": 1.0,
+            "formatted_success_rate": "100.0%",
+            "failure_rate": 0.0,
+            "formatted_failure_rate": "0.0%",
+            "failed_revenue": 0.0,
+            "formatted_failed_revenue": "$0.00",
+            "status_flag": "NORMAL"
+          },
+          {
+            "category": "Crypto",
+            "total_volume": 1,
+            "completed_volume": 1,
+            "failed_volume": 0,
+            "success_rate": 1.0,
+            "formatted_success_rate": "100.0%",
+            "failure_rate": 0.0,
+            "formatted_failure_rate": "0.0%",
+            "failed_revenue": 0.0,
+            "formatted_failed_revenue": "$0.00",
+            "status_flag": "NORMAL"
+          },
+          {
+            "category": "Debit Card",
+            "total_volume": 7,
+            "completed_volume": 7,
+            "failed_volume": 0,
+            "success_rate": 1.0,
+            "formatted_success_rate": "100.0%",
+            "failure_rate": 0.0,
+            "formatted_failure_rate": "0.0%",
+            "failed_revenue": 0.0,
+            "formatted_failed_revenue": "$0.00",
+            "status_flag": "NORMAL"
+          }
+        ]
+      },
+      "segment": {
+        "dimension_label": "Customer Segment / Tier",
+        "categories": [
+          {
+            "category": "Startup",
+            "total_volume": 7,
+            "completed_volume": 1,
+            "failed_volume": 6,
+            "success_rate": 0.1429,
+            "formatted_success_rate": "14.3%",
+            "failure_rate": 0.8571,
+            "formatted_failure_rate": "85.7%",
+            "failed_revenue": 1233.81,
+            "formatted_failed_revenue": "$1,233.81",
+            "status_flag": "ALERT"
+          },
+          {
+            "category": "Enterprise",
+            "total_volume": 25,
+            "completed_volume": 8,
+            "failed_volume": 17,
+            "success_rate": 0.32,
+            "formatted_success_rate": "32.0%",
+            "failure_rate": 0.68,
+            "formatted_failure_rate": "68.0%",
+            "failed_revenue": 3645.0,
+            "formatted_failed_revenue": "$3,645.00",
+            "status_flag": "ALERT"
+          },
+          {
+            "category": "SMB",
+            "total_volume": 18,
+            "completed_volume": 6,
+            "failed_volume": 12,
+            "success_rate": 0.3333,
+            "formatted_success_rate": "33.3%",
+            "failure_rate": 0.6667,
+            "formatted_failure_rate": "66.7%",
+            "failed_revenue": 2067.74,
+            "formatted_failed_revenue": "$2,067.74",
+            "status_flag": "ALERT"
+          }
+        ]
+      },
+      "region": {
+        "dimension_label": "Geographic Region",
+        "categories": [
+          {
+            "category": "North America - East",
+            "total_volume": 19,
+            "completed_volume": 4,
+            "failed_volume": 15,
+            "success_rate": 0.2105,
+            "formatted_success_rate": "21.1%",
+            "failure_rate": 0.7895,
+            "formatted_failure_rate": "78.9%",
+            "failed_revenue": 3094.1,
+            "formatted_failed_revenue": "$3,094.10",
+            "status_flag": "ALERT"
+          },
+          {
+            "category": "Europe - Central",
+            "total_volume": 14,
+            "completed_volume": 4,
+            "failed_volume": 10,
+            "success_rate": 0.2857,
+            "formatted_success_rate": "28.6%",
+            "failure_rate": 0.7143,
+            "formatted_failure_rate": "71.4%",
+            "failed_revenue": 2451.86,
+            "formatted_failed_revenue": "$2,451.86",
+            "status_flag": "ALERT"
+          },
+          {
+            "category": "Asia Pacific - South",
+            "total_volume": 8,
+            "completed_volume": 3,
+            "failed_volume": 5,
+            "success_rate": 0.375,
+            "formatted_success_rate": "37.5%",
+            "failure_rate": 0.625,
+            "formatted_failure_rate": "62.5%",
+            "failed_revenue": 740.95,
+            "formatted_failed_revenue": "$740.95",
+            "status_flag": "ALERT"
+          },
+          {
+            "category": "LATAM",
+            "total_volume": 9,
+            "completed_volume": 4,
+            "failed_volume": 5,
+            "success_rate": 0.4444,
+            "formatted_success_rate": "44.4%",
+            "failure_rate": 0.5556,
+            "formatted_failure_rate": "55.6%",
+            "failed_revenue": 659.64,
+            "formatted_failed_revenue": "$659.64",
+            "status_flag": "ALERT"
+          }
+        ]
+      },
+      "device_type": {
+        "dimension_label": "Device / Platform Type",
+        "categories": [
+          {
+            "category": "Mobile App",
+            "total_volume": 11,
+            "completed_volume": 2,
+            "failed_volume": 9,
+            "success_rate": 0.1818,
+            "formatted_success_rate": "18.2%",
+            "failure_rate": 0.8182,
+            "formatted_failure_rate": "81.8%",
+            "failed_revenue": 1643.26,
+            "formatted_failed_revenue": "$1,643.26",
+            "status_flag": "ALERT"
+          },
+          {
+            "category": "Web API",
+            "total_volume": 31,
+            "completed_volume": 10,
+            "failed_volume": 21,
+            "success_rate": 0.3226,
+            "formatted_success_rate": "32.3%",
+            "failure_rate": 0.6774,
+            "formatted_failure_rate": "67.7%",
+            "failed_revenue": 4033.43,
+            "formatted_failed_revenue": "$4,033.43",
+            "status_flag": "ALERT"
+          },
+          {
+            "category": "EDI Feed",
+            "total_volume": 3,
+            "completed_volume": 1,
+            "failed_volume": 2,
+            "success_rate": 0.3333,
+            "formatted_success_rate": "33.3%",
+            "failure_rate": 0.6667,
+            "formatted_failure_rate": "66.7%",
+            "failed_revenue": 444.43,
+            "formatted_failed_revenue": "$444.43",
+            "status_flag": "NORMAL"
+          },
+          {
+            "category": "Desktop Gateway",
+            "total_volume": 5,
+            "completed_volume": 2,
+            "failed_volume": 3,
+            "success_rate": 0.4,
+            "formatted_success_rate": "40.0%",
+            "failure_rate": 0.6,
+            "formatted_failure_rate": "60.0%",
+            "failed_revenue": 825.43,
+            "formatted_failed_revenue": "$825.43",
+            "status_flag": "ALERT"
+          }
+        ]
+      }
+    },
+    "flagged_concentrations": [
+      {
+        "dimension": "Payment Method / Gateway",
+        "category": "Credit Card (Stripe)",
+        "success_rate": 0.0789,
+        "formatted_success_rate": "7.9%",
+        "failed_volume": 35,
+        "total_volume": 38,
+        "failed_revenue": 6946.55,
+        "formatted_failed_revenue": "$6,946.55",
+        "severity": "CRITICAL"
+      },
+      {
+        "dimension": "Customer Segment / Tier",
+        "category": "Startup",
+        "success_rate": 0.1429,
+        "formatted_success_rate": "14.3%",
+        "failed_volume": 6,
+        "total_volume": 7,
+        "failed_revenue": 1233.81,
+        "formatted_failed_revenue": "$1,233.81",
+        "severity": "CRITICAL"
+      },
+      {
+        "dimension": "Customer Segment / Tier",
+        "category": "Enterprise",
+        "success_rate": 0.32,
+        "formatted_success_rate": "32.0%",
+        "failed_volume": 17,
+        "total_volume": 25,
+        "failed_revenue": 3645.0,
+        "formatted_failed_revenue": "$3,645.00",
+        "severity": "CRITICAL"
+      },
+      {
+        "dimension": "Customer Segment / Tier",
+        "category": "SMB",
+        "success_rate": 0.3333,
+        "formatted_success_rate": "33.3%",
+        "failed_volume": 12,
+        "total_volume": 18,
+        "failed_revenue": 2067.74,
+        "formatted_failed_revenue": "$2,067.74",
+        "severity": "CRITICAL"
+      },
+      {
+        "dimension": "Geographic Region",
+        "category": "North America - East",
+        "success_rate": 0.2105,
+        "formatted_success_rate": "21.1%",
+        "failed_volume": 15,
+        "total_volume": 19,
+        "failed_revenue": 3094.1,
+        "formatted_failed_revenue": "$3,094.10",
+        "severity": "CRITICAL"
+      },
+      {
+        "dimension": "Geographic Region",
+        "category": "Europe - Central",
+        "success_rate": 0.2857,
+        "formatted_success_rate": "28.6%",
+        "failed_volume": 10,
+        "total_volume": 14,
+        "failed_revenue": 2451.86,
+        "formatted_failed_revenue": "$2,451.86",
+        "severity": "CRITICAL"
+      },
+      {
+        "dimension": "Geographic Region",
+        "category": "Asia Pacific - South",
+        "success_rate": 0.375,
+        "formatted_success_rate": "37.5%",
+        "failed_volume": 5,
+        "total_volume": 8,
+        "failed_revenue": 740.95,
+        "formatted_failed_revenue": "$740.95",
+        "severity": "CRITICAL"
+      },
+      {
+        "dimension": "Geographic Region",
+        "category": "LATAM",
+        "success_rate": 0.4444,
+        "formatted_success_rate": "44.4%",
+        "failed_volume": 5,
+        "total_volume": 9,
+        "failed_revenue": 659.64,
+        "formatted_failed_revenue": "$659.64",
+        "severity": "CRITICAL"
+      },
+      {
+        "dimension": "Device / Platform Type",
+        "category": "Mobile App",
+        "success_rate": 0.1818,
+        "formatted_success_rate": "18.2%",
+        "failed_volume": 9,
+        "total_volume": 11,
+        "failed_revenue": 1643.26,
+        "formatted_failed_revenue": "$1,643.26",
+        "severity": "CRITICAL"
+      },
+      {
+        "dimension": "Device / Platform Type",
+        "category": "Web API",
+        "success_rate": 0.3226,
+        "formatted_success_rate": "32.3%",
+        "failed_volume": 21,
+        "total_volume": 31,
+        "failed_revenue": 4033.43,
+        "formatted_failed_revenue": "$4,033.43",
+        "severity": "CRITICAL"
+      },
+      {
+        "dimension": "Device / Platform Type",
+        "category": "Desktop Gateway",
+        "success_rate": 0.4,
+        "formatted_success_rate": "40.0%",
+        "failed_volume": 3,
+        "total_volume": 5,
+        "failed_revenue": 825.43,
+        "formatted_failed_revenue": "$825.43",
+        "severity": "CRITICAL"
+      }
+    ],
+    "primary_affected_segment": {
+      "dimension": "Payment Method / Gateway",
+      "category": "Credit Card (Stripe)",
+      "success_rate": 0.0789,
+      "formatted_success_rate": "7.9%",
+      "failed_volume": 35,
+      "total_volume": 38,
+      "failed_revenue": 6946.55,
+      "formatted_failed_revenue": "$6,946.55",
+      "severity": "CRITICAL"
+    }
+  },
+  "correlation_analysis": {
+    "crosstabs": {
+      "payment_method": {
+        "Bank Wire": {
+          "baseline_volume": 1268,
+          "problem_volume": 4,
+          "total_volume": 1272,
+          "problem_period_share": 1.0
+        },
+        "Credit Card (Stripe)": {
+          "baseline_volume": 7796,
+          "problem_volume": 38,
+          "total_volume": 7834,
+          "problem_period_share": 1.0
+        },
+        "Crypto": {
+          "baseline_volume": 647,
+          "problem_volume": 1,
+          "total_volume": 648,
+          "problem_period_share": 1.0
+        },
+        "Debit Card": {
+          "baseline_volume": 2419,
+          "problem_volume": 7,
+          "total_volume": 2426,
+          "problem_period_share": 1.0
+        }
+      },
+      "segment": {
+        "Enterprise": {
+          "baseline_volume": 6037,
+          "problem_volume": 25,
+          "total_volume": 6062,
+          "problem_period_share": 1.0
+        },
+        "SMB": {
+          "baseline_volume": 4318,
+          "problem_volume": 18,
+          "total_volume": 4336,
+          "problem_period_share": 1.0
+        },
+        "Startup": {
+          "baseline_volume": 1775,
+          "problem_volume": 7,
+          "total_volume": 1782,
+          "problem_period_share": 1.0
+        }
+      },
+      "region": {
+        "Asia Pacific - South": {
+          "baseline_volume": 1856,
+          "problem_volume": 8,
+          "total_volume": 1864,
+          "problem_period_share": 1.0
+        },
+        "Europe - Central": {
+          "baseline_volume": 3649,
+          "problem_volume": 14,
+          "total_volume": 3663,
+          "problem_period_share": 1.0
+        },
+        "LATAM": {
+          "baseline_volume": 1173,
+          "problem_volume": 9,
+          "total_volume": 1182,
+          "problem_period_share": 1.0
+        },
+        "North America - East": {
+          "baseline_volume": 5452,
+          "problem_volume": 19,
+          "total_volume": 5471,
+          "problem_period_share": 1.0
+        }
+      },
+      "device_type": {
+        "Desktop Gateway": {
+          "baseline_volume": 1503,
+          "problem_volume": 5,
+          "total_volume": 1508,
+          "problem_period_share": 1.0
+        },
+        "EDI Feed": {
+          "baseline_volume": 1027,
+          "problem_volume": 3,
+          "total_volume": 1030,
+          "problem_period_share": 1.0
+        },
+        "Mobile App": {
+          "baseline_volume": 2985,
+          "problem_volume": 11,
+          "total_volume": 2996,
+          "problem_period_share": 1.0
+        },
+        "Web API": {
+          "baseline_volume": 6615,
+          "problem_volume": 31,
+          "total_volume": 6646,
+          "problem_period_share": 1.0
+        }
+      }
+    },
+    "error_logs_analysis": {
+      "total_problem_failures": 35,
+      "top_10_errors": [
+        {
+          "rank": 1,
+          "error_message": "ERR_GATEWAY_TIMEOUT_504: Stripe Payment Gateway Connection Reset",
+          "occurrence_count": 28,
+          "concentration_ratio": 0.8,
+          "formatted_concentration": "80.0%"
+        },
+        {
+          "rank": 2,
+          "error_message": "ERR_SOCKET_HANGUP: TLS Handshake Timeout to Stripe API Endpoint",
+          "occurrence_count": 4,
+          "concentration_ratio": 0.1143,
+          "formatted_concentration": "11.4%"
+        },
+        {
+          "rank": 3,
+          "error_message": "ERR_STRIPE_AUTH_502: Upstream Payment Service Unavailable",
+          "occurrence_count": 3,
+          "concentration_ratio": 0.0857,
+          "formatted_concentration": "8.6%"
+        }
+      ],
+      "dominant_error": {
+        "message": "ERR_GATEWAY_TIMEOUT_504: Stripe Payment Gateway Connection Reset",
+        "concentration_ratio": 0.8,
+        "formatted_concentration": "80.0%"
+      }
+    },
+    "initial_hypothesis": {
+      "statement": "Primary payment gateway timeout (ERR_GATEWAY_TIMEOUT_504: Stripe Payment Gateway Connection Reset) on Stripe API endpoint caused catastrophic transaction authorization failures concentrated in Credit Card payment processing during peak operational volume.",
+      "confidence_rating": "HIGH",
+      "primary_driver": "ERR_GATEWAY_TIMEOUT_504: Stripe Payment Gateway Connection Reset"
+    }
+  },
+  "hypothesis_validation": {
+    "verdict": "ROOT CAUSE CONFIRMED",
+    "verdict_summary": "The outage was conclusively caused by an external Stripe payment gateway connection timeout between 14:02 and 14:55 UTC. Internal application microservices and unaffected payment methods (Debit, Wire, Crypto) maintained an optimal baseline success rate throughout the incident window.",
+    "timeline_validation": {
+      "provider": "Stripe Payments Infrastructure",
+      "external_incident_id": "INC-74921-STRIPE-GW",
+      "external_status": "Major Outage - API Gateway Timeouts",
+      "external_start_time": "2026-08-05 14:02:14 UTC",
+      "external_recovery_time": "2026-08-05 14:54:48 UTC",
+      "match_confidence": "100% Exact Timestamp Match"
+    },
+    "segment_alignment": {
+      "affected_channel": "Credit Card (Stripe)",
+      "affected_channel_success_rate": 0.0789,
+      "formatted_affected_rate": "7.9%",
+      "control_channels": "Debit Card, Bank Wire, Crypto",
+      "control_channels_success_rate": 1.0,
+      "formatted_control_rate": "100.0%",
+      "alignment_status": "VERIFIED_ISOLATED_OUTAGE"
+    }
+  }
+}
