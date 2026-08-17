@@ -1,0 +1,81 @@
+{
+  "level_1": {
+    "name": "Total Monthly Revenue",
+    "total_amount": 1250000.0,
+    "formatted_total": "$1,250,000.00"
+  },
+  "level_2_segments": {
+    "Enterprise": {
+      "subtotal": 750000.0,
+      "formatted_subtotal": "$750,000.00",
+      "categories": {
+        "Freight Forwarding": {
+          "amount": 350000.0,
+          "formatted_amount": "$350,000.00",
+          "pct_of_segment": 46.7
+        },
+        "Warehousing & Storage": {
+          "amount": 250000.0,
+          "formatted_amount": "$250,000.00",
+          "pct_of_segment": 33.3
+        },
+        "Customs Brokerage": {
+          "amount": 150000.0,
+          "formatted_amount": "$150,000.00",
+          "pct_of_segment": 20.0
+        }
+      },
+      "pct_of_total": 60.0
+    },
+    "SMB": {
+      "subtotal": 350000.0,
+      "formatted_subtotal": "$350,000.00",
+      "categories": {
+        "Last-Mile Delivery": {
+          "amount": 180000.0,
+          "formatted_amount": "$180,000.00",
+          "pct_of_segment": 51.4
+        },
+        "Warehousing & Storage": {
+          "amount": 100000.0,
+          "formatted_amount": "$100,000.00",
+          "pct_of_segment": 28.6
+        },
+        "Express Air Freight": {
+          "amount": 70000.0,
+          "formatted_amount": "$70,000.00",
+          "pct_of_segment": 20.0
+        }
+      },
+      "pct_of_total": 28.0
+    },
+    "Startup": {
+      "subtotal": 150000.0,
+      "formatted_subtotal": "$150,000.00",
+      "categories": {
+        "Last-Mile Delivery": {
+          "amount": 90000.0,
+          "formatted_amount": "$90,000.00",
+          "pct_of_segment": 60.0
+        },
+        "Express Air Freight": {
+          "amount": 40000.0,
+          "formatted_amount": "$40,000.00",
+          "pct_of_segment": 26.7
+        },
+        "Freight Forwarding": {
+          "amount": 20000.0,
+          "formatted_amount": "$20,000.00",
+          "pct_of_segment": 13.3
+        }
+      },
+      "pct_of_total": 12.0
+    }
+  },
+  "reconciliation": {
+    "level_3_to_level_2_match": true,
+    "level_2_to_level_1_match": true,
+    "status": "EXACT_MATCH",
+    "discrepancy_amount": 0.0
+  }
+}
