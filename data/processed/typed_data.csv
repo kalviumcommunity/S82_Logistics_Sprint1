@@ -1,0 +1,7 @@
+scan_date,transfer_date,trnx_amt,delay_cost,flag_cascading_delay,is_priority_shipment,route_id,carrier_id
+2025-01-15,2025-01-16,150.5,12.0,True,False,RT-MUM-DEL-04,CAR-DTDC-01
+2025-02-20,2025-02-21,200.0,0.0,False,True,RT-BLR-HYD-02,CAR-BLUE-01
+2025-03-10,2025-03-11,75.25,30.5,True,True,RT-MUM-DEL-04,CAR-DTDC-01
+2025-03-15,2025-03-16,500.0,45.0,True,False,RT-MUM-BOM-01,CAR-DTDC-02
+2025-04-01,2025-04-02,125.99,0.0,False,False,RT-BLR-HYD-02,CAR-BLUE-01
+2025-04-10,2025-04-11,320.0,18.75,False,True,RT-MUM-DEL-04,CAR-DTDC-01
