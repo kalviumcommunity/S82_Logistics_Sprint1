@@ -83,23 +83,25 @@ st.sidebar.divider()
 st.sidebar.header("Filters")
 
 # Reset buttons in sidebar
-col_btn1, col_btn2 = st.sidebar.columns(2)
-with col_btn1:
-    if st.button("Reset Filters"):
-        for k in ["date_filter", "segment_filter", "revenue_filter"]:
-            if k in st.session_state:
-                del st.session_state[k]
-        st.rerun()
+if st.sidebar.button("Reset Filters"):
+    for k in ["date_filter", "segment_filter", "revenue_filter"]:
+        if k in st.session_state:
+            del st.session_state[k]
+    st.rerun()
 
-with col_btn2:
-    # Task 4: Session state workflow reset
-    if st.button("Reset Workflow"):
-        # Explicitly reset session state variables to their initial default values
-        # This provides a clear, detailed reset mechanism as intended.
-        st.session_state["selected_segment"] = "All"
-        st.session_state["workflow_step"] = 1
-        st.session_state["analysis_result"] = None
-        st.rerun()
+st.sidebar.divider()
+
+# ---------------------------------------------------------------
+# TASK 4: RESET MECHANISM
+# Clicking this button explicitly resets every session state key
+# that drives the multi-step workflow back to its initial default
+# value, then reruns the script so the UI reflects the clean state.
+# ---------------------------------------------------------------
+if st.sidebar.button("🔄 Reset Workflow", type="primary"):
+    st.session_state["selected_segment"] = "All"   # default: no segment chosen
+    st.session_state["workflow_step"] = 1            # default: back to Step 1
+    st.session_state["analysis_result"] = None       # default: no cached result
+    st.rerun()
 
 # Ensure required columns exist for filtering
 has_date = "date" in df.columns and pd.api.types.is_datetime64_any_dtype(df["date"])
