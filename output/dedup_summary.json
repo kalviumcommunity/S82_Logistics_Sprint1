@@ -1,10 +1,10 @@
 {
-  "rows_before": 10000,
-  "rows_after": 4500,
-  "rows_removed": 5500,
-  "removal_percentage": 55.0,
-  "columns": 4,
-  "nulls_before": 0,
+  "rows_before": 11,
+  "rows_after": 7,
+  "rows_removed": 4,
+  "removal_percentage": 36.36,
+  "columns": 7,
+  "nulls_before": 2,
   "nulls_after": 0,
-  "timestamp": "2026-08-05T09:48:20.427687"
+  "timestamp": "2026-08-17T09:56:04.291356"
 }
