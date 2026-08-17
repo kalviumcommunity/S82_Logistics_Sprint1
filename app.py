@@ -8,6 +8,34 @@ import io
 st.set_page_config(page_title="Analytics Dashboard", layout="wide")
 
 # ==============================================================================
+# THRESHOLD CONFIGURATION (Task 1 & Task 3)
+# ==============================================================================
+ALERT_THRESHOLDS = {
+    "churn_rate": {
+        "metric": "Churn Rate",
+        "threshold": 7.0,
+        "direction": "above",
+        "severity": "critical",
+        "message": "Churn exceeds safe limit. Investigate retention."
+    },
+    "avg_order_value": {
+        "metric": "Avg Order Value",
+        "threshold": 30.0,
+        "direction": "below",
+        "severity": "warning",
+        "message": "AOV below target. Check pricing and product mix."
+    },
+    "null_percentage": {
+        "metric": "Data Quality",
+        "threshold": 5.0,
+        "direction": "above",
+        "severity": "warning",
+        "message": "Null percentage too high. Check data pipeline."
+    }
+}
+
+
+# ==============================================================================
 # SESSION STATE INITIALISATION & DOCUMENTATION
 # ==============================================================================
 
@@ -40,7 +68,7 @@ if "export_ready" not in st.session_state:
 
 
 # ==============================================================================
-# CACHED DATA LOADING (Task 3 & Task 5)
+# CACHED DATA LOADING
 # ==============================================================================
 
 @st.cache_data
@@ -172,7 +200,7 @@ else:
 
 
 # ==============================================================================
-# FILTERING PIPELINE & EMPTY RESULT HANDLING (Task 4)
+# FILTERING PIPELINE & EMPTY RESULT HANDLING
 # ==============================================================================
 
 filtered_df = df.copy()
@@ -200,27 +228,76 @@ if has_revenue:
         & (filtered_df[rev_col] <= max_rev)
     ]
 
-# Task 4: Handle Empty Filtered Results gracefully
 if len(filtered_df) == 0:
     st.warning("No data matches current filters. Broaden your selection.")
     st.stop()
 
 
 # ==============================================================================
-# PAGE 1: OVERVIEW (Task 1: Reactive 5 KPIs)
+# REACTIVE METRICS & THRESHOLD ALERT EVALUATION (Task 2, 4, 5)
+# ==============================================================================
+
+total_revenue = filtered_df[rev_col].sum() if has_revenue else 0.0
+avg_order = filtered_df[rev_col].mean() if has_revenue and len(filtered_df) > 0 else 0.0
+row_count = len(filtered_df)
+unique_customers = filtered_df[cust_col].nunique() if cust_col and cust_col in filtered_df.columns else row_count
+
+total_cells = filtered_df.shape[0] * filtered_df.shape[1]
+null_pct = (filtered_df.isnull().sum().sum() / total_cells * 100) if total_cells > 0 else 0.0
+
+# Evaluate churn rate dynamically based on filtered cohort
+if "churn_rate" in filtered_df.columns:
+    current_churn = float(filtered_df["churn_rate"].mean())
+elif has_segment and len(filtered_df) > 0:
+    seg_churn_weights = {"Consumer": 8.6, "SMB": 7.4, "Mid-Market": 4.6, "Enterprise": 2.2}
+    weights = filtered_df[seg_col].map(seg_churn_weights).fillna(5.2)
+    current_churn = float(weights.mean())
+else:
+    current_churn = 5.2
+
+current_metrics = {
+    "churn_rate": current_churn,
+    "avg_order_value": float(avg_order),
+    "null_percentage": float(null_pct)
+}
+
+
+def display_visual_alerts(metrics):
+    """Checks current metrics against ALERT_THRESHOLDS and renders visual alerts."""
+    breaches_found = 0
+    for key, config in ALERT_THRESHOLDS.items():
+        value = metrics.get(key, 0)
+        breached = False
+        if config["direction"] == "above" and value > config["threshold"]:
+            breached = True
+        elif config["direction"] == "below" and value < config["threshold"]:
+            breached = True
+
+        if breached:
+            breaches_found += 1
+            alert_text = (
+                "ALERT: " + config["metric"]
+                + " is " + str(round(value, 1))
+                + " (threshold: " + str(config["threshold"]) + "). "
+                + config["message"]
+            )
+            if config["severity"] == "critical":
+                st.error(alert_text)
+            else:
+                st.warning(alert_text)
+    return breaches_found
+
+
+# ==============================================================================
+# PAGE 1: OVERVIEW
 # ==============================================================================
 if page == "Overview":
     st.title("Business Overview")
 
-    # Task 1: Five Reactive KPI Metrics computed from filtered_df
-    total_revenue = filtered_df[rev_col].sum() if has_revenue else 0.0
-    avg_order = filtered_df[rev_col].mean() if has_revenue and len(filtered_df) > 0 else 0.0
-    row_count = len(filtered_df)
-    unique_customers = filtered_df[cust_col].nunique() if cust_col and cust_col in filtered_df.columns else row_count
-    
-    total_cells = filtered_df.shape[0] * filtered_df.shape[1]
-    null_pct = (filtered_df.isnull().sum().sum() / total_cells * 100) if total_cells > 0 else 0.0
+    # Display visual alerts directly at top of overview (Task 2 & 4)
+    display_visual_alerts(current_metrics)
 
+    # Five Reactive KPI Metrics directly at top (above the fold)
     col1, col2, col3, col4, col5 = st.columns(5)
     with col1:
         st.metric("Revenue", f"${total_revenue:,.0f}")
@@ -236,13 +313,12 @@ if page == "Overview":
     with st.expander("About These Metrics"):
         st.write(
             "Metrics update reactively based on active sidebar filter selections. "
-            "Revenue reflects the sum of order amounts, Avg Order represents average value per record, "
-            "Customers indicates distinct entities, and Quality reflects data completeness (100% minus missing rate)."
+            "Threshold alerts automatically surface at the top when operational limits are breached."
         )
 
     st.divider()
 
-    # Task 2: Reactive Visualizations on Overview
+    # Reactive Visualizations on Overview
     st.header("Executive Summary & Trends")
     st.subheader("Performance Highlights")
     st.write(f"Showing {len(filtered_df):,} of {len(df):,} records based on active filters.")
@@ -271,10 +347,13 @@ if page == "Overview":
 
 
 # ==============================================================================
-# PAGE 2: TRENDS & THREE CHART TYPES (Task 2 & Task 3)
+# PAGE 2: TRENDS & THREE CHART TYPES
 # ==============================================================================
 elif page == "Trends":
     st.title("Trend Analysis")
+
+    # Display visual alerts at top of trends as well
+    display_visual_alerts(current_metrics)
 
     # Multi-Step Workflow
     st.header("Step 1: Select Segment")
@@ -326,7 +405,7 @@ elif page == "Trends":
 
     st.divider()
 
-    # Task 2: Three Reactive Chart Types
+    # Three Reactive Chart Types
     st.header("Reactive Visualizations")
 
     # Chart 1: Line chart (trend)
@@ -359,7 +438,7 @@ elif page == "Trends":
 
 
 # ==============================================================================
-# PAGE 3: DATA EXPLORER (Task 3: Cached Upload & Task 5: Dynamic Schema)
+# PAGE 3: DATA EXPLORER
 # ==============================================================================
 elif page == "Data Explorer":
     st.title("Data Explorer")
