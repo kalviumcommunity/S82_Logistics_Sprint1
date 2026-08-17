@@ -6,6 +6,8 @@ import UserManagementTable from './UserManagementTable.jsx';
 import ModelTelemetryCard from './ModelTelemetryCard.jsx';
 import DataPipelineHealthCard from './DataPipelineHealthCard.jsx';
 import CascadingKpiCard from './CascadingKpiCard.jsx';
+import KpiGovernanceCard from './KpiGovernanceCard.jsx';
+import RootCauseInvestigationCard from './RootCauseInvestigationCard.jsx';
 import FacilityCongestionHeatmap from './FacilityCongestionHeatmap.jsx';
 import {
   Cpu, Database, ShieldAlert, Users, Terminal, ShieldCheck,
@@ -164,6 +166,12 @@ export const AdminPanel = () => {
 
       {/* Data Pre-Processing & Pipeline Quality Card */}
       <DataPipelineHealthCard analyticsRes={summaryData} />
+
+      {/* KPI Definition, Computation & Validation Governance Card */}
+      <KpiGovernanceCard />
+
+      {/* Root Cause Investigation & Diagnostic Center Card */}
+      <RootCauseInvestigationCard />
 
       {/* Facility Congestion & Yard Saturation Heatmap Grid */}
       <FacilityCongestionHeatmap heatmaps={summaryData?.facilityCongestionHeatmaps || []} />
