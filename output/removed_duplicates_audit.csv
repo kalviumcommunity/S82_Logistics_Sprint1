@@ -1,0 +1,3 @@
+shipment_id,route_id,carrier_id,scan_timestamp,delay_minutes,trnx_amt,flag_cascading_delay
+SHP-003,RT-MUM-DEL-04,CAR-DTDC-01,2025-01-15 10:00,,175.0,1
+SHP-004,RT-MUM-DEL-04,CAR-DTDC-02,2025-01-15 11:30,30.0,,0
